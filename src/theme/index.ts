@@ -1,13 +1,11 @@
 import { extendTheme, type ThemeConfig } from '@chakra-ui/react';
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools';
 
-// Color mode configuration
 const config: ThemeConfig = {
   initialColorMode: 'light',
   useSystemColorMode: false,
 };
 
-// Colors from the theme documentation
 const colors = {
   brand: {
     50: "#FFEEE5",
@@ -21,7 +19,6 @@ const colors = {
     800: "#662200",
     900: "#331100"
   },
-  // Semantic color system based on documentation
   primary: {
     light: "#E04B00",
     dark: "#FF7A40",
@@ -56,11 +53,11 @@ const colors = {
   },
   success: {
     light: "#1DB881",
-    dark: "#00C274"
+    dark: "#45B649"
   },
   error: {
     light: "#D42158",
-    dark: "#F03E6A"
+    dark: "#D42158"
   },
   info: {
     light: "#6495ED",
@@ -110,15 +107,12 @@ const colors = {
   }
 };
 
-// Fonts configuration
 const fonts = {
   heading: 'var(--font-poppins), system-ui, sans-serif',
   body: 'var(--font-poppins), system-ui, sans-serif',
 };
 
-// Custom component styles
 const components = {
-  // Button customization
   Button: {
     baseStyle: {
       fontWeight: 'semibold',
@@ -222,8 +216,6 @@ const components = {
       variant: 'solid',
     },
   },
-  
-  // Switch customization
   Switch: {
     baseStyle: (props: StyleFunctionProps) => ({
       track: {
@@ -238,7 +230,6 @@ const components = {
     }),
   },
   
-  // Input customization
   Input: {
     variants: {
       outline: (props: StyleFunctionProps) => ({
@@ -263,15 +254,11 @@ const components = {
       variant: 'outline',
     }
   },
-  
-  // Heading customization
   Heading: {
     baseStyle: (props: StyleFunctionProps) => ({
       color: props.colorMode === 'dark' ? 'text.primary.dark' : 'text.primary.light',
     }),
   },
-  
-  // Text customization
   Text: {
     baseStyle: (props: StyleFunctionProps) => ({
       color: props.colorMode === 'dark' ? 'text.secondary.dark' : 'text.secondary.light',
@@ -291,8 +278,7 @@ const components = {
       }),
     },
   },
-  
-  // Badge customization
+
   Badge: {
     variants: {
       tertiary: (props: StyleFunctionProps) => ({
@@ -302,8 +288,6 @@ const components = {
     },
   },
 };
-
-// Global styles
 const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
@@ -313,7 +297,6 @@ const styles = {
   }),
 };
 
-// Create and export the theme
 const theme = extendTheme({
   config,
   colors,
