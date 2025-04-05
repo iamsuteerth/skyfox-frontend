@@ -22,6 +22,7 @@ import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { useAuth } from '@/contexts/auth-context';
 import NextLink from 'next/link';
 import { APP_ROUTES } from '@/constants';
+import { usePathname } from 'next/navigation';
 
 const formatRole = (role?: string) => {
   if (!role) return '';
@@ -31,9 +32,16 @@ const formatRole = (role?: string) => {
 export default function Header() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   const bg = 'background.primary';
   const borderColor = 'surface.light';
+
+  const validRoutes = {
+    shows: APP_ROUTES.SHOWS,
+  };
+  
+  const isActive = (route: string) => pathname === route;
 
   return (
     <Box bg={bg} px={4} boxShadow="sm" borderBottom="1px" borderColor={borderColor}>
@@ -52,7 +60,7 @@ export default function Header() {
             style={{ textDecoration: 'none' }}
           >
             <HStack>
-              <Image src="/globe.svg" alt="SkyFox Logo" boxSize="32px" />
+              <Image src="/assets/logo.png" alt="SkyFox Logo" boxSize="32px" />
               <Text
                 fontFamily={'heading'}
                 fontWeight="bold"
@@ -68,11 +76,11 @@ export default function Header() {
             <Button
               as={NextLink}
               href={APP_ROUTES.SHOWS}
-              variant="ghost"
+              variant={isActive(validRoutes.shows) ? "solid" : "ghost"}
             >
               Shows
             </Button>
-            {user?.role === 'admin' && (
+            {/* {user?.role === 'admin' && (
               <>
                 <Button
                   as={NextLink}
@@ -89,8 +97,8 @@ export default function Header() {
                   Manage Shows
                 </Button>
               </>
-            )}
-            {user?.role === 'staff' && (
+            )} */}
+            {/* {user?.role === 'staff' && (
               <Button
                 as={NextLink}
                 href="/staff/check-in"
@@ -98,7 +106,7 @@ export default function Header() {
               >
                 Check-In
               </Button>
-            )}
+            )} */}
           </HStack>
         </HStack>
         <Flex alignItems={'center'}>
@@ -126,11 +134,11 @@ export default function Header() {
               <MenuItem as={NextLink} href="/profile" bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Profile
               </MenuItem>
-              {user?.role === 'customer' && (
+              {/* {user?.role === 'customer' && (
                 <MenuItem as={NextLink} href="/bookings" bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                   My Bookings
                 </MenuItem>
-              )}
+              )} */}
               <MenuDivider borderColor="surface.light" />
               <MenuItem onClick={logout} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Sign Out
@@ -152,7 +160,7 @@ export default function Header() {
             >
               Shows
             </Button>
-            {user?.role === 'admin' && (
+            {/* {user?.role === 'admin' && (
               <>
                 <Button
                   as={NextLink}
@@ -181,16 +189,8 @@ export default function Header() {
               >
                 Check-In
               </Button>
-            )}
-            <Button
-              as={NextLink}
-              href="/profile"
-              w="full" 
-              variant="ghost"
-            >
-              Profile
-            </Button>
-            {user?.role === 'customer' && (
+            )} */}
+            {/* {user?.role === 'customer' && (
               <Button
                 as={NextLink}
                 href="/bookings"
@@ -199,14 +199,7 @@ export default function Header() {
               >
                 My Bookings
               </Button>
-            )}
-            <Button 
-              w="full" 
-              variant="ghost" 
-              onClick={logout}
-            >
-              Sign Out
-            </Button>
+            )} */}
           </Stack>
         </Box>
       )}

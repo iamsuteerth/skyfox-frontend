@@ -23,11 +23,9 @@ export default function NotFound() {
       
       const interval = setInterval(() => {
         setRedirectTimeLeft((prev) => {
-          // When we hit zero, trigger the redirect
           if (prev <= 1) {
             clearInterval(interval);
             router.push(APP_ROUTES.SHOWS);
-            // Set to 0 to prevent going negative
             return 0;
           }
           return prev - 1;
@@ -54,7 +52,6 @@ export default function NotFound() {
           <Heading size="lg" color={headingColor}>Page Not Found</Heading>
           <Text color={textColor}>The page you are looking for doesn't exist or has been moved.</Text>
           
-          {/* Auth-dependent content with loading state */}
           <Box minH="60px" display="flex" alignItems="center" justifyContent="center">
             {isLoading ? (
               <Spinner color="primary" size="md" />
@@ -66,7 +63,6 @@ export default function NotFound() {
               )
             )}
             
-            {/* Show this when countdown is complete but still waiting for navigation */}
             {isRedirecting && redirectTimeLeft === 0 && (
               <Text color={textColor}>
                 Redirecting now...
