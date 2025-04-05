@@ -1,11 +1,11 @@
-// src/app/components/protected-route.tsx
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { APP_ROUTES, ERROR_MESSAGES } from '@/constants';
-import { Box, Spinner, Center, useToast } from '@chakra-ui/react';
+import { Box, Spinner, Center } from '@chakra-ui/react';
+import { useCustomToast } from '@/app/components/ui/custom-toast';
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -18,55 +18,50 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const toast = useToast();
-  // Add immediate loading state
+  const { showToast } = useCustomToast();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  
+  const bgColor = 'background.primary';
+  const spinnerColor = 'primary';
+  const spinnerEmptyColor = 'surface.light';
 
   useEffect(() => {
-    // If authentication is still loading, wait
     if (isLoading) return;
 
-    // If no user, redirect to login immediately
     if (!user) {
       router.push(APP_ROUTES.LOGIN);
       return;
     }
 
-    // Check role-based access
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-      toast({
-        title: 'Unauthorized',
+      showToast({
+        type: 'error',
+        title: 'Error',
         description: ERROR_MESSAGES.FORBIDDEN,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-        position: 'top-right'
       });
-      
+
       router.push(APP_ROUTES.SHOWS);
       return;
     }
 
-    // Only set authorized if all checks pass
     setIsAuthorized(true);
-  }, [user, isLoading, router, allowedRoles, toast]);
+  }, [user, isLoading, router, allowedRoles, showToast]);
 
-  // Always show loading spinner until explicitly authorized
   if (isLoading || !isAuthorized) {
     return (
-      <Center h="100vh">
-        <Spinner 
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="primary.light"
-          _dark={{ color: 'primary.dark' }}
-          size="xl"
-        />
-      </Center>
+      <Box bg={bgColor} minH="100vh" w="100%">
+        <Center h="100vh">
+          <Spinner 
+            thickness="4px"
+            speed="0.65s"
+            emptyColor={spinnerEmptyColor}
+            color={spinnerColor}
+            size="xl"
+          />
+        </Center>
+      </Box>
     );
   }
 
-  // Only render children if authorized
   return <>{children}</>;
 }

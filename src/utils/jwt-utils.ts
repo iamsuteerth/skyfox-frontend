@@ -1,9 +1,7 @@
-// src/utils/jwt-utils.ts
 interface DecodedToken {
     username: string;
     role: string;
-    exp: number; // Expiration timestamp
-    // ...other fields
+    exp: number; 
   }
   
   export const decodeToken = (token: string): DecodedToken | null => {
@@ -22,7 +20,6 @@ interface DecodedToken {
     const decoded = decodeToken(token);
     if (!decoded) return true;
     
-    // Check if token is expired (exp is in seconds, Date.now() is in milliseconds)
     return decoded.exp * 1000 < Date.now();
   };
   

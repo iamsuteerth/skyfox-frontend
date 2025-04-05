@@ -1,4 +1,3 @@
-// src/app/components/ui/header.tsx
 'use client';
 
 import {
@@ -13,7 +12,6 @@ import {
   MenuItem,
   MenuDivider,
   useDisclosure,
-  useColorModeValue,
   Stack,
   Avatar,
   Text,
@@ -22,7 +20,6 @@ import {
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { useAuth } from '@/contexts/auth-context';
-import ColorModeSwitcher from './color-mode-switcher';
 import NextLink from 'next/link';
 import { APP_ROUTES } from '@/constants';
 
@@ -35,8 +32,8 @@ export default function Header() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, logout } = useAuth();
 
-  const bg = useColorModeValue('background.primary.light', 'background.primary.dark');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const bg = 'background.primary';
+  const borderColor = 'surface.light';
 
   return (
     <Box bg={bg} px={4} boxShadow="sm" borderBottom="1px" borderColor={borderColor}>
@@ -61,6 +58,7 @@ export default function Header() {
                 fontWeight="bold"
                 fontSize="xl"
                 display={{ base: 'none', md: 'flex' }}
+                color="text.primary"
               >
                 SkyFox
               </Text>
@@ -104,9 +102,6 @@ export default function Header() {
           </HStack>
         </HStack>
         <Flex alignItems={'center'}>
-          <Box mr={2}>
-            <ColorModeSwitcher />
-          </Box>
           <Menu>
             <MenuButton
               as={Button}
@@ -117,27 +112,29 @@ export default function Header() {
               {user?.role === 'customer' ? (
                 <Avatar size={'sm'} src={'/default-profile.jpg'} />
               ) : (
-                <Avatar size={'sm'} bg="primary.light" _dark={{ bg: 'primary.dark' }} />
+                <Avatar size={'sm'} bg="primary" />
               )}
             </MenuButton>
-            <MenuList>
-              <Text px={3} py={2} fontWeight="bold">
+            <MenuList bg="background.primary" borderColor="surface.light">
+              <Text px={3} py={2} fontWeight="bold" color="text.primary">
                 {user?.username}
               </Text>
-              <Text px={3} pb={2} fontSize="sm" color="gray.500">
+              <Text px={3} pb={2} fontSize="sm" color="text.tertiary">
                 {formatRole(user?.role)}
               </Text>
-              <MenuDivider />
-              <MenuItem as={NextLink} href="/profile">
+              <MenuDivider borderColor="surface.light" />
+              <MenuItem as={NextLink} href="/profile" bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Profile
               </MenuItem>
               {user?.role === 'customer' && (
-                <MenuItem as={NextLink} href="/bookings">
+                <MenuItem as={NextLink} href="/bookings" bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                   My Bookings
                 </MenuItem>
               )}
-              <MenuDivider />
-              <MenuItem onClick={logout}>Sign Out</MenuItem>
+              <MenuDivider borderColor="surface.light" />
+              <MenuItem onClick={logout} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
+                Sign Out
+              </MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -145,7 +142,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <Box pb={4} display={{ md: 'none' }}>
+        <Box pb={4} display={{ md: 'none' }} bg={bg}>
           <Stack as={'nav'} spacing={4}>
             <Button
               as={NextLink}

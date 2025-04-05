@@ -14,7 +14,9 @@
     "@chakra-ui/react": "^2.10.7",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@types/js-cookie": "^3.0.6",
     "framer-motion": "^12.6.3",
+    "js-cookie": "^3.0.5",
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

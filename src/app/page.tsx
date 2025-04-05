@@ -1,36 +1,40 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Text, useColorMode } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { APP_ROUTES } from '@/constants';
-import ColorModeSwitcher from '@/app/components/ui/color-mode-switcher';
+import { useAuth } from '@/contexts/auth-context';
+import { Box, Center, Spinner } from '@chakra-ui/react';
 
 export default function Home() {
-  const { colorMode } = useColorMode();
   const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  const bgColor = 'background.primary'
+  const spinnerColor = 'primary'
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        router.push(APP_ROUTES.SHOWS);
+      } else {
+        router.push(APP_ROUTES.LOGIN);
+      }
+    }
+  }, [isLoading, user, router]);
 
   return (
-    <Box minH="100vh" p={8} maxW="1200px" mx="auto">
-      <Flex justify="space-between" align="center" mb={8}>
-        <Heading>SkyFox Cinema Development</Heading>
-        <ColorModeSwitcher />
-      </Flex>
-      
-      <Text mb={6}>Welcome to SkyFox Cinema development page.</Text>
-      
-      <Flex direction="column" gap={4} maxW="400px">
-        <Button onClick={() => router.push(APP_ROUTES.LOGIN)} colorScheme="orange">
-          Go to Login Page
-        </Button>
-        
-        <Button onClick={() => router.push(APP_ROUTES.SHOWS)} colorScheme="blue">
-          Go to Shows Page
-        </Button>
-        
-        <Button onClick={() => router.push('/theme-preview')} colorScheme="purple">
-          View Theme Preview
-        </Button>
-      </Flex>
+    <Box bg={bgColor} minH="100vh" w="100%">
+      <Center h="100vh">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          color={spinnerColor}
+          emptyColor="surface.light" 
+          size="xl"
+        />
+
+      </Center>
     </Box>
   );
 }

@@ -1,6 +1,6 @@
 import { API_ROUTES } from '@/constants';
 import { handleApiError } from '@/utils/error-utils';
-// Types
+
 export type LoginRequest = {
   username: string;
   password: string;

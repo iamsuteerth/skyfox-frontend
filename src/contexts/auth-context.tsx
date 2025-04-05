@@ -1,12 +1,24 @@
-// src/contexts/auth-context.tsx
 'use client';
 
 import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@chakra-ui/react'; // Change this import
+import { useCustomToast } from '@/app/components/ui/custom-toast';
 import { login as loginService } from '@/services/auth-service';
 import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
 import { getUserFromToken, isTokenExpired } from '@/utils/jwt-utils';
+import Cookies from 'js-cookie'
+
+const setTokenCookie = (token: string) => {
+  Cookies.set('auth-token', token, { expires: 1, sameSite: 'strict' });
+};
+
+const removeTokenCookie = () => {
+  Cookies.remove('auth-token');
+};
+
+const getTokenFromCookie = () => {
+  return Cookies.get('auth-token') || null;
+};
 
 type User = {
   username: string;
@@ -29,33 +41,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const toast = useToast(); // Move this outside the login function
+  const { showToast } = useCustomToast();
 
-  // Check if user is already logged in
   useEffect(() => {
     setIsLoading(true);
-
+    
     try {
-      const storedToken = localStorage.getItem('token');
-
-      // If token exists and is valid, extract user data from it
+      const storedToken = getTokenFromCookie();
+      
       if (storedToken && !isTokenExpired(storedToken)) {
-        const userData = getUserFromToken(storedToken);
-
-        if (userData) {
-          setToken(storedToken);
-          // Only redirect if not already on shows page
-          if (window.location.pathname !== APP_ROUTES.SHOWS) {
-            router.push(APP_ROUTES.SHOWS);
-          }
-        } else {
-          // Token is invalid or expired
-          localStorage.removeItem('token');
+        setToken(storedToken);
+        if (window.location.pathname !== APP_ROUTES.SHOWS) {
+          router.push(APP_ROUTES.SHOWS);
         }
+      } else {
+        removeTokenCookie();
       }
     } catch (error) {
       console.error('Error loading auth state:', error);
-      localStorage.removeItem('token');
+      removeTokenCookie();
     } finally {
       setIsLoading(false);
     }
@@ -72,46 +76,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(response.message || ERROR_MESSAGES.INVALID_CREDENTIALS);
       }
 
-      // Store token and user data
-      localStorage.setItem('token', response.data.token);
-
+      setTokenCookie(response.data.token);
       setToken(response.data.token);
 
-      toast({
+      showToast({
+        type: 'success',
         title: 'Success',
         description: SUCCESS_MESSAGES.LOGIN_SUCCESS,
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom'
       });
-      // Redirect to shows page
+      
       router.push(APP_ROUTES.SHOWS);
     } catch (err: any) {
       console.error('Login error:', err);
-
-      // Handle specific error types
+      
       if (err.statusCode === 400) {
         setError(ERROR_MESSAGES.INVALID_REQUEST);
-      }
+      } 
       else if (err.statusCode === 401) {
-        // For 401, use the exact message from the API
         setError(err.message);
       }
       else if (err.isNetworkError) {
         setError(ERROR_MESSAGES.NETWORK_ERROR);
       }
       else {
-        // Default fallback
         setError(err.message || ERROR_MESSAGES.GENERIC_ERROR);
       }
+      showToast({
+        type: 'error',
+        title: 'Error',
+        description: err.message || ERROR_MESSAGES.GENERIC_ERROR,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    removeTokenCookie();
     setToken(null);
     router.push(APP_ROUTES.LOGIN);
   };

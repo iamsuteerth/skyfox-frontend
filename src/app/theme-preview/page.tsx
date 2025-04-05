@@ -1,4 +1,3 @@
-// src/app/theme-preview/page.tsx
 'use client';
 
 import { 
@@ -8,7 +7,6 @@ import {
   Stack, 
   Button, 
   Input, 
-  useColorMode, 
   Switch, 
   Flex, 
   Grid, 
@@ -22,29 +20,21 @@ import {
   VStack,
   HStack
 } from '@chakra-ui/react';
-import ColorModeSwitcher from '@/app/components/ui/color-mode-switcher';
-import Header from '@/app/components/ui/header';
+import Header from '@/app/components/header';
 
 export default function ThemePreview() {
-  const { colorMode } = useColorMode();
-
   return (
     <>
       <Header />
-      <Box p={8} maxWidth="1200px" mx="auto">
+      <Box p={8} maxWidth="1200px" mx="auto" bg="background.primary">
         <Flex justify="space-between" align="center" mb={8}>
           <Heading size="lg">Skyfox Theme Preview</Heading>
-          <ColorModeSwitcher />
         </Flex> 
-
-        <Text mb={8}>
-          Current mode: <Badge colorScheme={colorMode === 'dark' ? 'blue' : 'orange'}>{colorMode}</Badge>
-        </Text>
 
         <Grid templateColumns={{base: "1fr", md: "repeat(2, 1fr)"}} gap={8}>
           {/* Typography Section */}
           <GridItem>
-            <Card>
+            <Card bg="background.primary"> 
               <CardHeader>
                 <Heading size="md">Typography</Heading>
               </CardHeader>
@@ -79,29 +69,29 @@ export default function ThemePreview() {
 
           {/* Colors Section */}
           <GridItem>
-            <Card>
+            <Card bg="background.primary">
               <CardHeader>
                 <Heading size="md">Brand Colors</Heading>
               </CardHeader>
               <CardBody>
                 <Stack spacing={3}>
-                  <Box p={3} bg="primary.light" _dark={{bg: "primary.dark"}} borderRadius="md">
+                  <Box p={3} bg="primary" borderRadius="md">
                     <Text color="white">Primary</Text>
                   </Box>
-                  <Box p={3} bg="secondary.light" _dark={{bg: "secondary.dark"}} borderRadius="md">
-                    <Text color={colorMode === 'dark' ? 'white' : 'black'}>Secondary</Text>
+                  <Box p={3} bg="secondary" borderRadius="md">
+                    <Text color="text.primary">Secondary</Text>
                   </Box>
-                  <Box p={3} bg="tertiary.light" _dark={{bg: "tertiary.dark"}} borderRadius="md">
+                  <Box p={3} bg="tertiary" borderRadius="md">
                     <Text color="white">Tertiary</Text>
                   </Box>
                   <HStack>
-                    <Box p={3} bg="success.light" _dark={{bg: "success.dark"}} borderRadius="md" flex="1">
+                    <Box p={3} bg="success" borderRadius="md" flex="1">
                       <Text color="white">Success</Text>
                     </Box>
-                    <Box p={3} bg="error.light" _dark={{bg: "error.dark"}} borderRadius="md" flex="1">
+                    <Box p={3} bg="error" borderRadius="md" flex="1">
                       <Text color="white">Error</Text>
                     </Box>
-                    <Box p={3} bg="info.light" _dark={{bg: "info.dark"}} borderRadius="md" flex="1">
+                    <Box p={3} bg="info" borderRadius="md" flex="1">
                       <Text color="white">Info</Text>
                     </Box>
                   </HStack>
@@ -112,7 +102,7 @@ export default function ThemePreview() {
 
           {/* Buttons Section */}
           <GridItem>
-            <Card>
+            <Card bg="background.primary">
               <CardHeader>
                 <Heading size="md">Buttons</Heading>
               </CardHeader>
@@ -145,7 +135,7 @@ export default function ThemePreview() {
 
           {/* Form Controls Section */}
           <GridItem>
-            <Card>
+            <Card bg="background.primary">
               <CardHeader>
                 <Heading size="md">Form Controls</Heading>
               </CardHeader>
@@ -168,9 +158,9 @@ export default function ThemePreview() {
                     <Text fontSize="xs" variant="quaternary" mb={1}>Tags & Badges</Text>
                     <HStack spacing={2}>
                       <Badge variant="tertiary">Badge</Badge>
-                      <Tag bg="tertiary.light" _dark={{bg: "tertiary.dark"}} color="white">Tag 1</Tag>
-                      <Tag bg="primary.light" _dark={{bg: "primary.dark"}} color="white">Tag 2</Tag>
-                      <Tag bg="secondary.light" _dark={{bg: "secondary.dark"}} color={colorMode === 'dark' ? 'white' : 'black'}>Tag 3</Tag>
+                      <Tag bg="tertiary" color="white">Tag 1</Tag>
+                      <Tag bg="primary" color="white">Tag 2</Tag>
+                      <Tag bg="secondary" color="text.primary">Tag 3</Tag>
                     </HStack>
                   </Box>
                 </VStack>
@@ -180,22 +170,22 @@ export default function ThemePreview() {
 
           {/* Surfaces Section */}
           <GridItem colSpan={{base: 1, md: 2}}>
-            <Card>
+            <Card bg="background.primary">
               <CardHeader>
                 <Heading size="md">Surface & Background Colors</Heading>
               </CardHeader>
               <CardBody>
                 <Grid templateColumns={{base: "1fr", md: "repeat(4, 1fr)"}} gap={4}>
-                  <Box p={3} bg="background.primary.light" _dark={{bg: "background.primary.dark"}} borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
+                  <Box p={3} bg="background.primary" borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center" border="1px solid" borderColor="surface.light">
                     <Text variant="tertiary">Background Primary</Text>
                   </Box>
-                  <Box p={3} bg="background.secondary.light" _dark={{bg: "background.secondary.dark"}} borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
+                  <Box p={3} bg="background.secondary" borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
                     <Text variant="tertiary">Background Secondary</Text>
                   </Box>
-                  <Box p={3} bg="surface.light.light" _dark={{bg: "surface.light.dark"}} borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
+                  <Box p={3} bg="surface.light" borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
                     <Text variant="tertiary">Surface Light</Text>
                   </Box>
-                  <Box p={3} bg="surface.dark.light" _dark={{bg: "surface.dark.dark"}} borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
+                  <Box p={3} bg="surface.dark" borderRadius="md" height="100px" display="flex" alignItems="center" justifyContent="center">
                     <Text variant="tertiary" color="white">Surface Dark</Text>
                   </Box>
                 </Grid>

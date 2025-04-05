@@ -1,4 +1,3 @@
-// src/utils/error-utils.ts
 import { ERROR_MESSAGES } from '@/constants';
 
 export type ApiErrorResponse = {
@@ -27,12 +26,11 @@ export const handleApiError = (error: any, statusCode?: number): string => {
     }
   }
 
-  // If it's our API error format
+  // If it's backend API error format
   if (error && error.status === 'ERROR') {
     return error.message;
   }
 
-  // Handle network errors
   if (error instanceof Error) {
     if (error.message.includes('fetch')) {
       return ERROR_MESSAGES.NETWORK_ERROR;

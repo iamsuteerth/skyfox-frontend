@@ -1,9 +1,9 @@
 import { extendTheme, type ThemeConfig } from '@chakra-ui/react';
-import type { StyleFunctionProps } from '@chakra-ui/theme-tools';
 
 const config: ThemeConfig = {
   initialColorMode: 'light',
   useSystemColorMode: false,
+  disableTransitionOnChange: false,
 };
 
 const colors = {
@@ -19,91 +19,25 @@ const colors = {
     800: "#662200",
     900: "#331100"
   },
-  primary: {
-    light: "#E04B00",
-    dark: "#FF7A40",
-    hover: {
-      light: "#CC4300",
-      dark: "#FF6A2D"
-    },
-    active: {
-      light: "#B03B00",
-      dark: "#E35A1F"
-    },
-    focus: {
-      light: "#FFD9C7",
-      dark: "#A9451F"
-    }
-  },
-  secondary: {
-    light: "#FFB199",
-    dark: "#A9451F",
-    hover: {
-      light: "#FFB699",
-      dark: "#B8562E"
-    },
-    active: {
-      light: "#E8A289",
-      dark: "#98421E"
-    },
-    focus: {
-      light: "#FFEDE6",
-      dark: "#693218"
-    }
-  },
-  success: {
-    light: "#1DB881",
-    dark: "#45B649"
-  },
-  error: {
-    light: "#D42158",
-    dark: "#D42158"
-  },
-  info: {
-    light: "#6495ED",
-    dark: "#7AA7FF"
-  },
-  tertiary: {
-    light: "#CBA891",
-    dark: "#9B7053"
-  },
+  primary: "#E04B00",
+  secondary: "#FFB199",
+  success: "#228B22",
+  error: "#D42158",
+  info: "#6495ED",
+  tertiary: "#CBA891",
   background: {
-    primary: {
-      light: "#FFFFFF",
-      dark: "#121212"
-    },
-    secondary: {
-      light: "#F0F0F5",
-      dark: "#1E1E1E"
-    }
+    primary: "#FFFFFF",
+    secondary: "#F0F0F5"
   },
   surface: {
-    light: {
-      light: "#D8DADC",
-      dark: "#3A3A3A"
-    },
-    dark: {
-      light: "#5C6063",
-      dark: "#252525"
-    }
+    light: "#D8DADC",
+    dark: "#5C6063"
   },
   text: {
-    primary: {
-      light: "#161A1E",
-      dark: "#FFFFFF"
-    },
-    secondary: {
-      light: "#404348",
-      dark: "#E0E0E0"
-    },
-    tertiary: {
-      light: "#666A6D",
-      dark: "#A0A0A0"
-    },
-    quaternary: {
-      light: "#8E9091",
-      dark: "#7E7E7E"
-    }
+    primary: "#161A1E",
+    secondary: "#404348",
+    tertiary: "#666A6D",
+    quaternary: "#8E9091"
   }
 };
 
@@ -119,182 +53,172 @@ const components = {
       borderRadius: 'md',
     },
     variants: {
-      solid: (props: StyleFunctionProps) => ({
-        bg: props.colorMode === 'dark' ? 'primary.dark' : 'primary.light',
+      solid: {
+        bg: 'primary',
         color: 'white',
         _hover: {
-          bg: props.colorMode === 'dark' ? 'primary.hover.dark' : 'primary.hover.light',
+          bg: "#CC4300",
         },
         _active: {
-          bg: props.colorMode === 'dark' ? 'primary.active.dark' : 'primary.active.light',
+          bg: "#B03B00",
         },
         _focus: {
-          boxShadow: `0 0 0 3px ${props.colorMode === 'dark' ? colors.primary.focus.dark : colors.primary.focus.light}`,
+          boxShadow: `0 0 0 3px #FFD9C7`,
         }
-      }),
-      outline: (props: StyleFunctionProps) => ({
-        borderColor: props.colorMode === 'dark' ? 'primary.dark' : 'primary.light',
-        color: props.colorMode === 'dark' ? 'primary.dark' : 'primary.light',
+      },
+      outline: {
+        borderColor: 'primary',
+        color: 'primary',
         _hover: {
-          bg: props.colorMode === 'dark' 
-            ? 'rgba(255, 122, 64, 0.12)' 
-            : 'rgba(224, 75, 0, 0.12)',
+          bg: 'rgba(224, 75, 0, 0.12)',
         },
         _active: {
-          bg: props.colorMode === 'dark' 
-            ? 'rgba(255, 122, 64, 0.24)' 
-            : 'rgba(224, 75, 0, 0.24)',
+          bg: 'rgba(224, 75, 0, 0.24)',
         },
         _focus: {
-          boxShadow: `0 0 0 3px ${props.colorMode === 'dark' ? colors.primary.focus.dark : colors.primary.focus.light}`,
+          boxShadow: `0 0 0 3px #FFD9C7`,
         }
-      }),
-      ghost: (props: StyleFunctionProps) => ({
-        color: props.colorMode === 'dark' ? 'primary.dark' : 'primary.light',
+      },
+      ghost: {
+        color: 'primary',
         _hover: {
-          bg: props.colorMode === 'dark' 
-            ? 'rgba(255, 122, 64, 0.12)' 
-            : 'rgba(224, 75, 0, 0.12)',
+          bg: 'rgba(224, 75, 0, 0.12)',
         },
         _active: {
-          bg: props.colorMode === 'dark' 
-            ? 'rgba(255, 122, 64, 0.24)' 
-            : 'rgba(224, 75, 0, 0.24)',
+          bg: 'rgba(224, 75, 0, 0.24)',
         },
         _focus: {
-          boxShadow: `0 0 0 3px ${props.colorMode === 'dark' ? colors.primary.focus.dark : colors.primary.focus.light}`,
+          boxShadow: `0 0 0 3px #FFD9C7`,
         }
-      }),
-      secondary: (props: StyleFunctionProps) => ({
-        bg: props.colorMode === 'dark' ? 'secondary.dark' : 'secondary.light',
-        color: props.colorMode === 'dark' ? 'white' : 'text.primary.light',
+      },
+      secondary: {
+        bg: 'secondary',
+        color: 'text.primary',
         _hover: {
-          bg: props.colorMode === 'dark' ? 'secondary.hover.dark' : 'secondary.hover.light',
+          bg: "#FFB699",
         },
         _active: {
-          bg: props.colorMode === 'dark' ? 'secondary.active.dark' : 'secondary.active.light',
+          bg: "#E8A289",
         },
         _focus: {
-          boxShadow: `0 0 0 3px ${props.colorMode === 'dark' ? colors.secondary.focus.dark : colors.secondary.focus.light}`,
+          boxShadow: `0 0 0 3px #FFEDE6`,
         }
-      }),
-      success: (props: StyleFunctionProps) => ({
-        bg: props.colorMode === 'dark' ? 'success.dark' : 'success.light',
+      },
+      success: {
+        bg: 'success',
         color: 'white',
         _hover: {
-          bg: props.colorMode === 'dark' ? 'success.dark' : 'success.light',
+          bg: 'success',
           opacity: 0.9,
         },
         _active: {
           opacity: 0.8,
         }
-      }),
-      error: (props: StyleFunctionProps) => ({
-        bg: props.colorMode === 'dark' ? 'error.dark' : 'error.light',
+      },
+      error: {
+        bg: 'error',
         color: 'white',
         _hover: {
-          bg: props.colorMode === 'dark' ? 'error.dark' : 'error.light',
+          bg: 'error',
           opacity: 0.9,
         },
         _active: {
           opacity: 0.8,
         }
-      }),
-      info: (props: StyleFunctionProps) => ({
-        bg: props.colorMode === 'dark' ? 'info.dark' : 'info.light',
+      },
+      info: {
+        bg: 'info',
         color: 'white',
         _hover: {
-          bg: props.colorMode === 'dark' ? 'info.dark' : 'info.light',
+          bg: 'info',
           opacity: 0.9,
         },
         _active: {
           opacity: 0.8,
         }
-      }),
+      },
     },
     defaultProps: {
       variant: 'solid',
     },
   },
   Switch: {
-    baseStyle: (props: StyleFunctionProps) => ({
+    baseStyle: {
       track: {
-        bg: props.colorMode === 'dark' ? 'surface.dark.dark' : 'surface.light.light',
+        bg: 'surface.light',
         _checked: {
-          bg: props.colorMode === 'dark' ? 'primary.dark' : 'primary.light',
+          bg: 'primary',
         },
       },
       thumb: {
         bg: 'white',
       },
-    }),
+    },
   },
   
   Input: {
     variants: {
-      outline: (props: StyleFunctionProps) => ({
+      outline: {
         field: {
-          borderColor: props.colorMode === 'dark' ? 'surface.dark.dark' : 'surface.light.light',
+          borderColor: 'surface.light',
           _hover: {
-            borderColor: props.colorMode === 'dark' ? 'surface.light.dark' : 'surface.dark.light',
+            borderColor: 'surface.dark',
           },
           _focus: {
-            borderColor: props.colorMode === 'dark' ? 'primary.dark' : 'primary.light',
-            boxShadow: `0 0 0 1px ${props.colorMode === 'dark' 
-              ? colors.primary.dark 
-              : colors.primary.light}`,
+            borderColor: 'primary',
+            boxShadow: `0 0 0 1px #E04B00`,
           },
           _placeholder: {
-            color: props.colorMode === 'dark' ? 'text.quaternary.dark' : 'text.quaternary.light',
+            color: 'text.quaternary',
           }
         },
-      }),
+      },
     },
     defaultProps: {
       variant: 'outline',
     }
   },
   Heading: {
-    baseStyle: (props: StyleFunctionProps) => ({
-      color: props.colorMode === 'dark' ? 'text.primary.dark' : 'text.primary.light',
-    }),
-  },
-  Text: {
-    baseStyle: (props: StyleFunctionProps) => ({
-      color: props.colorMode === 'dark' ? 'text.secondary.dark' : 'text.secondary.light',
-    }),
-    variants: {
-      primary: (props: StyleFunctionProps) => ({
-        color: props.colorMode === 'dark' ? 'text.primary.dark' : 'text.primary.light',
-      }),
-      secondary: (props: StyleFunctionProps) => ({
-        color: props.colorMode === 'dark' ? 'text.secondary.dark' : 'text.secondary.light', 
-      }),
-      tertiary: (props: StyleFunctionProps) => ({
-        color: props.colorMode === 'dark' ? 'text.tertiary.dark' : 'text.tertiary.light',
-      }),
-      quaternary: (props: StyleFunctionProps) => ({
-        color: props.colorMode === 'dark' ? 'text.quaternary.dark' : 'text.quaternary.light',
-      }),
+    baseStyle: {
+      color: 'text.primary',
     },
   },
-
+  Text: {
+    baseStyle: {
+      color: 'text.secondary',
+    },
+    variants: {
+      primary: {
+        color: 'text.primary',
+      },
+      secondary: {
+        color: 'text.secondary',
+      },
+      tertiary: {
+        color: 'text.tertiary',
+      },
+      quaternary: {
+        color: 'text.quaternary',
+      },
+    },
+  },
   Badge: {
     variants: {
-      tertiary: (props: StyleFunctionProps) => ({
-        bg: props.colorMode === 'dark' ? 'tertiary.dark' : 'tertiary.light',
+      tertiary: {
+        bg: 'tertiary',
         color: 'white',
-      }),
+      },
     },
   },
 };
+
 const styles = {
-  global: (props: StyleFunctionProps) => ({
+  global: {
     body: {
-      bg: props.colorMode === 'dark' ? 'background.primary.dark' : 'background.primary.light',
-      color: props.colorMode === 'dark' ? 'text.primary.dark' : 'text.primary.light',
+      bg: 'background.primary',
+      color: 'text.primary',
     },
-  }),
+},
 };
 
 const theme = extendTheme({
