@@ -51,9 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (storedToken && !isTokenExpired(storedToken)) {
         setToken(storedToken);
-        if (window.location.pathname !== APP_ROUTES.SHOWS) {
-          router.push(APP_ROUTES.SHOWS);
-        }
       } else {
         removeTokenCookie();
       }
