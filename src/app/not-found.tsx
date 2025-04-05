@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import { Box, Heading, Text, Center, VStack, Button, Spinner } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
@@ -16,23 +16,26 @@ export default function NotFound() {
   const textColor = 'text.primary';
   const headingColor = 'text.primary';
   
-  // More robust redirection handling
   useEffect(() => {
+    let isMounted = true;
     if (!isLoading && user) {
       setIsRedirecting(true);
-      
       const interval = setInterval(() => {
         setRedirectTimeLeft((prev) => {
-          if (prev <= 1) {
+          if (prev <= 1 && isMounted) {
             clearInterval(interval);
-            router.push(APP_ROUTES.SHOWS);
+            setTimeout(() => {
+              if (isMounted) router.push(APP_ROUTES.SHOWS);
+            }, 0);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-      
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+        isMounted = false;
+      };
     }
   }, [user, isLoading, router]);
 
