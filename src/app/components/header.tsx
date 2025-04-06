@@ -23,6 +23,7 @@ import { useAuth } from '@/contexts/auth-context';
 import NextLink from 'next/link';
 import { APP_ROUTES } from '@/constants';
 import { usePathname } from 'next/navigation';
+import ProfileImage from '@/app/components/profile-image';
 
 const formatRole = (role?: string) => {
   if (!role) return '';
@@ -118,7 +119,7 @@ export default function Header() {
               cursor={'pointer'}
               minW={0}>
               {user?.role === 'customer' ? (
-                <Avatar size={'sm'} src={'/default-profile.jpg'} />
+                <ProfileImage size="sm"/>
               ) : (
                 <Avatar size={'sm'} bg="primary" />
               )}

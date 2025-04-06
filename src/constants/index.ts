@@ -1,11 +1,12 @@
 export const API_ROUTES = {
     LOGIN: `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`,
-    SHOWS: `${process.env.NEXT_PUBLIC_API_BASE_URL}/shows`,
-    SECURITY_QUESTIONS: `${process.env.NEXT_PUBLIC_API_BASE_URL}/security-questions`,
-    VERIFY_SECURITY_ANSWER: `${process.env.NEXT_PUBLIC_API_BASE_URL}/verify-security-answer`,
     CUSTOMER_SIGNUP: `${process.env.NEXT_PUBLIC_API_BASE_URL}/customer/signup`,
+    PROFILE_IMAGE: `${process.env.NEXT_PUBLIC_API_BASE_URL}/customer/profile-image`,
+    SECURITY_QUESTIONS: `${process.env.NEXT_PUBLIC_API_BASE_URL}/security-questions`,
     FORGOT_PASSWORD: `${process.env.NEXT_PUBLIC_API_BASE_URL}/forgot-password`,
+    VERIFY_SECURITY_ANSWER: `${process.env.NEXT_PUBLIC_API_BASE_URL}/verify-security-answer`,
     SECURITY_QUESTION_BY_EMAIL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/security-question/by-email`,
+    SHOWS: `${process.env.NEXT_PUBLIC_API_BASE_URL}/shows`,
 };
 
 export const APP_ROUTES = {
@@ -13,7 +14,6 @@ export const APP_ROUTES = {
     SHOWS: `/shows`,
     SIGNUP: `/signup`,
     FORGOT_PASSWORD: `/forgot-password`,
-    RESET_PASSWORD: `/reset-password`,
 };
 
 export const ERROR_MESSAGES = {
