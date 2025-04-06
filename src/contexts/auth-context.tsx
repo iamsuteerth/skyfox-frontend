@@ -98,11 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else {
         setError(err.message || ERROR_MESSAGES.GENERIC_ERROR);
       }
-      showToast({
-        type: 'error',
-        title: 'Error',
-        description: err.message || ERROR_MESSAGES.GENERIC_ERROR,
-      });
     } finally {
       setIsLoading(false);
     }

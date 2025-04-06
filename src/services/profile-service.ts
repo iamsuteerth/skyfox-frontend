@@ -1,4 +1,4 @@
-import { API_ROUTES } from '@/constants';
+import { API_ROUTES, ERROR_MESSAGES } from '@/constants';
 import { handleApiError } from '@/utils/error-utils';
 
 export type ProfileImageResponse = {
@@ -9,6 +9,7 @@ export type ProfileImageResponse = {
     presigned_url: string;
     expires_at: string;
   };
+  code?: string;
 };
 
 export const getProfileImageUrl = async (token: string): Promise<string> => {
@@ -21,18 +22,44 @@ export const getProfileImageUrl = async (token: string): Promise<string> => {
       }
     });
 
-    const data: ProfileImageResponse = await response.json();
+    const text = await response.text();
+    
+    if (!text.trim()) {
+      throw {
+        message: 'No response received from server. Please try again later.',
+        statusCode: 500
+      };
+    }
 
-    if (!response.ok) {
+    let data: ProfileImageResponse;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error('Invalid JSON response:', text);
+      throw {
+        message: 'Server returned an invalid response. Please try again later.',
+        statusCode: 500
+      };
+    }
+
+    if (!response.ok || data.status === 'ERROR') {
       throw {
         error: data,
-        statusCode: response.status
+        statusCode: response.status,
+        message: data.message || ERROR_MESSAGES.GENERIC_ERROR
+      };
+    }
+
+    if (!data.data?.presigned_url) {
+      throw {
+        message: 'Presigned URL not found in the response.',
+        statusCode: 500
       };
     }
 
     return data.data.presigned_url;
   } catch (error: any) {
     console.error('Error fetching profile image URL:', error);
-    throw new Error(handleApiError(error));
+    throw handleApiError(error);
   }
 };

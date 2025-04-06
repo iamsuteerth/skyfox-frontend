@@ -1,383 +1,231 @@
-# SkyFox Cinema Frontend Documentation
+# SkyFox Cinema Frontend
 
-## Table of Contents
+## Overview
 
-1. [Project Overview](#project-overview)
-2. [Project Structure](#project-structure)
-3. [Theme System](#theme-system)
-4. [Core Components](#core-components)
-5. [Authentication](#authentication)
-6. [Navigation and Routing](#navigation-and-routing)
-7. [Error Handling](#error-handling)
-8. [Best Practices](#best-practices)
+SkyFox Cinema Frontend is a modern, responsive web application built with **Next.js 13+** (App Router) and **Chakra UI**. The frontend provides a seamless user experience for booking movie tickets, managing profiles, and handling authentication securely.
 
-## Project Overview
+The application implements a clean, modular architecture with proper separation of concerns, reusable components, and consistent error handling. It communicates with the [SkyFox Backend](https://github.com/iamsuteerth/skyfox-backend) to provide a complete movie booking experience.
 
-SkyFox Cinema is a movie booking platform built with Next.js 13+ App Router and Chakra UI. The application follows a modular component architecture with a custom theme system, authentication flow, and reusable UI components.
+## Features
+
+- JWT-based authentication with secure cookie storage
+- Role-based access control **(customer, staff, admin)**
+- Multi-step password recovery flow with security questions
+- Secure profile image management via API proxy
+- Responsive design that works across all device sizes
+- Component-based architecture for maintainability
+- Centralized error handling with consistent user feedback
+- Server-side metadata generation
+- Theme customization with Chakra UI
+
+## Environment Configuration
+
+The application requires the following environment variables:
+
+```
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+
+# Environment Mode
+NODE_ENV=development
+```
+
+The `NEXT_PUBLIC_API_BASE_URL` variable points to the SkyFox Backend API endpoint and is used throughout the application to construct API request URLs.
+
+The `NODE_ENV` variable determines which features are available. In development mode (`NODE_ENV=development`), additional developer tools and preview pages are accessible.
+
+> **Developer Note:** When running in development mode, you can access the theme preview at [http://localhost:3000/theme-preview](http://localhost:3000/theme-preview) to see all theme components in one place. This page is only available when the application is running in development mode.
 
 ## Project Structure
 
-```
-skyfox-frontend/
-├── public/                  # Static assets
-│   ├── assets/              # Images and other media
-│   │   └── logo.png         # App logo
-│   └── globe.svg            # Icon used in the UI
-├── src/
-│   ├── app/                 # Next.js App Router structure
-│   │   ├── components/      # Reusable components
-│   │   │   ├── auth/        # Authentication components
-│   │   │   │   └── protected-route.tsx  # Route protection wrapper
-│   │   │   ├── brand-logo.tsx          # Logo component
-│   │   │   ├── form-input.tsx          # Input field component
-│   │   │   ├── header.tsx              # App header
-│   │   │   ├── neumorphic-card.tsx     # Card with neumorphic design
-│   │   │   ├── page-container.tsx      # Page layout wrapper
-│   │   │   └── ui/                     # UI utilities
-│   │   │       ├── chakra-color-mode-script.tsx  # Theme script
-│   │   │       └── custom-toast.tsx    # Toast notifications
-│   │   ├── login/                      # Login page
-│   │   │   ├── components/
-│   │   │   │   └── login.tsx           # Login form component
-│   │   │   └── page.tsx                # Login page
-│   │   ├── not-found.tsx               # 404 page
-│   │   ├── page.tsx                    # Home page
-│   │   ├── providers.tsx               # App providers
-│   │   └── shows/                      # Shows page
-│   │       └── page.tsx                # Shows listing
-│   ├── constants/                      # App constants
-│   │   └── index.ts                    # Routes, messages, etc.
-│   ├── contexts/                       # React contexts
-│   │   └── auth-context.tsx            # Authentication context
-│   ├── services/                       # API services
-│   │   └── auth-service.ts             # Authentication API calls
-│   ├── theme/                          # Theme configuration
-│   │   └── index.ts                    # Chakra UI theme
-│   └── utils/                          # Utility functions
-│       ├── date-utils.ts               # Date formatting helpers
-│       ├── error-utils.ts              # Error handling
-│       ├── fonts.tsx                   # Font configuration
-│       └── jwt-utils.ts                # JWT token handling
-```
-
-## Theme System
-
-The theme is built on Chakra UI's theming system and configured in `src/theme/index.ts`.
-
-### Color Palette
-
-```typescript
-const colors = {
-  brand: {
-    50: "#FFEEE5",
-    // ... other brand colors
-    900: "#331100"
-  },
-  primary: "#E04B00",
-  secondary: "#FFB199",
-  success: "#228B22",
-  error: "#D42158",
-  info: "#6495ED",
-  tertiary: "#CBA891",
-  background: {
-    primary: "#FFFFFF",
-    secondary: "#F0F0F5"
-  },
-  surface: {
-    light: "#D8DADC",
-    dark: "#5C6063"
-  },
-  text: {
-    primary: "#161A1E",
-    secondary: "#404348",
-    tertiary: "#666A6D",
-    quaternary: "#8E9091"
-  }
-};
-```
-
-### Component Styling
-
-The theme defines styles for common components:
-
-- Buttons (solid, outline, ghost, secondary, etc.)
-- Inputs 
-- Headings
-- Text (with variants)
-- Switch
-- Badge
-
-### Usage
-
-The theme is applied through the `Providers` component in `src/app/providers.tsx`:
-
-```tsx
-'use client';
-
-import { ChakraProvider } from '@chakra-ui/react';
-import theme from '@/theme/index';
-import { AuthProvider } from '@/contexts/auth-context';
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    
-      {children}
-    
-  );
-}
-```
-
-## Core Components
-
-### BrandLogo
-
-A reusable component for displaying the SkyFox logo with customizable size and tagline.
-
-**Props:**
-- `showTagline`: Whether to show the tagline (default: true)
-- `tagline`: The text to display as tagline (default: "Sign in to your account")
-- `size`: Size of the logo - 'sm' | 'md' | 'lg' (default: 'md')
-
-**Example:**
-```tsx
+The project follows a well-organized directory structure:
 
 ```
-
-### FormInput
-
-A standardized form input component that handles validation and various input types.
-
-**Props:**
-- `label`: Input label
-- `value`: Input value
-- `onChange`: Change handler function
-- `error`: Error message (optional)
-- `placeholder`: Input placeholder (optional)
-- `type`: Input type (default: 'text')
-- `rightElement`: Element to display on the right side (optional)
-- `isPassword`: Whether input is a password field (optional)
-
-**Example:**
-```tsx
- setUsername(e.target.value)}
-  placeholder="Enter your username"
-  error={usernameError}
-/>
+src/
+├── app/                  # Next.js 13+ App Router pages and layouts
+│   ├── api/              # API routes for server-side operations
+│   ├── components/       # Shared UI components
+│   ├── login/            # Login page
+│   ├── forgot-password/  # Password recovery flow
+│   └── shows/            # Movie listings
+├── constants/            # Application constants
+├── contexts/             # React contexts
+├── services/             # API service layer
+├── theme/                # UI theme configuration
+└── utils/                # Utility functions
 ```
 
-### NeumorphicCard
+## App Router Architecture
 
-A card component with neumorphic design aesthetics.
+### Directory-Based Routing
 
-**Props:**
-- `children`: Card content
-- `padding`: Padding for the card (default: { base: 6, md: 10 })
-- ...other CardProps from Chakra UI
+The project leverages Next.js 13+ App Router for its routing system:
 
-**Example:**
-```tsx
+- **File-based Routing**: Each directory in the `app/` folder represents a route
+- **Server Components**: Page components (`page.tsx`) use server-side rendering for metadata
+- **Client Components**: Interactive UI elements are marked with `'use client'` directive
+- **Nested Layouts**: Common layouts are shared across multiple pages
 
-  
-    Card Title
-    Card content goes here.
-  
+### Example Structure: Forgot Password Feature
 
 ```
-
-### PageContainer
-
-A layout wrapper for consistent page structure.
-
-**Props:**
-- `children`: Page content
-- `containerProps`: Props for the Container component (optional)
-- `flexProps`: Props for the Flex component (optional)
-- `boxProps`: Props for the Box component (optional)
-
-**Example:**
-```tsx
-
-  
-    Page Content
-  
-
+app/forgot-password/
+├── components/
+│   ├── email-step.tsx         # Email input step
+│   ├── security-step.tsx      # Security question step
+│   ├── reset-step.tsx         # Password reset step
+│   ├── forgot-password.tsx    # Main component
+│   └── forgot-password-stepper.tsx  # Stepper UI
+└── page.tsx                   # Server component with metadata
 ```
 
-### CustomToast
+## Authentication System
 
-A toast notification system with consistent styling.
+### JWT Authentication
 
-**Usage:**
-```tsx
-const { showToast } = useCustomToast();
+Authentication is implemented using JSON Web Tokens (JWT) with several security features:
 
-showToast({
-  type: 'success',
-  title: 'Success',
-  description: 'Operation completed successfully'
-});
-```
-
-## Authentication
-
-Authentication is handled through the AuthContext which manages user state, login, logout and token handling.
-
-### JWT Token Handling
-
-JWT tokens are stored in cookies using js-cookie library and validated using utility functions in `src/utils/jwt-utils.ts`:
-
-- `getUserFromToken`: Extracts user data from JWT
-- `isTokenExpired`: Checks if token is expired
-- `setTokenCookie`: Sets token in cookies
-- `removeTokenCookie`: Removes token from cookies
-
-### Auth Context
-
-The `AuthProvider` in `src/contexts/auth-context.tsx` handles:
-
-1. Checking for existing authentication on load
-2. Login functionality
-3. Logout functionality
-4. User state management
-5. Error handling
-
-**Example usage:**
-```tsx
-const { user, login, logout, isLoading, error } = useAuth();
-
-// Login
-await login(username, password);
-
-// Logout
-logout();
-
-// Check auth state
-if (user) {
-  // User is authenticated
-}
-```
+- **Secure Cookie Storage**: JWTs are stored in cookies with appropriate security settings
+- **Token Validation**: Tokens are checked for validity and expiration on each request
+- **User Data Extraction**: User details are extracted directly from the token
+- **Global Auth State**: A central context provides authentication data to all components
 
 ### Protected Routes
 
-Routes can be protected using the `ProtectedRoute` component:
+The application implements route protection that:
 
-```tsx
+- Checks the user's authentication status
+- Redirects unauthenticated users to the login page
+- Verifies user roles against allowed roles for each route
+- Handles loading states appropriately
+- Provides clear error messages for unauthorized access attempts
 
-  
+## Service Layer
 
-```
+### API Communication Abstraction
 
-This component:
-1. Checks if user is authenticated
-2. Redirects to login page if not authenticated
-3. Checks user role against allowedRoles
-4. Displays error toast and redirects if unauthorized
-5. Renders children if authorized
+The service layer separates API communication from UI components:
 
-## Navigation and Routing
+- **Endpoint Constants**: All API endpoints are defined in the constants file
+- **Type-Safe Services**: Each API endpoint has a dedicated function with TypeScript interfaces
+- **Standard Error Handling**: Consistent approach to processing API errors
+- **Response Processing**: Standardized handling of API responses
 
-### Route Constants
+### Error Processing
 
-Routes are defined in `src/constants/index.ts`:
+All API responses follow a standard pattern:
 
-```typescript
-export const APP_ROUTES = {
-  HOME: '/',
-  LOGIN: '/login',
-  SIGNUP: '/signup',
-  FORGOT_PASSWORD: '/forgot-password',
-  SHOWS: '/shows',
-  // other routes
-};
-```
+1. Check for successful response status
+2. Parse and validate response data
+3. Handle error states with descriptive messages
+4. Return strongly-typed responses to components
 
-### Page Redirects
+## Theme Implementation
 
-Redirects are handled in several ways:
+### Chakra UI Integration
 
-1. **Auth-based redirects**: 
-   - Unauthenticated users are redirected to login
-   - Authenticated users are redirected to shows page from login
+The application uses a custom Chakra UI theme that provides:
 
-2. **Not Found (404) page**:
-   - Shows a 404 message with countdown for authenticated users
-   - Shows a 404 message with login button for unauthenticated users
+- **Brand Colors**: Primary (#E04B00), secondary, and accent colors
+- **Component Variants**: Custom styling for buttons, inputs, and other components
+- **Typography System**: Custom fonts with responsive sizing
+- **Responsive Breakpoints**: Consistent device size handling
 
-### Home Page Redirect
+### Custom Components
 
-The home page (`src/app/page.tsx`) automatically redirects:
-- Authenticated users to Shows page
-- Unauthenticated users to Login page
+The theme extends Chakra UI with custom components like:
+
+- **NeumorphicCard**: Cards with soft shadow effects
+- **FormInput**: Enhanced form elements with validation states
+- **Custom Buttons**: Application-specific button variants
+
+## Component Architecture
+
+### Reusable Base Components
+
+The project includes several reusable components:
+
+- **FormInput**: Enhanced input field with validation
+- **BrandLogo**: Consistent logo display with optional tagline
+- **NeumorphicCard**: Card with neumorphic design for content containers
+- **PageContainer**: Layout wrapper for consistent page structure
+
+### Multi-Step Forms
+
+Complex workflows like password recovery are implemented with:
+
+- **Step Management**: Proper state tracking between steps
+- **Data Persistence**: Form data maintained throughout the workflow
+- **Visual Feedback**: Clear indication of current step and progress
+- **Error Isolation**: Each step handles its own errors
+
+## Profile Image Proxy
+
+### Secure Image Handling
+
+The profile image system uses a Next.js API route as a proxy:
+
+- **Client-Side Component**: Displays images with loading and error states
+- **Server-Side Processing**: Securely fetches images from S3 via backend
+- **Caching Strategy**: Implementation of proper cache headers (24 hours)
+- **Refresh Mechanism**: Support for manual image refreshing when needed
+
+### Benefits
+
+1. **Enhanced Security**: S3 URLs are never exposed to the client
+2. **Performance Optimization**: Proper caching reduces backend load
+3. **User Privacy**: Direct image URLs can't be shared or accessed without authentication
+4. **Seamless Updates**: Profile image changes are reflected with minimal delay
 
 ## Error Handling
 
-### Toast Notifications
+### Centralized Error Processing
 
-Errors are displayed using the custom toast system:
+The application uses a comprehensive error handling system:
 
-```tsx
-showToast({
-  type: 'error',
-  title: 'Error',
-  description: errorMessage
-});
-```
+- **Error Utility**: Transforms API errors into user-friendly messages
+- **Error Constants**: Predefined messages for common error scenarios
+- **Contextual Display**: Errors shown in appropriate UI locations (forms, toasts)
+- **Network Error Handling**: Graceful handling of connectivity issues
 
-### Form Validation
+### Error Response Structure
 
-Form inputs have built-in validation with error messages:
+Error responses follow a consistent format, handling:
 
-```tsx
- setUsername(e.target.value)}
-  error={usernameError}
-/>
-```
+- API-specific error codes (e.g., `INVALID_CREDENTIALS`, `USER_NOT_FOUND`)
+- HTTP status codes (400, 401, 403, etc.)
+- Network and connectivity errors
+- Validation errors with field-specific messages
 
-### API Error Handling
+## Frontend Validation
 
-API errors are caught and displayed with appropriate messages:
+### Client-Side Input Validation
 
-```typescript
-try {
-  // API call
-} catch (err) {
-  if (err.statusCode === 400) {
-    setError(ERROR_MESSAGES.INVALID_REQUEST);
-  } else if (err.statusCode === 401) {
-    setError(err.message);
-  } else if (err.isNetworkError) {
-    setError(ERROR_MESSAGES.NETWORK_ERROR);
-  } else {
-    setError(err.message || ERROR_MESSAGES.GENERIC_ERROR);
-  }
-}
-```
+The application implements comprehensive validation:
 
-## Best Practices
+- **Form-Level Validation**: Prevents submission of invalid data
+- **Field-Level Validation**: Real-time feedback on input errors
+- **Custom Validators**: Email, password strength, and other specific validations
+- **Error Messages**: Clear, user-friendly validation error messages
 
-1. **Component Modularization**:
-   - Break down complex components into smaller, reusable pieces
-   - Use consistent prop interfaces
-   - Keep components focused on specific functionality
+## Backend Integration
 
-2. **Theme Consistency**:
-   - Use theme colors and styles instead of hardcoded values
-   - Apply proper responsive design using Chakra's responsive syntax
-   - Use semantic components (Heading for headings, Text for text, etc.)
+### API Contract Alignment
 
-3. **Authentication Flow**:
-   - Handle loading states properly
-   - Provide clear error messages
-   - Use secure token storage with cookies
-   - Validate tokens on client-side
+The frontend strictly follows the [SkyFox Backend](https://github.com/iamsuteerth/skyfox-backend) API contract:
 
-4. **Error Handling**:
-   - Display user-friendly error messages
-   - Log detailed errors to console for debugging
-   - Handle different error types appropriately
+- **Request Formatting**: Properly structured API requests
+- **Response Handling**: Correct processing of all response types
+- **Error Code Handling**: Mapping of backend error codes to frontend messages
+- **Validation Rules**: Frontend validation matches backend requirements
 
-5. **Routing**:
-   - Use constants for route paths
-   - Implement proper auth protection
-   - Handle 404 cases gracefully
+## Responsive Design
 
+### Adaptive User Interface
+
+The application provides a seamless experience across devices through:
+
+- **Responsive Layouts**: Fluid designs that adapt to screen sizes
+- **Mobile-First Approach**: Optimized for mobile with progressive enhancement
+- **Breakpoint System**: Consistent handling of different device sizes
+- **Touch-Friendly Interactions**: Optimized for both mouse and touch input

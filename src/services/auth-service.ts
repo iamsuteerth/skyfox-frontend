@@ -39,7 +39,7 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
     return data;
   } catch (error: any) {
     if (error.statusCode && error.error) {
-      throw new Error(handleApiError(error.error, error.statusCode));
+      throw new Error(handleApiError(error));
     }
     throw new Error(handleApiError(error));
   }

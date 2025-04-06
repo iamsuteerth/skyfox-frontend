@@ -7,7 +7,6 @@ import {
   FormErrorMessage,
   InputGroup,
   InputRightElement,
-  IconButton,
 } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
