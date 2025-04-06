@@ -8,25 +8,20 @@ export type ApiErrorResponse = {
 };
 
 export const handleApiError = (error: any, statusCode?: number): string => {
-  // If it's already a string message, return it
   if (typeof error === 'string') return error;
 
-  // Handle specific status codes
   if (statusCode) {
     switch (statusCode) {
       case 400:
         return ERROR_MESSAGES.INVALID_REQUEST;
       case 401:
-        // For 401, use the message from API if available
         if (error && error.status === 'ERROR') {
           return error.message;
         }
         break;
-      // Add more status code handlers as needed
     }
   }
 
-  // If it's backend API error format
   if (error && error.status === 'ERROR') {
     return error.message;
   }
@@ -38,6 +33,5 @@ export const handleApiError = (error: any, statusCode?: number): string => {
     return error.message;
   }
 
-  // Generic fallback
   return ERROR_MESSAGES.GENERIC_ERROR;
 };

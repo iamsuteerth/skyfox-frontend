@@ -5,7 +5,7 @@ export const API_ROUTES = {
     SECURITY_QUESTIONS: `${process.env.NEXT_PUBLIC_API_BASE_URL}/security-questions`,
     FORGOT_PASSWORD: `${process.env.NEXT_PUBLIC_API_BASE_URL}/forgot-password`,
     VERIFY_SECURITY_ANSWER: `${process.env.NEXT_PUBLIC_API_BASE_URL}/verify-security-answer`,
-    SECURITY_QUESTION_BY_EMAIL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/security-question/by-email`,
+    SECURITY_QUESTION_BY_EMAIL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/security-questions/by-email`,
     SHOWS: `${process.env.NEXT_PUBLIC_API_BASE_URL}/shows`,
 };
 

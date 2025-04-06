@@ -41,7 +41,6 @@ export default function ProfileImage({
     };
   }, [refreshImage]);
 
-  // Handle loading state
   useEffect(() => {
     if (!token || !user) {
       setError(true);

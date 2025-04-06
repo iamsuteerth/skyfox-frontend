@@ -1,4 +1,3 @@
-// src/components/ui/neumorphic-card.tsx
 'use client';
 
 import { Card, CardProps, CardBody } from '@chakra-ui/react';

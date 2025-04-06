@@ -6,7 +6,6 @@ interface DecodedToken {
   
   export const decodeToken = (token: string): DecodedToken | null => {
     try {
-      // JWT tokens are base64 encoded with 3 parts: header.payload.signature
       const base64Payload = token.split('.')[1];
       const payload = JSON.parse(atob(base64Payload));
       return payload;
