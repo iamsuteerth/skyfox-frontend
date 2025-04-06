@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Avatar, AvatarProps, Spinner } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth-context';
 
@@ -17,22 +17,31 @@ export default function ProfileImage({
   const { user, token } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [timestamp, setTimestamp] = useState(Date.now());
+  const refreshTimestampRef = useRef<number | null>(null);
 
   const refreshImage = useCallback(() => {
     setIsLoading(true);
     setError(false);
-    setTimestamp(Date.now());
+    refreshTimestampRef.current = Date.now();
     
     if (onRefreshRequest) {
       onRefreshRequest();
     }
+    forceUpdate();
   }, [onRefreshRequest]);
 
+  const [, setForceUpdate] = useState({});
+  const forceUpdate = useCallback(() => setForceUpdate({}), []);
 
   useEffect(() => {
+    profileImageRefresher.setRefreshFunction(refreshImage);
+    
+    return () => {
+      profileImageRefresher.setRefreshFunction(() => {});
+    };
   }, [refreshImage]);
 
+  // Handle loading state
   useEffect(() => {
     if (!token || !user) {
       setError(true);
@@ -45,7 +54,7 @@ export default function ProfileImage({
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [token, user, timestamp]);
+  }, [token, user]);
 
   if (isLoading) {
     return (
@@ -69,7 +78,9 @@ export default function ProfileImage({
     );
   }
 
-  const proxyImageUrl = `/api/profile-image?t=${timestamp}`;
+  const proxyImageUrl = refreshTimestampRef.current 
+    ? `/api/profile-image?t=${refreshTimestampRef.current}`
+    : `/api/profile-image`;
 
   return (
     <Avatar
