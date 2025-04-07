@@ -8,7 +8,7 @@ import FormInput from '@/app/components/form-input';
 import { resetPassword } from '@/services/auth-service';
 import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { validatePassword } from '@/utils/password'
+import { validatePassword } from '@/utils/validators'
 
 interface ResetStepProps {
   email: string;
