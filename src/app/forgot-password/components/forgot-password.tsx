@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { 
+import {
   VStack,
   Box,
 } from '@chakra-ui/react';
@@ -42,56 +42,58 @@ export default function ForgotPassword() {
   };
 
   return (
-    <PageContainer>
+    <>
       <ForgotPasswordHeader currentStep={activeStep} />
-      <NeumorphicCard maxW="480px" w="100%" mx="auto">
-        <VStack spacing={8} align="stretch">
-          <BrandLogo tagline="Reset your password" />
-          
-          {error && (
-            <Box 
-              bg="error" 
-              color="white" 
-              py={2} 
-              px={4} 
-              borderRadius="md" 
-              textAlign="center"
-            >
-              {error}
-            </Box>
-          )}
+      <PageContainer>
+        <NeumorphicCard maxW="480px" w="100%" mx="auto">
+          <VStack spacing={8} align="stretch">
+            <BrandLogo tagline="Reset your password" />
 
-          {activeStep === 0 && (
-            <EmailStep
-              email={email}
-              setEmail={setEmail}
-              setQuestion={setQuestion}
-              setQuestionId={setQuestionId}
-              setActiveStep={setActiveStep}
-              setError={setError}
-            />
-          )}
+            {error && (
+              <Box
+                bg="error"
+                color="white"
+                py={2}
+                px={4}
+                borderRadius="md"
+                textAlign="center"
+              >
+                {error}
+              </Box>
+            )}
 
-          {activeStep === 1 && (
-            <SecurityStep
-              email={email}
-              question={question}
-              setResetToken={setResetToken}
-              setActiveStep={setActiveStep}
-              setError={setError}
-            />
-          )}
+            {activeStep === 0 && (
+              <EmailStep
+                email={email}
+                setEmail={setEmail}
+                setQuestion={setQuestion}
+                setQuestionId={setQuestionId}
+                setActiveStep={setActiveStep}
+                setError={setError}
+              />
+            )}
 
-          {activeStep === 2 && (
-            <ResetStep
-              email={email}
-              resetToken={resetToken}
-              resetFlow={resetFlow}
-              setError={setError}
-            />
-          )}
-        </VStack>
-      </NeumorphicCard>
-    </PageContainer>
+            {activeStep === 1 && (
+              <SecurityStep
+                email={email}
+                question={question}
+                setResetToken={setResetToken}
+                setActiveStep={setActiveStep}
+                setError={setError}
+              />
+            )}
+
+            {activeStep === 2 && (
+              <ResetStep
+                email={email}
+                resetToken={resetToken}
+                resetFlow={resetFlow}
+                setError={setError}
+              />
+            )}
+          </VStack>
+        </NeumorphicCard>
+      </PageContainer>
+    </>
   );
 }

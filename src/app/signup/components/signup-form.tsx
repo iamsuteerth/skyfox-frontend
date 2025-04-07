@@ -1,4 +1,3 @@
-// src/app/signup/components/signup-form.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -17,6 +16,10 @@ import PersonalInfoSection from './personal-info';
 import SecurityInfoSection from './security-info';
 import { getSecurityQuestions, SecurityQuestion } from '@/services/security-question-service';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { processDefaultAvatar, processImageForUpload } from '@/utils/image-utils';
+import ProfileImageSection from './profile-image-selection';
+import { signupUser } from '@/services/signup-service';
+import { useRouter } from 'next/navigation';
 
 interface SignupFormState {
   fullName: string;
@@ -60,8 +63,10 @@ const SignupForm: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
 
   const { showToast } = useCustomToast();
+  const router = useRouter()
 
   useEffect(() => {
     const fetchSecurityQuestions = async () => {
@@ -84,9 +89,15 @@ const SignupForm: React.FC = () => {
   }, [showToast]);
 
   useEffect(() => {
-    const requiredFields = ['fullName', 'username', 'email', 'phoneNumber', 'password', 'confirmPassword', 'securityQuestionId', 'securityAnswer'];
-    setIsFormValid(isFormComplete(formData, requiredFields));
+    const requiredFields = ['fullName', 'username', 'email', 'phoneNumber', 'password', 'confirmPassword', 'securityQuestionId', 'securityAnswer', 'imageType'];
+    const basicFieldsValid = isFormComplete(formData, requiredFields);
+    const imageValid = Boolean(
+      (formData.imageType === 'default' && formData.selectedImageId) || 
+      (formData.imageType === 'custom' && formData.customImage)
+    );
+    setIsFormValid(basicFieldsValid && imageValid);
   }, [formData]);
+  
 
   const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -118,7 +129,7 @@ const SignupForm: React.FC = () => {
       e.key === 'ArrowRight' ||
       e.key === 'Tab' ||
       e.key === 'Enter' ||
-      e.key === ' ' || // Allow space
+      e.key === ' ' ||
       e.metaKey
     ) {
       return;
@@ -142,6 +153,76 @@ const SignupForm: React.FC = () => {
     }
     if (!/^\d$/.test(e.key)) {
       e.preventDefault();
+    }
+  };
+
+  const handleImageTypeChange = (value: 'default' | 'custom') => {
+    setFormData(prev => ({
+      ...prev,
+      imageType: value,
+      selectedImageId: undefined,
+      customImage: undefined,
+      processedImage: undefined,
+      errors: {
+        ...prev.errors,
+        selectedImageId: '',
+        imageType: ''
+      }
+    }));
+  };
+
+  const handleDefaultImageSelect = async (imageId: number) => {
+    try {
+      setIsProcessingImage(true);
+
+      const processedImage = await processDefaultAvatar(imageId);
+
+      setFormData(prev => ({
+        ...prev,
+        selectedImageId: imageId,
+        customImage: undefined,
+        processedImage,
+        errors: {
+          ...prev.errors,
+          selectedImageId: ''
+        }
+      }));
+    } catch (error: any) {
+      showToast({
+        type: 'error',
+        title: 'Image Processing Error',
+        description: error.message,
+      });
+    } finally {
+      setIsProcessingImage(false);
+    }
+  };
+
+  const handleCustomImageUpload = async (file: File) => {
+    try {
+      setIsProcessingImage(true);
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Image size should be less than 5MB');
+      }
+      const processedImage = await processImageForUpload(file);
+      setFormData(prev => ({
+        ...prev,
+        customImage: file,
+        selectedImageId: undefined,
+        processedImage,
+        errors: {
+          ...prev.errors,
+          selectedImageId: ''
+        }
+      }));
+    } catch (error: any) {
+      showToast({
+        type: 'error',
+        title: 'Image Processing Error',
+        description: error.message,
+      });
+    } finally {
+      setIsProcessingImage(false);
     }
   };
 
@@ -173,8 +254,13 @@ const SignupForm: React.FC = () => {
     if (!formData.securityAnswer) {
       errors.securityAnswer = "Security answer is required";
     } else if (formData.securityAnswer.length < 3) {
-      console.log(`BOOYAH${formData.securityAnswer}`)
       errors.securityAnswer = "Security answer must be at least 3 characters";
+    }
+
+    if (formData.imageType === 'default' && !formData.selectedImageId) {
+      errors.selectedImageId = "Please select a default avatar";
+    } else if (formData.imageType === 'custom' && !formData.customImage) {
+      errors.selectedImageId = "Please upload a custom image";
     }
 
     setFormData(prev => ({ ...prev, errors }));
@@ -182,25 +268,35 @@ const SignupForm: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    console.log("SUBMIT")
     if (validateForm()) {
-      const formPayload = {
-        fullName: formData.fullName,
-        username: formData.username,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        password: formData.password,
-        securityQuestionId: formData.securityQuestionId,
-        securityAnswer: formData.securityAnswer,
-        imageType: formData.imageType,
-        selectedImageId: formData.selectedImageId,
-        processedImage: formData.processedImage,
-        captchaAnswer: formData.captchaAnswer
-      };
+      try {
+        setIsLoading(true);
 
-      console.log('Form submitted with data:', formPayload);
+        const apiData = {
+          name: formData.fullName,
+          username: formData.username,
+          password: formData.password,
+          number: formData.phoneNumber,
+          email: formData.email,
+          profile_img: formData.processedImage?.base64 || '',
+          profile_img_sha: formData.processedImage?.hash || '',
+          security_question_id: formData.securityQuestionId,
+          security_answer: formData.securityAnswer
+        };
+
+        const response = await signupUser(apiData, showToast);
+
+        if (response.success) {
+          router.push('/login');
+        }
+      } catch (error: any) {
+        console.error('Signup error:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -226,6 +322,13 @@ const SignupForm: React.FC = () => {
         />
 
         {/* ProfileImageSection and CaptchaSection later */}
+        <ProfileImageSection
+          formData={formData}
+          handleImageTypeChange={handleImageTypeChange}
+          handleDefaultImageSelect={handleDefaultImageSelect}
+          handleCustomImageUpload={handleCustomImageUpload}
+          isProcessingImage={isProcessingImage}
+        />
 
         <Box mt={6}>
           <Button

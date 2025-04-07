@@ -10,7 +10,7 @@ type ProfileImageProps = Omit<AvatarProps, 'src'> & {
 };
 
 export default function ProfileImage({ 
-  fallbackImageSrc = '/default_avatars/default.jpg',
+  fallbackImageSrc = '/default_avatars/default_1.jpg',
   onRefreshRequest,
   ...avatarProps 
 }: ProfileImageProps) {

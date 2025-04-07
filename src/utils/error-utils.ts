@@ -19,7 +19,6 @@ export const handleApiError = (error: any): string => {
       return `Validation failed: ${error.error.errors.map((e: any) => e.message).join(', ')}`;
     }
     
-    // Handle specific error codes with custom messages
     switch (error.error.code) {
       case 'INVALID_CREDENTIALS':
         return ERROR_MESSAGES.INVALID_CREDENTIALS;
@@ -44,12 +43,10 @@ export const handleApiError = (error: any): string => {
       case 'DATE_OUT_OF_RANGE':
         return 'You can only view shows from today to the next 6 days.';
       default:
-        // If we have a message from the API, use it
         return error.error.message || ERROR_MESSAGES.GENERIC_ERROR;
     }
   }
   
-  // Handle HTTP status codes
   if (error?.statusCode) {
     switch (error.statusCode) {
       case 400:
@@ -68,7 +65,6 @@ export const handleApiError = (error: any): string => {
     }
   }
   
-  // Handle network errors
   if (error instanceof Error) {
     if (
       error.message.includes('fetch') || 
@@ -81,6 +77,5 @@ export const handleApiError = (error: any): string => {
     return error.message;
   }
   
-  // Default error message
   return ERROR_MESSAGES.GENERIC_ERROR;
 };

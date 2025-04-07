@@ -1,5 +1,6 @@
 'use client';
 
+import { APP_ROUTES } from '@/constants';
 import { Box, Flex, Heading, Text, useBreakpointValue } from '@chakra-ui/react';
 import { ArrowLeft } from 'lucide-react';
 import NextLink from 'next/link';
@@ -44,7 +45,7 @@ export default function ForgotPasswordHeader({ currentStep = 0 }: ForgotPassword
                 direction="column"
                 align="flex-start"
             >
-                <NextLink href="/login">
+                <NextLink href={APP_ROUTES.LOGIN}>
                     <Flex
                         align="center"
                         color="gray.500"

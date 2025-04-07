@@ -1,4 +1,3 @@
-// src/app/signup/components/personal-info-section.tsx
 'use client';
 
 import React from 'react';

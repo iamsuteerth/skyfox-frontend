@@ -1,4 +1,3 @@
-// src/app/signup/components/security-info-section.tsx
 'use client';
 
 import React, { useState } from 'react';
