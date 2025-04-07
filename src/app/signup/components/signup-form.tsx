@@ -20,6 +20,7 @@ import { processDefaultAvatar, processImageForUpload } from '@/utils/image-utils
 import ProfileImageSection from './profile-image-selection';
 import { signupUser } from '@/services/signup-service';
 import { useRouter } from 'next/navigation';
+import CaptchaSection from '@/app/signup/components/captcha-section';
 
 interface SignupFormState {
   fullName: string;
@@ -65,6 +66,10 @@ const SignupForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
 
+  const [firstNumber, setFirstNumber] = useState(0);
+  const [secondNumber, setSecondNumber] = useState(0);
+  const [captchaSum, setCaptchaSum] = useState(0);
+
   const { showToast } = useCustomToast();
   const router = useRouter()
 
@@ -89,15 +94,19 @@ const SignupForm: React.FC = () => {
   }, [showToast]);
 
   useEffect(() => {
-    const requiredFields = ['fullName', 'username', 'email', 'phoneNumber', 'password', 'confirmPassword', 'securityQuestionId', 'securityAnswer', 'imageType'];
+    generateCaptcha();
+  }, [])
+
+  useEffect(() => {
+    const requiredFields = ['fullName', 'username', 'email', 'phoneNumber', 'password', 'confirmPassword', 'securityQuestionId', 'securityAnswer', 'imageType', 'captchaAnswer'];
     const basicFieldsValid = isFormComplete(formData, requiredFields);
     const imageValid = Boolean(
-      (formData.imageType === 'default' && formData.selectedImageId) || 
+      (formData.imageType === 'default' && formData.selectedImageId) ||
       (formData.imageType === 'custom' && formData.customImage)
     );
     setIsFormValid(basicFieldsValid && imageValid);
   }, [formData]);
-  
+
 
   const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -226,6 +235,30 @@ const SignupForm: React.FC = () => {
     }
   };
 
+  const generateCaptcha = () => {
+    const num1 = Math.floor(Math.random() * 16) + 5;
+    const num2 = Math.floor(Math.random() * 16) + 5;
+    setFirstNumber(num1);
+    setSecondNumber(num2);
+    setCaptchaSum(num1 + num2);
+  };
+
+  const verifyCaptcha = (userAnswer: string) => {
+    return parseInt(userAnswer, 10) === captchaSum;
+  };
+
+  const regenerateCaptcha = () => {
+    generateCaptcha();
+    setFormData(prev => ({
+      ...prev,
+      captchaAnswer: '',
+      errors: {
+        ...prev.errors,
+        captchaAnswer: ''
+      }
+    }));
+  };
+
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
@@ -263,6 +296,12 @@ const SignupForm: React.FC = () => {
       errors.selectedImageId = "Please upload a custom image";
     }
 
+    if (!formData.captchaAnswer) {
+      errors.captchaAnswer = "Please solve the captcha";
+    } else if (!verifyCaptcha(formData.captchaAnswer)) {
+      errors.captchaAnswer = "Incorrect answer, please try again";
+    }
+
     setFormData(prev => ({ ...prev, errors }));
 
     return Object.keys(errors).length === 0;
@@ -270,7 +309,6 @@ const SignupForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("SUBMIT")
     if (validateForm()) {
       try {
         setIsLoading(true);
@@ -286,7 +324,6 @@ const SignupForm: React.FC = () => {
           security_question_id: formData.securityQuestionId,
           security_answer: formData.securityAnswer
         };
-
         const response = await signupUser(apiData, showToast);
 
         if (response.success) {
@@ -321,13 +358,20 @@ const SignupForm: React.FC = () => {
           setShowConfirmPassword={setShowConfirmPassword}
         />
 
-        {/* ProfileImageSection and CaptchaSection later */}
         <ProfileImageSection
           formData={formData}
           handleImageTypeChange={handleImageTypeChange}
           handleDefaultImageSelect={handleDefaultImageSelect}
           handleCustomImageUpload={handleCustomImageUpload}
           isProcessingImage={isProcessingImage}
+        />
+
+        <CaptchaSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          regenerateCaptcha={regenerateCaptcha}
+          firstNumber={firstNumber}
+          secondNumber={secondNumber}
         />
 
         <Box mt={6}>
