@@ -13,7 +13,7 @@ export default function Signup() {
     <>
       <SignupHeader />
       <PageContainer>
-        <NeumorphicCard maxW="480px" w="100%" mx="auto">
+        <NeumorphicCard maxW="960px" w="100%" mx="auto">
           <VStack spacing={8} align="stretch">
             <BrandLogo showHeading={false} showTagline={false} />
             <SignupForm />

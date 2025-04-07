@@ -1,3 +1,4 @@
+// src/app/components/form-input.tsx
 'use client';
 
 import {
@@ -19,6 +20,7 @@ interface FormInputProps {
   type?: string;
   rightElement?: ReactNode;
   isPassword?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // Add this prop
 }
 
 export default function FormInput({
@@ -30,6 +32,7 @@ export default function FormInput({
   type = 'text',
   rightElement,
   isPassword = false,
+  onKeyDown, // Add this prop
 }: FormInputProps) {
   return (
     <FormControl isInvalid={!!error}>
@@ -39,6 +42,7 @@ export default function FormInput({
           type={type}
           value={value}
           onChange={onChange}
+          onKeyDown={onKeyDown} // Add the onKeyDown handler
           placeholder={placeholder}
           bg="background.secondary"
           color="text.primary"

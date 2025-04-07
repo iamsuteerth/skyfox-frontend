@@ -8,7 +8,7 @@ import FormInput from '@/app/components/form-input';
 import { resetPassword } from '@/services/auth-service';
 import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { validatePassword } from '@/utils/validators'
+import { validatePasswords } from '@/utils/validators'
 
 interface ResetStepProps {
   email: string;
@@ -38,7 +38,7 @@ export default function ResetStep({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validatePassword(newPassword, confirmPassword, setNewPasswordError, setConfirmPasswordError)) return;
+    if (!validatePasswords(newPassword, confirmPassword, setNewPasswordError, setConfirmPasswordError)) return;
     
     setIsLoading(true);
     setError('');
