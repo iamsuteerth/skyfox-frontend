@@ -119,9 +119,9 @@ export default function Header() {
               cursor={'pointer'}
               minW={0}>
               {user?.role === 'customer' ? (
-                <ProfileImage size="sm"/>
+                <ProfileImage size="md"/>
               ) : (
-                <Avatar size={'sm'} bg="primary" />
+                <Avatar size={'md'} bg="primary" />
               )}
             </MenuButton>
             <MenuList bg="background.primary" borderColor="surface.light">
