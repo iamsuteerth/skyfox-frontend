@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Flex, Skeleton, SkeletonText } from '@chakra-ui/react';
+import { Box, Flex, Skeleton, SkeletonText, VStack, HStack } from '@chakra-ui/react';
 
 interface LoadingStateProps {
   count?: number;
@@ -27,33 +27,72 @@ const LoadingState: React.FC<LoadingStateProps> = ({ count = 4 }) => {
         {Array.from({ length: count }).map((_, i) => (
           <Box
             key={i}
-            w="280px"
-            minW="280px"
+            w="300px"
+            minW="300px"
             borderWidth="1px"
-            borderRadius="lg"
+            borderRadius="xl"
             overflow="hidden"
             bg="background.primary"
             borderColor="surface.light"
             shadow="sm"
-            mx={2}
+            mr={6}
+            pb={1}
           >
-            <Skeleton height="180px" width="100%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
-        
-            <Box p={3}>
-              <Flex justify="space-between" mb={2}>
-                <Skeleton height="20px" width="70%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
-                <Skeleton height="20px" width="20%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+            <Box position="relative" h="200px" w="full">
+              <Skeleton height="200px" width="100%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+              
+              <Flex
+                position="absolute"
+                top={3}
+                right={3}
+                align="center"
+                bg="rgba(0,0,0,0.3)"
+                borderRadius="md"
+                px={2}
+                py={1}
+              >
+                <Skeleton height="16px" width="40px" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
               </Flex>
               
-              <Skeleton height="16px" width="60%" mb={2} startColor="surface.light" endColor="surface.dark" opacity="0.2" />
-              
-              <SkeletonText mt={2} noOfLines={2} spacing={2} skeletonHeight="10px" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
-              
-              <Flex justify="space-between" align="center" mt={3}>
-                <Skeleton height="16px" width="30%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
-                <Skeleton height="20px" width="25%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+              <Flex
+                position="absolute"
+                bottom={3}
+                left={3}
+                right={3}
+                justify="space-between"
+                align="center"
+              >
+                <Skeleton height="24px" width="80px" startColor="surface.light" endColor="surface.dark" opacity="0.2" borderRadius="md" />
+                <Skeleton height="24px" width="60px" startColor="surface.light" endColor="surface.dark" opacity="0.2" borderRadius="md" />
               </Flex>
             </Box>
+            
+            <VStack align="stretch" spacing={3} p={4} pt={3}>
+              <Skeleton height="24px" width="80%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+
+              <HStack spacing={1}>
+                <Skeleton height="16px" width="90%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+              </HStack>
+              
+              <Box minH="40px">
+                <SkeletonText mt={1} noOfLines={2} spacing={2} skeletonHeight="10px" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+              </Box>
+              
+              <Flex justify="space-between" align="center" mt={1}>
+                <Skeleton height="16px" width="40%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+                <Skeleton height="24px" width="25%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
+              </Flex>
+              
+              <Skeleton 
+                height="40px" 
+                width="100%" 
+                startColor="surface.light" 
+                endColor="surface.dark" 
+                opacity="0.2"
+                borderRadius="md"
+                mt={1}
+              />
+            </VStack>
           </Box>
         ))}
       </Flex>
