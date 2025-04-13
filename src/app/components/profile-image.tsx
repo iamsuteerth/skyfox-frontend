@@ -19,6 +19,8 @@ export default function ProfileImage({
   const [error, setError] = useState(false);
   const refreshTimestampRef = useRef<number | null>(null);
 
+  const forceUpdate = useCallback(() => setForceUpdate({}), []);
+  
   const refreshImage = useCallback(() => {
     setIsLoading(true);
     setError(false);
@@ -28,10 +30,9 @@ export default function ProfileImage({
       onRefreshRequest();
     }
     forceUpdate();
-  }, [onRefreshRequest]);
+  }, [onRefreshRequest, forceUpdate]);
 
   const [, setForceUpdate] = useState({});
-  const forceUpdate = useCallback(() => setForceUpdate({}), []);
 
   useEffect(() => {
     profileImageRefresher.setRefreshFunction(refreshImage);

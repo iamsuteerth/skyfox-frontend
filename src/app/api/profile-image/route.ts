@@ -1,31 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserFromToken } from '@/utils/jwt-utils';
-import { getProfileImageUrl } from '@/services/profile-service';
 
 export async function GET(request: NextRequest) {
   try {
     const cookies = request.cookies;
     const tokenCookie = cookies.get('auth-token');
     
-    if (!tokenCookie || !tokenCookie.value) {
+    if (!tokenCookie?.value) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
     
-    const token = tokenCookie.value;
+    // Call our abstracted API route
+    const profileResponse = await fetch(`${new URL(request.url).origin}/api/customer/profile-image`, {
+      headers: {
+        Cookie: request.headers.get('cookie') || ''
+      }
+    });
     
-    const user = getUserFromToken(token);
-    if (!user) {
+    if (!profileResponse.ok) {
       return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
+        { error: 'Failed to fetch profile image data' },
+        { status: profileResponse.status }
       );
     }
-
-    const presignedUrl = await getProfileImageUrl(token);
     
+    const profileData = await profileResponse.json();
+    
+    if (!profileData.data?.presigned_url) {
+      return NextResponse.json(
+        { error: 'No presigned URL found' },
+        { status: 500 }
+      );
+    }
+    
+    const presignedUrl = profileData.data.presigned_url;
+    
+    // Fetch the image using the presigned URL
     const imageResponse = await fetch(presignedUrl);
     if (!imageResponse.ok) {
       return NextResponse.json(

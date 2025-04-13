@@ -24,13 +24,16 @@ The application requires the following environment variables:
 
 ```
 # API Configuration
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+API_BASE_URL=
+API_KEY=
 
 # Environment Mode
 NODE_ENV=development
 ```
 
-The `NEXT_PUBLIC_API_BASE_URL` variable points to the SkyFox Backend API endpoint and is used throughout the application to construct API request URLs.
+The `API_BASE_URL` variable points to the SkyFox Backend API endpoint and is used throughout the application to construct API request URLs. This is server sided and all the backend calls are proxied from the client never exposing the actual URLs.
+
+The `API_KEY` variable points to the SkyFox Backend API Key as the backend won't work without providing it.
 
 The `NODE_ENV` variable determines which features are available. In development mode (`NODE_ENV=development`), additional developer tools and preview pages are accessible.
 
@@ -78,6 +81,92 @@ app/forgot-password/
 │   └── forgot-password-stepper.tsx  # Stepper UI
 └── page.tsx                   # Server component with metadata
 ```
+
+## API Proxy Architecture
+
+### Secure Backend Communication
+
+The SkyFox Frontend implements a sophisticated API proxy architecture that enhances security and maintainability:
+
+- **Environment Variable Abstraction**: Backend API URL and API Key are stored in server-side environment variables (`API_BASE_URL` and `API_KEY`), ensuring these sensitive details are never exposed to clients
+- **Next.js API Route Proxying**: All client-side requests are routed through Next.js API routes that act as secure proxies to the backend
+- **Transparent Authentication Forwarding**: Authentication tokens are securely passed between the client and backend through the proxy layer
+
+### Implementation Structure
+
+The proxy architecture is organized in a clean, hierarchical structure:
+
+```
+app/api/
+├── customer/
+│   ├── profile-image/
+│   │   └── route.ts       # Profile image data endpoint
+│   └── signup/
+│       └── route.ts       # Customer registration endpoint
+├── forgot-password/
+│   └── route.ts           # Password recovery endpoint
+├── login/
+│   └── route.ts           # Authentication endpoint
+├── profile-image/
+│   └── route.ts           # Profile image proxy with binary data handling
+├── security-questions/
+│   ├── by-email/
+│   │   └── route.ts       # Security questions by email endpoint
+│   └── route.ts           # General security questions endpoint
+├── shows/
+│   └── route.ts           # Movie shows data endpoint
+└── verify-security-answer/
+    └── route.ts           # Security answer verification endpoint
+```
+
+### Key Benefits
+
+This proxy architecture offers several significant advantages:
+
+1. **Enhanced Security**: Sensitive backend URLs and API keys remain server-side
+2. **Consistent Error Handling**: Standardized error processing across all API interactions
+3. **Simplified Client Code**: Frontend components interact with relative URLs
+4. **Centralized Request Processing**: Common request headers and authentication logic in one place
+5. **Flexible Backend Migration**: Backend API changes only require updates to proxy endpoints
+
+### Profile Image Proxy Example
+
+The profile image system showcases the elegance of this approach:
+
+- **Two-Layer Proxy**: Client requests profile image from `/api/profile-image`
+- **Server-Side Resolution**: The proxy fetches the presigned URL from `/api/customer/profile-image`
+- **Secure Image Retrieval**: Next.js server fetches the image using the presigned URL
+- **Client Receives Image**: Raw image data is returned to client without exposing the presigned URL
+- **Caching Implementation**: Proper HTTP cache headers ensure optimal performance
+
+```
+Client                    Next.js API Routes                  Backend API
+  │                              │                                │
+  │ GET /api/profile-image       │                                │
+  │ -------------------------->  │                                │
+  │                              │ GET /api/customer/profile-image│
+  │                              │ ------------------------------>│
+  │                              │                                │
+  │                              │ PresignedURL                   │
+  │                              │                                │
+  │                              │                                │
+  │                              │ Image Data                     │
+  │                              │ <------------------------------│
+  │                              │                                │
+  │ Image Data                   │                                │
+  │ <--------------------------- │                                │
+  │                              │                                │
+```
+
+### Client-Side Integration
+
+The service layer seamlessly integrates with this proxy architecture:
+
+- **Abstracted Endpoints**: Frontend services use relative URLs defined in `API_ROUTES` constants
+- **Type Safety**: Full TypeScript integration ensures proper request and response typing
+- **Transparent Proxying**: Components are unaware they're communicating through a proxy
+
+This elegant approach allows the frontend to maintain clean separation of concerns while ensuring secure communication with the backend. It also simplifies future changes to the backend infrastructure, as only the proxy layer would need to be updated rather than modifying client-side code throughout the application.
 
 ## Authentication System
 

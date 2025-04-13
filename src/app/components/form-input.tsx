@@ -19,6 +19,7 @@ interface FormInputProps {
   type?: string;
   rightElement?: ReactNode;
   isPassword?: boolean;
+  isDisabled?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
@@ -31,6 +32,7 @@ export default function FormInput({
   type = 'text',
   rightElement,
   isPassword = false,
+  isDisabled = false,
   onKeyDown, 
 }: FormInputProps) {
   return (
@@ -43,6 +45,7 @@ export default function FormInput({
           onChange={onChange}
           onKeyDown={onKeyDown} 
           placeholder={placeholder}
+          disabled={isDisabled}
           bg="background.secondary"
           color="text.primary"
           borderRadius="xl"
