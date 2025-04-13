@@ -93,10 +93,10 @@ const ProfileImageSection: React.FC<ProfileImageSectionProps> = ({
               value={formData.imageType}
             >
               <HStack spacing={6}>
-                <Radio value="default" colorScheme="primary" borderColor="primary" background="background.primary">
+                <Radio value="default" colorScheme="brand" borderColor="primary" background="background.primary">
                   <Text fontWeight="medium" color="text.primary">Use Default Avatar</Text>
                 </Radio>
-                <Radio value="custom" colorScheme="primary" borderColor="primary" background="background.primary">
+                <Radio value="custom" colorScheme="brand" borderColor="primary" background="background.primary">
                   <Text fontWeight="medium" color="text.primary">Upload Your Photo</Text>
                 </Radio>
               </HStack>
