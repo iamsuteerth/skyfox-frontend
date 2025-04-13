@@ -5,7 +5,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     let url = `${process.env.API_BASE_URL}/shows`;
     
-    // Add any query params from the original request
     const queryParams = Array.from(searchParams.entries())
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join('&');
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      'X-Api-Keye': process.env.API_KEY || ''
+      'X-Api-Key': process.env.API_KEY || ''
     };
     
     if (tokenCookie?.value) {

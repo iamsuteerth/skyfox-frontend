@@ -1,9 +1,7 @@
-// src/services/shows-service.ts
 import { API_ROUTES } from "@/constants";
 import { handleApiError } from "@/utils/error-utils";
 import { formatDateForAPI } from "@/utils/date-utils";
 
-// Type definitions for the API response
 interface Movie {
   movieId: string;
   name: string;
