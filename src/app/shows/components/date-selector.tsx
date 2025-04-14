@@ -1,8 +1,8 @@
-// src/app/shows/components/date-selector.tsx
 import React from 'react';
 import { Flex, Text } from '@chakra-ui/react';
 import { DatePicker } from '@/app/components/date-picker';
 import { useAuth } from '@/contexts/auth-context';
+import { ROLES } from '@/constants';
 
 interface DateSelectorProps {
   selectedDate: Date | null;
@@ -11,7 +11,7 @@ interface DateSelectorProps {
 
 const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onDateChange }) => {
   const { user } = useAuth();
-  const isCustomer = user?.role === 'customer';
+  const isCustomer = user?.role === ROLES.CUSTOMER;
 
   const formattedDate = selectedDate
     ? selectedDate.toLocaleDateString('en-US', {

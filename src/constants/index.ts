@@ -31,3 +31,9 @@ export const SUCCESS_MESSAGES = {
   SIGNUP_SUCCESS: `Signed up successfully!`,
   PASSWORD_RESET_SUCCESS: `Password has been reset successfully!`,
 };
+
+export const ROLES = {
+  CUSTOMER: `customer`,
+  ADMIN: `admin`,
+  STAFF: `staff`
+}

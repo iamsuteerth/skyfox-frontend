@@ -21,7 +21,7 @@ import {
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { useAuth } from '@/contexts/auth-context';
 import NextLink from 'next/link';
-import { APP_ROUTES } from '@/constants';
+import { APP_ROUTES, ROLES } from '@/constants';
 import { usePathname } from 'next/navigation';
 import ProfileImage from '@/app/components/profile-image';
 
@@ -118,7 +118,7 @@ export default function Header() {
               variant={'link'}
               cursor={'pointer'}
               minW={0}>
-              {user?.role === 'customer' ? (
+              {user?.role === ROLES.CUSTOMER ? (
                 <ProfileImage size="md"/>
               ) : (
                 <Avatar size={'md'} bg="primary" />

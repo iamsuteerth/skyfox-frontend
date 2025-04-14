@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  Box, 
-  Flex, 
-  Text, 
-  Badge, 
+import {
+  Box,
+  Flex,
+  Text,
+  Badge,
   Button,
   Tooltip,
   HStack,
@@ -14,28 +14,34 @@ import Image from 'next/image';
 import { StarIcon, TimeIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';
 import { formatDuration } from '@/utils/date-utils';
+import { useAuth } from '@/contexts/auth-context';
+import { RoleBasedElement } from '@/app/components/auth/role-based-element';
+import { ROLES } from '@/constants';
 
 interface ShowCardProps {
   show: Show;
 }
 
 const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
+
+  const { user } = useAuth();
+
   const formattedCost = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-    minimumFractionDigits: 2,  
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(show.cost);
 
   const startTime = show.slot.startTime.substring(0, 5);
-  
+
   const formattedDuration = formatDuration(show.movie.duration);
-  
+
   const shortGenre = show.movie.genre.split(', ').slice(0, 2).join(', ');
   const hasMoreGenres = show.movie.genre.split(', ').length > 2;
-  
+
   return (
-    <Box 
+    <Box
       w="300px"
       minW="300px"
       borderWidth="1px"
@@ -43,10 +49,10 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
       overflow="hidden"
       bg="background.primary"
       borderColor="surface.light"
-      shadow="sm"  
+      shadow="sm"
       transition="all 0.3s"
-      _hover={{ 
-        shadow: "md",  
+      _hover={{
+        shadow: "md",
         transform: 'translateY(-3px)',
         borderColor: 'brand.300'
       }}
@@ -62,8 +68,8 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           sizes="300px"
           priority
         />
-        
-        <Box 
+
+        <Box
           position="absolute"
           top={0}
           left={0}
@@ -71,8 +77,8 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           height="70px"
           bgGradient="linear(to-b, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)"
         />
-        
-        <Box 
+
+        <Box
           position="absolute"
           bottom={0}
           left={0}
@@ -80,7 +86,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           height="100px"
           bgGradient="linear(to-t, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%)"
         />
-        
+
         <Flex
           position="absolute"
           top={3}
@@ -93,10 +99,10 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           py={1}
           fontSize="sm"
         >
-          <Icon as={StarIcon} color="gold" mr={1} boxSize={3} />  
+          <Icon as={StarIcon} color="gold" mr={1} boxSize={3} />
           <Text fontWeight="bold" color="background.primary">{show.movie.imdbRating}</Text>
         </Flex>
-        
+
         <Flex
           position="absolute"
           bottom={3}
@@ -108,41 +114,41 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           <Badge colorScheme='brand' variant="solid" px={2} py={1}>
             {show.slot.name}
           </Badge>
-          
-          <HStack 
-            spacing={1} 
-            bg="rgba(0,0,0,0.7)"  
+
+          <HStack
+            spacing={1}
+            bg="rgba(0,0,0,0.7)"
             color="white"
             px={2}
             py={1}
             borderRadius="md"
           >
-            <Icon as={TimeIcon} boxSize={3} color="background.primary" /> 
+            <Icon as={TimeIcon} boxSize={3} color="background.primary" />
             <Text fontSize="sm" fontWeight="medium" color="background.primary">
               {startTime}
             </Text>
           </HStack>
         </Flex>
       </Box>
-      
+
       <VStack align="stretch" spacing={3} p={4} pt={3}>
-        <Text 
-          fontSize="lg" 
-          fontWeight="bold" 
+        <Text
+          fontSize="lg"
+          fontWeight="bold"
           color="text.primary"
           noOfLines={1}
           lineHeight="tight"
         >
           {show.movie.name}
         </Text>
-        
+
         <HStack spacing={1}>
           <Text fontSize="sm" color="text.tertiary" noOfLines={1}>
             {formattedDuration} • {shortGenre}
             {hasMoreGenres && (
-              <Tooltip 
+              <Tooltip
                 label={show.movie.genre}
-                placement="top" 
+                placement="top"
                 hasArrow
                 bg="background.secondary"
                 color="text.primary"
@@ -152,18 +158,18 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
             )}
           </Text>
         </HStack>
-        
-        <Tooltip 
-          label={show.movie.plot} 
-          placement="bottom" 
+
+        <Tooltip
+          label={show.movie.plot}
+          placement="bottom"
           hasArrow
           bg="background.secondary"
           color="text.primary"
           openDelay={300}
         >
-          <Text 
-            noOfLines={2} 
-            fontSize="sm" 
+          <Text
+            noOfLines={2}
+            fontSize="sm"
             color="text.secondary"
             minH="40px"
             cursor="pointer"
@@ -171,42 +177,46 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
             {show.movie.plot}
           </Text>
         </Tooltip>
-        
+
         <Flex justify="space-between" align="center" mt={1}>
-          <Text fontSize="sm" color="text.tertiary">
-            <Text as="span" fontWeight="semibold" color={show.availableseats > 20 ? "green.500" : "red.500"}>
-              {show.availableseats}
-            </Text> seats left
-          </Text>
+          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
+            <Text fontSize="sm" color="text.tertiary">
+              <Text as="span" fontWeight="semibold" color={show.availableseats > 15 ? "green.500" : "red.500"}>
+                {show.availableseats}
+              </Text> seats left
+            </Text>
+          </RoleBasedElement>
           <Text fontSize="lg" fontWeight="bold" color="brand.500">
             {formattedCost}
           </Text>
         </Flex>
-        
-        <Button
-          bg="brand.500"
-          color="white"
-          size="md"
-          borderRadius="md"
-          width="100%"
-          mt={1}
-          fontWeight="medium"
-          isDisabled={show.availableseats === 0}
-          _hover={{
-            bg: "brand.600",
-          }}
-          _active={{
-            bg: "brand.700",
-            transform: 'scale(0.98)'
-          }}
-          _disabled={{
-            bg: "gray.300",
-            cursor: "not-allowed",
-            opacity: 0.7
-          }}
-        >
-          Book Now
-        </Button>
+
+        <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
+          <Button
+            bg="brand.500"
+            color="white"
+            size="md"
+            borderRadius="md"
+            width="100%"
+            mt={1}
+            fontWeight="medium"
+            isDisabled={show.availableseats === 0}
+            _hover={{
+              bg: "brand.600",
+            }}
+            _active={{
+              bg: "brand.700",
+              transform: 'scale(0.98)'
+            }}
+            _disabled={{
+              bg: "gray.300",
+              cursor: "not-allowed",
+              opacity: 0.7
+            }}
+          >
+            Book Now
+          </Button>
+        </RoleBasedElement>
       </VStack>
     </Box>
   );

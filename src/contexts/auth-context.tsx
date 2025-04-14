@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useState, useContext, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 import { login as loginService } from '@/services/auth-service';
@@ -31,6 +31,7 @@ type AuthContextType = {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  isLoggingOut: boolean;  
   error: string | null;
 };
 
@@ -39,9 +40,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { showToast } = useCustomToast();
+  const logoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    router.prefetch(APP_ROUTES.LOGIN);
+  }, [router]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -103,16 +110,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    removeTokenCookie();
+  const logout = useCallback(() => {
+    setIsLoggingOut(true); 
+    
     setToken(null);
-    router.push(APP_ROUTES.LOGIN);
-  };
+
+    if (logoutTimeoutRef.current) {
+      clearTimeout(logoutTimeoutRef.current);
+    }
+
+    logoutTimeoutRef.current = setTimeout(() => {
+      removeTokenCookie();
+      router.push(APP_ROUTES.LOGIN);
+      setTimeout(() => {
+        setIsLoggingOut(false);
+      }, 500);
+    }, 50);
+  }, [router]);
 
   const user = token ? getUserFromToken(token) : null;
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading, error }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isLoading, isLoggingOut, error }}>
       {children}
     </AuthContext.Provider>
   );
