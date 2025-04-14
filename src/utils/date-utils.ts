@@ -1,6 +1,7 @@
 export const formatDateForAPI = (date: Date): string => {
   return date.toISOString().split('T')[0];
 };
+
 export const formatDateForDisplay = (dateStr: string): string => {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', {
@@ -11,7 +12,6 @@ export const formatDateForDisplay = (dateStr: string): string => {
   });
 };
 
-
 export const formatTimeForDisplay = (timeStr: string): string => {
   const [hours, minutes] = timeStr.split(':');
   const hour = parseInt(hours, 10);
@@ -20,8 +20,6 @@ export const formatTimeForDisplay = (timeStr: string): string => {
 
   return `${hour12}:${minutes} ${ampm}`;
 };
-
-
 
 export const isValidDateString = (dateString: string): boolean => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {

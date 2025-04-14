@@ -27,6 +27,7 @@ import { ScheduleShowFormData, ScheduleShowErrors, Movie, Slot } from './types';
 import FormInput from '@/app/components/form-input';
 import { formatDateForAPI, safeParseDateString } from '@/utils/date-utils';
 import Autocomplete, { Option } from '@/app/components/autocomplete';
+import Select from '@/app/components/select';
 
 const ScheduleShowDialog: React.FC = () => {
   const { dialogData, closeDialog } = useDialog();
@@ -213,12 +214,16 @@ const ScheduleShowDialog: React.FC = () => {
               isRequired
             />
 
-            <SlotSelector
-              slots={slots}
-              selectedSlot={selectedSlot}
-              onChange={(e) => setSelectedSlot(parseInt(e.target.value))}
+            <Select
+              options={slots.map(slot => ({ value: slot.id, label: slot.name, secondary_label: slot.startTime }))}
+              value={selectedSlot}
+              onChange={(value) => setSelectedSlot(value as number | null)}
+              label="Time Slot"
+              placeholder="Select a time slot"
               error={errors.slot}
               isLoading={isLoading}
+              name="time-slot"
+              isRequired
             />
 
             <PriceInput

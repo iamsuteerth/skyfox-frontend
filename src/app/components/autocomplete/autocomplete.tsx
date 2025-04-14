@@ -30,6 +30,8 @@ const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         popper: {
+          boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          borderRadius: '0.5rem',
           zIndex: 9999,
         },
       },
@@ -68,7 +70,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             noOptionsText="No options found"
             loadingText="Loading..."
-            disablePortal={false} 
+            disablePortal={false}
           />
         </ThemeProvider>
       </Box>
