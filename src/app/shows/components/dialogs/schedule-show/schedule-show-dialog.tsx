@@ -26,7 +26,8 @@ import FormInput from '@/app/components/form-input';
 import { formatDateForAPI, safeParseDateString } from '@/utils/date-utils';
 import Autocomplete, { Option } from '@/app/components/autocomplete';
 import Select from '@/app/components/select';
-import { fetchMovies, fetchSlots } from '@/services/shows-service';
+import { fetchMovies, fetchSlots, createShow, CreateShowData, CreateShowResult } from '@/services/shows-service';
+import { useShows } from '@/contexts/shows-contex';
 
 const ScheduleShowDialog: React.FC = () => {
   const { dialogData, closeDialog } = useDialog();
@@ -48,6 +49,8 @@ const ScheduleShowDialog: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const { refreshShows } = useShows();
 
   const movieOptions = useMemo(() =>
     movies.map(movie => ({ id: movie.movieId, label: movie.name })),
@@ -163,22 +166,19 @@ const ScheduleShowDialog: React.FC = () => {
       setIsSubmitting(true);
       const truncatedPrice = Math.floor(price * 100) / 100;
 
-      const showData = {
-        date: selectedDate?.toISOString().split('T')[0],
+      const showData: CreateShowData = {
         movieId: selectedMovie,
-        slotId: selectedSlot,
-        price: truncatedPrice,
+        date: selectedDate!.toISOString().split('T')[0],
+        slotId: selectedSlot!,
+        cost: truncatedPrice,
       };
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result: CreateShowResult = await createShow(showData, showToast);
 
-      showToast({
-        type: 'success',
-        title: 'Success',
-        description: 'Show scheduled successfully'
-      });
-
-      closeDialog();
+      if (result.success) {
+        closeDialog();
+        refreshShows();
+      }
     } catch (error) {
       console.error("Error scheduling show:", error);
       showToast({

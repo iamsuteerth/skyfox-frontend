@@ -3,16 +3,20 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Box, Heading, Container } from '@chakra-ui/react';
 import { usePathname, useSearchParams } from 'next/navigation';
+
+import dayjs from 'dayjs';
+
 import { fetchShows, Show } from '@/services/shows-service';
 import ShowsHeader from './shows-header';
 import ShowsGrid from './shows-grid';
 import NoShows from './no-shows';
 import LoadingState from './loading-state';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import dayjs from 'dayjs';
 import { formatDateForAPI } from '@/utils/date-utils';
-import { useDialog } from '@/contexts/dialog-context';
 import DialogManager from './dialogs/dialog-manager';
+
+import { useDialog } from '@/contexts/dialog-context';
+import { useShows } from '@/contexts/shows-contex';
 
 export default function Shows() {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +30,7 @@ export default function Shows() {
   const searchParams = useSearchParams();
   const { showToast } = useCustomToast();
   const { openDialog } = useDialog();
+  const { lastRefreshTime } = useShows();
 
   const handleDateChange = useCallback((date: Date | null) => {
     if (date) {
@@ -77,9 +82,12 @@ export default function Shows() {
   
   useEffect(() => {
     if (selectedDate) {
+      if (lastRefreshTime) {
+        lastFetchedDate.current = null;
+      }
       loadShows(selectedDate);
     }
-  }, [selectedDate, loadShows]);
+  }, [selectedDate, loadShows, lastRefreshTime]);
   
   useEffect(() => {
     if (isInitialMount.current) {

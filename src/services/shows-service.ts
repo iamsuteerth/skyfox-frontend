@@ -137,7 +137,6 @@ export const fetchShows = async (
   }
 };
 
-
 export const isDateWithinAllowedRange = (date: Date): boolean => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -275,4 +274,4 @@ export const createShow = async (showData: CreateShowData, showToast?: Function)
   }
 };
 
-export type { Show, Movie, Slot };
+export type { Show, Movie, Slot, CreateShowData, CreateShowResult };
