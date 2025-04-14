@@ -32,6 +32,23 @@ const theme = createTheme({
         popper: {
           zIndex: 9999,
         },
+        listbox: {
+          padding: '8px 0',
+          maxHeight: '240px',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+            backgroundColor: 'rgba(0,0,0,0.05)',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: 'rgba(0,0,0,0.3)',
+          },
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(0,0,0,0.2) rgba(0,0,0,0.05)',
+        },
       },
     },
     MuiOutlinedInput: {
@@ -79,7 +96,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
         <ThemeProvider theme={theme}>
           <MuiAutocomplete
             options={options}
-            getOptionLabel={(option) => option.label}
+            getOptionLabel={(option) => option?.label || ''}
             value={value}
             onChange={(_, newValue) => onChange(newValue)}
             renderInput={(params) => (
@@ -92,10 +109,20 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
                 fullWidth
               />
             )}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => 
+              option?.id === value?.id
+            }
             noOptionsText="No options found"
             loadingText="Loading..."
             disablePortal={false}
+            slotProps={{
+              listbox: {
+                style: {
+                  maxHeight: '240px',
+                  overflow: 'auto',
+                },
+              },
+            }}
           />
         </ThemeProvider>
       </Box>

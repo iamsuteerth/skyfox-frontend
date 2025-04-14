@@ -7,6 +7,8 @@ export const API_ROUTES = {
   VERIFY_SECURITY_ANSWER: '/api/verify-security-answer',
   SECURITY_QUESTION_BY_EMAIL: '/api/security-questions/by-email',
   SHOWS: '/api/shows',
+  MOVIES: '/api/shows/movies',
+  SLOTS: '/api/slot',
 };
 
 export const APP_ROUTES = {

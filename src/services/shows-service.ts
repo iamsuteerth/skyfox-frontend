@@ -48,6 +48,31 @@ interface FetchShowsResult {
   error?: string;
 }
 
+interface FetchMoviesResult {
+  success: boolean;
+  data?: Movie[];
+  error?: string;
+}
+
+interface FetchSlotsResult {
+  success: boolean;
+  data?: Slot[];
+  error?: string;
+}
+
+interface CreateShowData {
+  movieId: string;
+  date: string;
+  slotId: number;
+  cost: number;
+}
+
+interface CreateShowResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
+
 export const fetchShows = async (
   date?: Date,
   showToast?: Function
@@ -123,6 +148,131 @@ export const isDateWithinAllowedRange = (date: Date): boolean => {
   date.setHours(0, 0, 0, 0); 
   
   return date >= today && date <= maxDate;
+};
+
+export const fetchMovies = async (showToast?: Function): Promise<FetchMoviesResult> => {
+  try {
+    const response = await fetch(API_ROUTES.MOVIES, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'SUCCESS') {
+      return {
+        success: true,
+        data: data.data
+      };
+    }
+
+    throw new Error(data.message || 'An error occurred while fetching movies');
+
+  } catch (error: any) {
+    console.error('Error fetching movies:', error);
+    
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Failed to Load Movies',
+        description: error.message || handleApiError(error),
+      });
+    }
+    
+    return {
+      success: false,
+      error: error.message || handleApiError(error)
+    };
+  }
+};
+
+export const fetchSlots = async (date: Date, showToast?: Function): Promise<FetchSlotsResult> => {
+  try {
+    const formattedDate = formatDateForAPI(date);
+    const url = `${API_ROUTES.SLOTS}?date=${formattedDate}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'SUCCESS') {
+      return {
+        success: true,
+        data: data.data
+      };
+    }
+
+    throw new Error(data.message || 'An error occurred while fetching slots');
+
+  } catch (error: any) {
+    console.error('Error fetching slots:', error);
+    
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Failed to Load Slots',
+        description: error.message || handleApiError(error),
+      });
+    }
+    
+    return {
+      success: false,
+      error: error.message || handleApiError(error)
+    };
+  }
+};
+
+export const createShow = async (showData: CreateShowData, showToast?: Function): Promise<CreateShowResult> => {
+  try {
+    const response = await fetch(API_ROUTES.SHOWS, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(showData),
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'SUCCESS') {
+      if (showToast) {
+        showToast({
+          type: 'success',
+          title: 'Success',
+          description: 'Show created successfully!',
+        });
+      }
+      return {
+        success: true,
+        data: data.data
+      };
+    }
+
+    throw new Error(data.message || 'An error occurred while creating the show');
+
+  } catch (error: any) {
+    console.error('Error creating show:', error);
+    
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Failed to Create Show!',
+        description: error.message || handleApiError(error),
+      });
+    }
+    
+    return {
+      success: false,
+      error: error.message || handleApiError(error)
+    };
+  }
 };
 
 export type { Show, Movie, Slot };

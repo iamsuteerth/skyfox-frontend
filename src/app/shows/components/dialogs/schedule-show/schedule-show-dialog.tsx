@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -26,6 +26,7 @@ import FormInput from '@/app/components/form-input';
 import { formatDateForAPI, safeParseDateString } from '@/utils/date-utils';
 import Autocomplete, { Option } from '@/app/components/autocomplete';
 import Select from '@/app/components/select';
+import { fetchMovies, fetchSlots } from '@/services/shows-service';
 
 const ScheduleShowDialog: React.FC = () => {
   const { dialogData, closeDialog } = useDialog();
@@ -48,53 +49,98 @@ const ScheduleShowDialog: React.FC = () => {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const movieOptions = useMemo(() =>
+    movies.map(movie => ({ id: movie.movieId, label: movie.name })),
+    [movies]
+  );
+
   useEffect(() => {
-    const fetchData = async () => {
+    let isMounted = true;
+
+    const fetchMoviesData = async () => {
       try {
-        setIsLoading(true);
+        const moviesResult = await fetchMovies(showToast);
+        if (!isMounted) return;
 
-        setMovies([
-          { movieId: 'tt4178092', name: 'The Gift' },
-          { movieId: 'tt5968394', name: 'Captive State' },
-          { movieId: 'tt5052448', name: 'Get Out' },
-        ]);
-
-        setSlots([]);
+        if (moviesResult.success && moviesResult.data) {
+          const formattedMovies = moviesResult.data.map(movie => ({
+            movieId: movie.movieId,
+            name: movie.name
+          }));
+          setMovies(formattedMovies);
+        }
       } catch (error) {
-        console.error("Error fetching data:", error);
-        showToast({
-          type: 'error',
-          title: 'Error',
-          description: 'Failed to load required data'
-        });
-      } finally {
-        setIsLoading(false);
+        if (!isMounted) return;
+        console.error("Error fetching movies:", error);
       }
     };
 
-    fetchData();
+    fetchMoviesData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [showToast]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSlotsData = async () => {
+      if (!selectedDate) return;
+
+      setIsLoading(true);
+      try {
+        const slotsResult = await fetchSlots(selectedDate, showToast);
+        if (!isMounted) return;
+
+        if (slotsResult.success) {
+          if (slotsResult.data === null) {
+            setSlots([]);
+          } else {
+            const formattedSlots = slotsResult.data!.map(slot => ({
+              id: slot.id,
+              name: slot.name,
+              startTime: slot.startTime,
+              endTime: slot.endTime
+            }));
+            setSlots(formattedSlots);
+          }
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Error fetching slots:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchSlotsData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedDate, showToast]);
 
   useEffect(() => {
     if (selectedMovie && movies.length > 0) {
       const movie = movies.find(m => m.movieId === selectedMovie);
-      if (movie) {
-        setSelectedMovieOption({ id: movie.movieId, label: movie.name });
-      } else {
-        setSelectedMovieOption(null);
-      }
+      setSelectedMovieOption(movie ? { id: movie.movieId, label: movie.name } : null);
     } else {
       setSelectedMovieOption(null);
     }
   }, [selectedMovie, movies]);
 
-
   const handleSubmit = async () => {
+    setErrors({});
+
     const price = parseFloat(ticketPrice);
     if (isNaN(price) || price <= 0) {
-      setErrors((prev) => ({ ...prev, price: 'Enter a valid ticket price' }));
+      setErrors({ price: 'Enter a valid ticket price' });
       return;
     }
+
     const formData: ScheduleShowFormData = {
       selectedDate,
       selectedMovie,
@@ -103,9 +149,8 @@ const ScheduleShowDialog: React.FC = () => {
     };
 
     const validationErrors = validateForm(formData);
-    setErrors(validationErrors);
-
     if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       showToast({
         type: 'error',
         title: 'Invalid Input',
@@ -116,7 +161,6 @@ const ScheduleShowDialog: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-
       const truncatedPrice = Math.floor(price * 100) / 100;
 
       const showData = {
@@ -126,7 +170,6 @@ const ScheduleShowDialog: React.FC = () => {
         price: truncatedPrice,
       };
 
-      console.log('Scheduling show:', showData);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       showToast({
@@ -156,8 +199,9 @@ const ScheduleShowDialog: React.FC = () => {
       isCentered
       motionPreset="slideInBottom"
       blockScrollOnMount={false}
-      trapFocus={false}
-      returnFocusOnClose={true}
+      trapFocus
+      autoFocus
+      returnFocusOnClose
     >
       <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" style={{ pointerEvents: 'auto' }} />
       <ModalContent
@@ -191,7 +235,7 @@ const ScheduleShowDialog: React.FC = () => {
             </FormControl>
 
             <Autocomplete
-              options={movies.map(movie => ({ id: movie.movieId, label: movie.name }))}
+              options={movieOptions}
               value={selectedMovieOption}
               onChange={(option) => {
                 setSelectedMovieOption(option);
