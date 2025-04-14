@@ -24,6 +24,7 @@ import NextLink from 'next/link';
 import { APP_ROUTES, ROLES } from '@/constants';
 import { usePathname } from 'next/navigation';
 import ProfileImage from '@/app/components/profile-image';
+import router from 'next/router';
 
 const formatRole = (role?: string) => {
   if (!role) return '';
@@ -40,6 +41,11 @@ export default function Header() {
 
   const validRoutes = {
     shows: APP_ROUTES.SHOWS,
+  };
+
+  const handleShowsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    router.push('/shows');
   };
   
   const isActive = (route: string) => pathname === route;

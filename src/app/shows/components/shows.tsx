@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Box, Heading, Container } from '@chakra-ui/react';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { fetchShows, Show } from '@/services/shows-service';
 import ShowsHeader from './shows-header';
 import ShowsGrid from './shows-grid';
@@ -129,6 +129,16 @@ export default function Shows() {
       isInitialMount.current = false;
     }
   }, [searchParams, showToast]);
+
+  const pathname = usePathname();
+  useEffect(() => {
+    if (!isInitialMount.current && !searchParams.toString()) {
+      lastFetchedDate.current = null;
+      const today = new Date();
+      today.setHours(12, 0, 0, 0);
+      setSelectedDate(today);
+    }
+  }, [pathname, searchParams]);
 
   return (
     <Container maxW="container.xl" py={6}>
