@@ -21,7 +21,7 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, IconButton, useColorModeValue } from '@chakra-ui/react';
+import { Box, IconButton } from '@chakra-ui/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -46,13 +46,13 @@ const StyledDatePicker = styled(MuiDatePicker)({
   '& .MuiPickersDay-root': {
     fontFamily: 'Poppins, sans-serif',
     '&.Mui-selected': {
-      backgroundColor: '#CB4400', 
+      backgroundColor: '#CB4400',
       color: '#FFFFFF',
       '&:hover': {
         backgroundColor: '#A63600',
       },
       '&:active': {
-        backgroundColor: '#8A2D00', 
+        backgroundColor: '#8A2D00',
       },
     },
     '&:hover': {
@@ -78,9 +78,9 @@ function IconButtonField(props: any) {
       onClick={() => setOpen?.((prev: boolean) => !prev)}
       isDisabled={disabled}
       size="md"
-      variant="solid"
+      variant="ghost"
       color={'primary'}
-      _hover={{color:'brand.600'}}
+      _hover={{ color: 'brand.600' }}
     />
   );
 }
@@ -283,6 +283,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
                     },
                   },
                 ],
+                sx: {
+                  zIndex: 1500, 
+                  position: 'fixed', 
+                },
+                container: document.body, 
               },
             }}
             value={dayjsValue}

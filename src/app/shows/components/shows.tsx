@@ -1,17 +1,18 @@
-// src/app/shows/components/shows.tsx
 'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Box, Heading, Container } from '@chakra-ui/react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { fetchShows, Show } from '@/services/shows-service';
-import DateSelector from './date-selector';
+import ShowsHeader from './shows-header';
 import ShowsGrid from './shows-grid';
 import NoShows from './no-shows';
 import LoadingState from './loading-state';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 import dayjs from 'dayjs';
 import { formatDateForAPI } from '@/utils/date-utils';
+import { useDialog } from '@/contexts/dialog-context';
+import DialogManager from './dialog-manager';
 
 export default function Shows() {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,6 +25,7 @@ export default function Shows() {
   
   const searchParams = useSearchParams();
   const { showToast } = useCustomToast();
+  const { openDialog } = useDialog();
 
   const handleDateChange = useCallback((date: Date | null) => {
     if (date) {
@@ -34,6 +36,10 @@ export default function Shows() {
       setSelectedDate(null);
     }
   }, []);
+
+  const handleScheduleShow = () => {
+    openDialog('scheduleShow', { date: selectedDate });
+  };
   
   const loadShows = useCallback(async (date: Date) => {
     const dateString = dayjs(date).format('YYYY-MM-DD');
@@ -130,9 +136,10 @@ export default function Shows() {
         Movie Shows
       </Heading>
 
-      <DateSelector 
+      <ShowsHeader 
         selectedDate={selectedDate} 
         onDateChange={handleDateChange} 
+        onScheduleShow={handleScheduleShow}
       />
       
       <Box my={4}>
@@ -141,6 +148,7 @@ export default function Shows() {
         {!isLoading && !hasError && shows.length === 0 && <NoShows />}
         {!isLoading && !hasError && shows.length > 0 && <ShowsGrid shows={shows} />}
       </Box>
+      <DialogManager />
     </Container>
   );
 }
