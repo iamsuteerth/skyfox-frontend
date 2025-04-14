@@ -90,7 +90,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
             cursor="pointer"
             bg="background.primary"
             color="text.primary"
-            borderRadius="xl"
+            borderRadius="md"
             borderColor={error ? "error" : "surface.light"}
             _hover={{ borderColor: "surface.dark" }}
             _focus={{
@@ -110,7 +110,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
       
       <PopoverContent
         borderColor="surface.light"
-        bg="background.secondary"
+        bg="background.primary"
         borderRadius="md"
         width="xs"
         boxShadow="lg"

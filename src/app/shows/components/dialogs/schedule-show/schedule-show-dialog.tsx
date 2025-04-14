@@ -12,13 +12,11 @@ import {
   Divider,
   useBreakpointValue,
   FormControl,
-  FormLabel,
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 
-import { SlotSelector } from './slot-selector';
 import { PriceInput } from './price-input';
 import { SummaryBox } from './summary-box';
 import { validateForm } from './utils';
@@ -39,7 +37,6 @@ const ScheduleShowDialog: React.FC = () => {
     md: 'md'
   });
 
-  // Form state
   const [selectedDate, setSelectedDate] = useState<Date | null>(dialogData?.date || new Date());
   const [selectedMovie, setSelectedMovie] = useState<string>('');
   const [selectedMovieOption, setSelectedMovieOption] = useState<Option | null>(null);
@@ -47,12 +44,10 @@ const ScheduleShowDialog: React.FC = () => {
   const [ticketPrice, setTicketPrice] = useState<string>('200');
   const [errors, setErrors] = useState<ScheduleShowErrors>({});
 
-  // Data
   const [movies, setMovies] = useState<Movie[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch movies and slots
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -64,12 +59,7 @@ const ScheduleShowDialog: React.FC = () => {
           { movieId: 'tt5052448', name: 'Get Out' },
         ]);
 
-        setSlots([
-          { id: 1, name: 'Morning', startTime: '09:00:00', endTime: '12:00:00' },
-          { id: 2, name: 'Afternoon', startTime: '13:00:00', endTime: '16:00:00' },
-          { id: 3, name: 'Evening', startTime: '17:00:00', endTime: '20:00:00' },
-          { id: 4, name: 'Night', startTime: '21:00:00', endTime: '00:00:00' },
-        ]);
+        setSlots([]);
       } catch (error) {
         console.error("Error fetching data:", error);
         showToast({
@@ -136,7 +126,6 @@ const ScheduleShowDialog: React.FC = () => {
         price: truncatedPrice,
       };
 
-      // Replace with actual API call
       console.log('Scheduling show:', showData);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -223,6 +212,9 @@ const ScheduleShowDialog: React.FC = () => {
               error={errors.slot}
               isLoading={isLoading}
               name="time-slot"
+              currentTimeMs={Date.now()}
+              selectedDate={selectedDate?.toISOString().split('T')[0]}
+              isTimeDependent
               isRequired
             />
 

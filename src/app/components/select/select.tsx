@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Select as MuiSelect, MenuItem, FormControl as MuiFormControl, SelectChangeEvent, ThemeProvider } from '@mui/material';
 import { Box, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { createTheme } from '@mui/material/styles';
@@ -7,7 +7,7 @@ import { formatTimeForDisplay } from '@/utils/date-utils';
 export interface SelectOption {
   value: string | number;
   label: string;
-  secondary_label?: string;
+  secondary_label?: string; 
 }
 
 interface SelectProps {
@@ -21,6 +21,9 @@ interface SelectProps {
   isDisabled?: boolean;
   isLoading?: boolean;
   name?: string;
+  isTimeDependent?: boolean;
+  currentTimeMs?: number; 
+  selectedDate?: string; 
 }
 
 const theme = createTheme({
@@ -31,17 +34,68 @@ const theme = createTheme({
     text: {
       primary: '#161A1E',
       secondary: '#404348',
+      disabled: '#A0A4A8',
     },
   },
   typography: {
     fontFamily: 'var(--font-poppins), sans-serif',
   },
   components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#D8DADC',
+            borderRadius: '0.5rem',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#5C6063',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#E04B00',
+            borderWidth: '2px',
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          padding: '8px 14px',
+        },
+        icon: {
+          color: '#5C6063',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontFamily: 'var(--font-poppins), sans-serif',
+          fontSize: '1rem',
+          padding: '8px 16px',
+          minHeight: '40px',
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(224, 75, 0, 0.1)',
+          },
+          '&.Mui-selected:hover': {
+            backgroundColor: 'rgba(224, 75, 0, 0.2)',
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(224, 75, 0, 0.1)',
+          },
+          '&.Mui-disabled': {
+            opacity: 0.6,
+            color: '#A0A4A8',
+          },
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {
           boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          borderRadius: '0.5rem',
+          borderRadius: '0.5rem', 
           zIndex: 9999,
         },
       },
@@ -59,6 +113,25 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Converts a date string and time string to milliseconds since epoch
+ * @param dateStr Date string in YYYY-MM-DD format
+ * @param timeStr Time string in HH:MM:SS format
+ * @returns milliseconds since epoch, or null if invalid input
+ */
+const getTimeInMs = (dateStr: string, timeStr: string): number | null => {
+  if (!dateStr || !timeStr) return null;
+  try {
+    const [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
+    const [hours, minutes, seconds = 0] = timeStr.split(':').map(num => parseInt(num, 10));
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    return date.getTime();
+  } catch (e) {
+    console.error("Error parsing date or time:", e);
+    return null;
+  }
+};
+
 const Select: React.FC<SelectProps> = ({
   options,
   value,
@@ -70,15 +143,14 @@ const Select: React.FC<SelectProps> = ({
   isDisabled = false,
   isLoading = false,
   name,
+  isTimeDependent = false,
+  currentTimeMs, 
+  selectedDate, 
 }) => {
   const handleChange = (event: SelectChangeEvent<string | number>) => {
     const newValue = event.target.value;
     onChange(newValue === '' ? null : newValue as string | number);
   };
-
-  useEffect(() => {
-    console.log("Options:", options);
-  }, [options]);
 
   const labelId = `${name || label.toLowerCase().replace(/\s+/g, '-')}-label`;
 
@@ -101,7 +173,7 @@ const Select: React.FC<SelectProps> = ({
               displayEmpty
               renderValue={(selected) => {
                 if (selected === '') {
-                  return <span style={{ opacity: 0.5 }}>{placeholder}</span>;
+                  return <span style={{ opacity: 0.4 }}>{placeholder}</span>;
                 }
                 const selectedOption = options.find(option => option.value === selected);
                 return selectedOption ? selectedOption.label : '';
@@ -133,27 +205,46 @@ const Select: React.FC<SelectProps> = ({
                 }
               }}
               sx={{
-                height: '48px',
-                minHeight: '48px',
-                '& .MuiSelect-select': {
-                  padding: '12px 16px',
-                },
+                height: '40px',
+                minHeight: '40px',
               }}
+              size="small"
             >
               <MenuItem value="">
                 <em style={{ opacity: 0.5 }}>{placeholder}</em>
               </MenuItem>
 
-              {options.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                  {option.secondary_label && (
-                    <span style={{ marginLeft: '8px', color: '#718096' }}>
-                      | {formatTimeForDisplay(option.secondary_label)}
-                    </span>
-                  )}
-                </MenuItem>
-              ))}
+              {options.map((option) => {
+                let isOptionDisabled = false;
+                
+                if (isTimeDependent && option.secondary_label && selectedDate && currentTimeMs) {
+                  const optionTimeMs = getTimeInMs(selectedDate, option.secondary_label);
+                  if (optionTimeMs !== null) {
+                    isOptionDisabled = optionTimeMs < currentTimeMs;
+                  }
+                }
+
+                return (
+                  <MenuItem 
+                    key={option.value} 
+                    value={option.value}
+                    disabled={isOptionDisabled}
+                    sx={{
+                      opacity: isOptionDisabled ? 0.6 : 1,
+                    }}
+                  >
+                    {option.label}
+                    {option.secondary_label && (
+                      <span style={{ 
+                        marginLeft: '8px', 
+                        color: isOptionDisabled ? '#A0A4A8' : '#718096'
+                      }}>
+                        | {formatTimeForDisplay(option.secondary_label)}
+                      </span>
+                    )}
+                  </MenuItem>
+                );
+              })}
             </MuiSelect>
           </MuiFormControl>
         </ThemeProvider>

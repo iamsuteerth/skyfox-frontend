@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Call our abstracted API route
     const profileResponse = await fetch(`${new URL(request.url).origin}/api/customer/profile-image`, {
       headers: {
         Cookie: request.headers.get('cookie') || ''
@@ -37,7 +36,6 @@ export async function GET(request: NextRequest) {
     
     const presignedUrl = profileData.data.presigned_url;
     
-    // Fetch the image using the presigned URL
     const imageResponse = await fetch(presignedUrl);
     if (!imageResponse.ok) {
       return NextResponse.json(

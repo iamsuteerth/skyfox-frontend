@@ -30,6 +30,30 @@ const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         popper: {
+          zIndex: 9999,
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#D8DADC',
+            borderRadius: '0.5rem',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#5C6063',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#E04B00',
+            borderWidth: '2px',
+          },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
           boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06)',
           borderRadius: '0.5rem',
           zIndex: 9999,
@@ -61,6 +85,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
+                size='small'
                 placeholder={placeholder}
                 variant="outlined"
                 error={!!error}

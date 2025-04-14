@@ -1,4 +1,3 @@
-// src/app/shows/components/shows-grid.tsx
 import React, { useRef } from 'react';
 import { 
   Box, 
