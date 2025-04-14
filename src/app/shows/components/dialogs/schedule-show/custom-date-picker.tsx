@@ -119,29 +119,22 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           <Box
             className="custom-day-picker"
             sx={{
-              // Root container styling
               '.rdp': {
                 '--rdp-accent-color': 'var(--chakra-colors-brand-500)',
                 '--rdp-background-color': 'var(--chakra-colors-brand-100)',
                 fontFamily: 'var(--font-poppins), sans-serif',
-                margin: '0 auto', // Center the calendar
-                padding: '0',     // Remove default padding
-                width: 'fit-content', // Make container fit the content exactly
+                margin: '0 auto', 
+                padding: '0',     
+                width: 'fit-content',
               },
-              
-              // Table styling for proper alignment
               '.rdp-table': {
-                margin: '0 auto', // Center the table
-                borderSpacing: '0', // Remove space between cells
+                margin: '0 auto',
+                borderSpacing: '0',
                 borderCollapse: 'collapse',
               },
-              
-              // Month container
               '.rdp-month': {
-                margin: '0', // Remove default margins
+                margin: '0', 
               },
-              
-              // Caption styling
               '.rdp-caption': {
                 color: 'text.primary',
                 padding: '0.5rem 0',
@@ -154,8 +147,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 color: 'text.primary',
                 padding: '0 8px',
               },
-              
-              // Navigation buttons
               '.rdp-button_previous, .rdp-button_next': {
                 color: 'secondary',
                 transition: 'all 0.2s',
@@ -169,8 +160,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
               '.rdp-button_previous svg, .rdp-button_next svg': {
                 fill: 'var(--chakra-colors-secondary)',
               },
-              
-              // Weekdays row
               '.rdp-weekdays': {
                 color: 'text.tertiary',
                 fontWeight: "bold",
@@ -179,13 +168,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
               '.rdp-head_cell': {
                 padding: '0',
                 textAlign: 'center',
-                width: '40px',  // Fixed width
+                width: '40px', 
               },
               '.rdp-head_cell abbr': {
                 textDecoration: 'none',
               },
-              
-              // Day cells
               '.rdp-cell': {
                 padding: '0',
                 width: '40px',
@@ -196,7 +183,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 width: '40px',
                 fontSize: '0.9rem',
                 transition: 'all 0.2s',
-                margin: '0',  // Remove margins
+                margin: '0',
               },
               '.rdp-day_button': {
                 borderRadius: 'xl',
@@ -205,10 +192,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '0',  // Remove padding
+                padding: '0', 
               },
-              
-              // Selected day
               '.rdp-day_selected, .rdp-day_selected:hover': {
                 backgroundColor: 'transparent',
               },
@@ -222,8 +207,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 backgroundColor: 'brand.500 !important',
                 color: 'white !important',
               },
-              
-              // Today
               '.rdp-day_today': {
                 position: 'relative',
                 fontWeight: 'medium',
@@ -239,8 +222,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 border: 'none',
                 borderRadius: 'xl',
               },
-              
-              // Hover and focus states
               '.rdp-day:not(.rdp-day_selected) .rdp-day_button:hover:not([disabled])': {
                 backgroundColor: 'rgba(224, 75, 0, 0.1)',
                 color: 'brand.700',
@@ -250,8 +231,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 boxShadow: '0 0 0 2px var(--chakra-colors-brand-300)',
                 outline: 'none',
               },
-              
-              // Disabled days
               '.rdp-day_disabled': {
                 opacity: 0.5,
                 cursor: 'not-allowed',

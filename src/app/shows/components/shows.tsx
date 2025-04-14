@@ -12,7 +12,7 @@ import { useCustomToast } from '@/app/components/ui/custom-toast';
 import dayjs from 'dayjs';
 import { formatDateForAPI } from '@/utils/date-utils';
 import { useDialog } from '@/contexts/dialog-context';
-import DialogManager from './dialog-manager';
+import DialogManager from './dialogs/dialog-manager';
 
 export default function Shows() {
   const [isLoading, setIsLoading] = useState(true);

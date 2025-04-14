@@ -18,7 +18,6 @@ import {
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 
-import { MovieSelector } from './movie-selector';
 import { SlotSelector } from './slot-selector';
 import { PriceInput } from './price-input';
 import { SummaryBox } from './summary-box';
@@ -27,20 +26,22 @@ import { ScheduleShowFormData, ScheduleShowErrors, Movie, Slot } from './types';
 
 import FormInput from '@/app/components/form-input';
 import { formatDateForAPI, safeParseDateString } from '@/utils/date-utils';
+import Autocomplete, { Option } from '@/app/components/autocomplete';
 
 const ScheduleShowDialog: React.FC = () => {
   const { dialogData, closeDialog } = useDialog();
   const { showToast } = useCustomToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const modalSize = useBreakpointValue({ 
-    base: 'xs', 
+  const modalSize = useBreakpointValue({
+    base: 'xs',
     sm: 'sm',
-    md: 'md' 
+    md: 'md'
   });
 
   // Form state
   const [selectedDate, setSelectedDate] = useState<Date | null>(dialogData?.date || new Date());
   const [selectedMovie, setSelectedMovie] = useState<string>('');
+  const [selectedMovieOption, setSelectedMovieOption] = useState<Option | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [ticketPrice, setTicketPrice] = useState<string>('200');
   const [errors, setErrors] = useState<ScheduleShowErrors>({});
@@ -83,6 +84,19 @@ const ScheduleShowDialog: React.FC = () => {
     fetchData();
   }, [showToast]);
 
+  useEffect(() => {
+    if (selectedMovie && movies.length > 0) {
+      const movie = movies.find(m => m.movieId === selectedMovie);
+      if (movie) {
+        setSelectedMovieOption({ id: movie.movieId, label: movie.name });
+      } else {
+        setSelectedMovieOption(null);
+      }
+    } else {
+      setSelectedMovieOption(null);
+    }
+  }, [selectedMovie, movies]);
+
 
   const handleSubmit = async () => {
     const price = parseFloat(ticketPrice);
@@ -94,7 +108,7 @@ const ScheduleShowDialog: React.FC = () => {
       selectedDate,
       selectedMovie,
       selectedSlot,
-      ticketPrice:price,
+      ticketPrice: price,
     };
 
     const validationErrors = validateForm(formData);
@@ -172,26 +186,31 @@ const ScheduleShowDialog: React.FC = () => {
 
         <ModalBody py={6}>
           <VStack spacing={5} align="stretch">
-          <FormControl isRequired isInvalid={!!errors.date}>
-            <FormInput
-              type="date"
-              value={selectedDate ? formatDateForAPI(selectedDate) : ''}
-              onChange={(e) => {
-                const date = safeParseDateString(e.target.value);
-                setSelectedDate(date);
-              }}
-              label='Show Date'
-              minDate={formatDateForAPI(new Date())}
-            />
-            {errors.date && <FormErrorMessage>{errors.date}</FormErrorMessage>}
-          </FormControl>
+            <FormControl isRequired isInvalid={!!errors.date}>
+              <FormInput
+                type="date"
+                value={selectedDate ? formatDateForAPI(selectedDate) : ''}
+                onChange={(e) => {
+                  const date = safeParseDateString(e.target.value);
+                  setSelectedDate(date);
+                }}
+                label='Show Date'
+                minDate={formatDateForAPI(new Date())}
+              />
+              {errors.date && <FormErrorMessage>{errors.date}</FormErrorMessage>}
+            </FormControl>
 
-            <MovieSelector
-              movies={movies}
-              selectedMovie={selectedMovie}
-              onChange={(e) => setSelectedMovie(e.target.value)}
+            <Autocomplete
+              options={movies.map(movie => ({ id: movie.movieId, label: movie.name }))}
+              value={selectedMovieOption}
+              onChange={(option) => {
+                setSelectedMovieOption(option);
+                setSelectedMovie(option?.id || '');
+              }}
+              label="Select Movie"
+              placeholder="Search for a movie"
               error={errors.movie}
-              isLoading={isLoading}
+              isRequired
             />
 
             <SlotSelector

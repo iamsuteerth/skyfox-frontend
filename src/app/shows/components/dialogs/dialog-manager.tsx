@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDialog } from '@/contexts/dialog-context';
-import ScheduleShowDialog from './dialogs/schedule-show/schedule-show-dialog';
+import ScheduleShowDialog from './schedule-show/schedule-show-dialog';
 
 // import AdminBookingDialog from './dialogs/admin-booking-dialog';
 // import CustomerBookingDialog from './dialogs/customer-booking-dialog';
