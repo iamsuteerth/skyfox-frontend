@@ -111,7 +111,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           justify="space-between"
           align="center"
         >
-          <Badge colorScheme='brand' variant="solid" px={2} py={1}>
+          <Badge colorScheme='brand' variant="subtle" px={2} py={1}>
             {show.slot.name}
           </Badge>
 
