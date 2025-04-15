@@ -5,8 +5,8 @@ export const resizeImage = async (file: File): Promise<HTMLCanvasElement> => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 64;
-      canvas.height = 64;
+      canvas.width = 320;
+      canvas.height = 320;
       const ctx = canvas.getContext('2d');
       
       if (!ctx) {
@@ -14,7 +14,7 @@ export const resizeImage = async (file: File): Promise<HTMLCanvasElement> => {
         return;
       }
       
-      ctx.drawImage(img, 0, 0, 64, 64);
+      ctx.drawImage(img, 0, 0, 320, 320);
       resolve(canvas);
     };
     img.onerror = () => {

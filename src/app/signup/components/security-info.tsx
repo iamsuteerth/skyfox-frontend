@@ -1,20 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  SimpleGrid, 
-  Heading, 
-  FormControl, 
-  FormLabel, 
+import React from 'react';
+import {
+  SimpleGrid,
+  Heading,
+  FormControl,
+  FormLabel,
   FormErrorMessage,
   Box,
-  Select,
   IconButton,
   useDisclosure
 } from '@chakra-ui/react';
-import {ChevronDownIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import FormInput from '@/app/components/form-input';
 import { SecurityQuestion } from '@/services/security-question-service';
+import Select from '@/app/components/select';
 
 interface SecurityInfoSectionProps {
   formData: {
@@ -46,7 +46,12 @@ const SecurityInfoSection: React.FC<SecurityInfoSectionProps> = ({
   setShowConfirmPassword,
 }) => {
   const { onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
-  
+
+  const securityQuestionOptions = securityQuestions.map(q => ({
+    value: q.id,
+    label: q.question
+  }));
+
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     handleSecurityQuestionChange(e);
     onSelectClose();
@@ -95,69 +100,40 @@ const SecurityInfoSection: React.FC<SecurityInfoSectionProps> = ({
         />
 
         <FormControl isInvalid={!!formData.errors.securityQuestionId}>
-          <FormLabel fontWeight="medium" color="text.primary">Security Question</FormLabel>
           <Box position="relative">
             <Select
-              size="md"
-              value={formData.securityQuestionId}
-              onChange={handleSelectChange}
-              onFocus={onSelectOpen}
-              onBlur={onSelectClose}
-              disabled={securityQuestions.length === 0}
-              bg="background.secondary"
-              color="text.primary"
-              borderColor="gray.200"
-              borderRadius="xl"
-              height="56px"
-              _focus={{
-                borderColor: 'primary',
-                boxShadow: '0 0 0 1px #E04B00',
-              }}
-              _hover={{
-                borderColor: 'primary',
-              }}
-              icon={<ChevronDownIcon color="primary" />}
-              iconSize="20px"
-              sx={{
-                appearance: 'none',
-                WebkitAppearance: 'none',
-                MozAppearance: 'none',
-                paddingRight: '2.5rem',
-                '& option': {
-                  background: 'var(--chakra-colors-background-secondary)',
-                  color: 'var(--chakra-colors-text-primary)',
-                  padding: '10px',
-                  fontSize: '16px',
-                },
-                '&::-ms-expand': {
-                  display: 'none',
-                },
-                '&:focus': {
-                  outline: 'none',
-                },
-              }}
-            >
-              <option value={0} disabled>Select a security question</option>
-              {securityQuestions?.map(q => (
-                <option key={q.id} value={q.id}>
-                  {q.question}
-                </option>
-              ))}
-            </Select>
-          </Box>
-          {formData.errors.securityQuestionId && (
-            <FormErrorMessage color="error">{formData.errors.securityQuestionId}</FormErrorMessage>
-          )}
-        </FormControl>
+              options={securityQuestionOptions}
+              value={formData.securityQuestionId || null}
+              onChange={(value) => {
+                const syntheticEvent = {
+                  target: {
+                    name: 'securityQuestionId',
+                    value: value
+                  }
+                } as React.ChangeEvent<HTMLSelectElement>;
 
-        <FormInput
-          label="Security Answer"
-          value={formData.securityAnswer}
-          onChange={handleInputChange('securityAnswer')}
-          placeholder="Enter your answer"
-          error={formData.errors.securityAnswer}
-        />
-      </SimpleGrid>
+                handleSecurityQuestionChange(syntheticEvent);
+              }}
+              label="Security Question"
+              placeholder="Select a security question"
+              error={formData.errors.securityQuestionId}
+              name="securityQuestionId"
+              sizeOverride={48}
+            />
+        </Box>
+        {formData.errors.securityQuestionId && (
+          <FormErrorMessage color="error">{formData.errors.securityQuestionId}</FormErrorMessage>
+        )}
+      </FormControl>
+
+      <FormInput
+        label="Security Answer"
+        value={formData.securityAnswer}
+        onChange={handleInputChange('securityAnswer')}
+        placeholder="Enter your answer"
+        error={formData.errors.securityAnswer}
+      />
+    </SimpleGrid >
     </>
   );
 };

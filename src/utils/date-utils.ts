@@ -70,3 +70,45 @@ export const getCurrentTimeString = () : string => {
   
   return `${hours}:${minutes}:${seconds}`;
 }
+
+/**
+ * Formats a timestamp into a date with ordinal day format (e.g., "15th April, 2025")
+ * @param timestamp - Timestamp string in format like "2025-04-15 06:00:06.14253+00"
+ * @returns Formatted date string or empty string if invalid input
+ */
+export const formatTimestampToOrdinalDate = (timestamp: string | null | undefined): string => {
+  if (!timestamp) return '';
+  
+  try {
+    const date = new Date(timestamp);
+    
+    if (isNaN(date.getTime())) return '';
+    
+    const day = date.getDate();
+    const month = date.toLocaleString('en-US', { month: 'long' });
+    const year = date.getFullYear();
+    
+    const ordinalSuffix = getOrdinalSuffix(day);
+    
+    return `${day}${ordinalSuffix} ${month}, ${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '';
+  }
+};
+
+/**
+ * Returns the ordinal suffix for a number (1st, 2nd, 3rd, 4th, etc.)
+ * @param day - The day number
+ * @returns The appropriate ordinal suffix
+ */
+const getOrdinalSuffix = (day: number): string => {
+  if (day > 3 && day < 21) return 'th';
+  
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+};

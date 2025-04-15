@@ -7,7 +7,7 @@ import { formatTimeForDisplay } from '@/utils/date-utils';
 export interface SelectOption {
   value: string | number;
   label: string;
-  secondary_label?: string; 
+  secondary_label?: string;
 }
 
 interface SelectProps {
@@ -22,8 +22,9 @@ interface SelectProps {
   isLoading?: boolean;
   name?: string;
   isTimeDependent?: boolean;
-  currentTimeMs?: number; 
-  selectedDate?: string; 
+  currentTimeMs?: number;
+  selectedDate?: string;
+  sizeOverride?: number;
 }
 
 const theme = createTheme({
@@ -95,7 +96,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          borderRadius: '0.5rem', 
+          borderRadius: '0.5rem',
           zIndex: 9999,
         },
       },
@@ -144,8 +145,9 @@ const Select: React.FC<SelectProps> = ({
   isLoading = false,
   name,
   isTimeDependent = false,
-  currentTimeMs, 
-  selectedDate, 
+  currentTimeMs,
+  selectedDate,
+  sizeOverride,
 }) => {
   const handleChange = (event: SelectChangeEvent<string | number>) => {
     const newValue = event.target.value;
@@ -179,6 +181,7 @@ const Select: React.FC<SelectProps> = ({
                 return selectedOption ? selectedOption.label : '';
               }}
               MenuProps={{
+                
                 anchorOrigin: {
                   vertical: 'bottom',
                   horizontal: 'left',
@@ -193,8 +196,7 @@ const Select: React.FC<SelectProps> = ({
                     zIndex: 9999,
                   },
                 },
-                disablePortal: false,
-                disableScrollLock: true,
+                disablePortal:true,
                 slotProps: {
                   paper: {
                     elevation: 8,
@@ -204,9 +206,12 @@ const Select: React.FC<SelectProps> = ({
                   }
                 }
               }}
-              sx={{
+              sx={sizeOverride == undefined ? {
                 height: '40px',
                 minHeight: '40px',
+              } : {
+                height: `${sizeOverride}px`,
+                minHeight: `${sizeOverride}px`,
               }}
               size="small"
             >
@@ -216,7 +221,7 @@ const Select: React.FC<SelectProps> = ({
 
               {options.map((option) => {
                 let isOptionDisabled = false;
-                
+
                 if (isTimeDependent && option.secondary_label && selectedDate && currentTimeMs) {
                   const optionTimeMs = getTimeInMs(selectedDate, option.secondary_label);
                   if (optionTimeMs !== null) {
@@ -225,8 +230,8 @@ const Select: React.FC<SelectProps> = ({
                 }
 
                 return (
-                  <MenuItem 
-                    key={option.value} 
+                  <MenuItem
+                    key={option.value}
                     value={option.value}
                     disabled={isOptionDisabled}
                     sx={{
@@ -235,8 +240,8 @@ const Select: React.FC<SelectProps> = ({
                   >
                     {option.label}
                     {option.secondary_label && (
-                      <span style={{ 
-                        marginLeft: '8px', 
+                      <span style={{
+                        marginLeft: '8px',
                         color: isOptionDisabled ? '#A0A4A8' : '#718096'
                       }}>
                         | {formatTimeForDisplay(option.secondary_label)}

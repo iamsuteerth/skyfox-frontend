@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { Avatar, AvatarProps, Spinner } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth-context';
 
@@ -9,52 +9,67 @@ type ProfileImageProps = Omit<AvatarProps, 'src'> & {
   onRefreshRequest?: () => void; 
 };
 
-export default function ProfileImage({ 
+const profileImageRefresher = (() => {
+  let refreshFunction: (() => void) | null = null;
+  let currentTimestamp: number | null = null;
+  
+  return {
+    setRefreshFunction: (fn: () => void) => {
+      refreshFunction = fn;
+    },
+    refreshProfileImage: () => {
+      if (refreshFunction) {
+        currentTimestamp = Date.now();
+        refreshFunction();
+      }
+    },
+    getCurrentTimestamp: () => currentTimestamp
+  };
+})();
+
+export { profileImageRefresher };
+
+const ProfileImage = memo(({ 
   fallbackImageSrc = '/default_avatars/default_1.jpg',
   onRefreshRequest,
   ...avatarProps 
-}: ProfileImageProps) {
+}: ProfileImageProps) => {
   const { user, token } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
-  const refreshTimestampRef = useRef<number | null>(null);
+  const isMounted = useRef(true);
+  const [imageKey, setImageKey] = useState<number>(0);
 
-  const forceUpdate = useCallback(() => setForceUpdate({}), []);
-  
+  const imageUrl = token && user 
+    ? `/api/profile-image${profileImageRefresher.getCurrentTimestamp() ? `?t=${profileImageRefresher.getCurrentTimestamp()}` : ''}`
+    : null;
+
   const refreshImage = useCallback(() => {
+    if (!isMounted.current) return;
+    
     setIsLoading(true);
     setError(false);
-    refreshTimestampRef.current = Date.now();
     
     if (onRefreshRequest) {
       onRefreshRequest();
     }
-    forceUpdate();
-  }, [onRefreshRequest, forceUpdate]);
-
-  const [, setForceUpdate] = useState({});
+    
+    setImageKey(prev => prev + 1);
+    
+    setTimeout(() => {
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
+    }, 100);
+  }, [onRefreshRequest]);
 
   useEffect(() => {
     profileImageRefresher.setRefreshFunction(refreshImage);
     
     return () => {
-      profileImageRefresher.setRefreshFunction(() => {});
+      isMounted.current = false;
     };
   }, [refreshImage]);
-
-  useEffect(() => {
-    if (!token || !user) {
-      setError(true);
-      setIsLoading(false);
-      return;
-    }
-    
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [token, user]);
 
   if (isLoading) {
     return (
@@ -66,7 +81,7 @@ export default function ProfileImage({
     );
   }
 
-  if (error || !token || !user) {
+  if (error || !token || !user || !imageUrl) {
     return (
       <Avatar
         {...avatarProps}
@@ -78,33 +93,17 @@ export default function ProfileImage({
     );
   }
 
-  const proxyImageUrl = refreshTimestampRef.current 
-    ? `/api/profile-image?t=${refreshTimestampRef.current}`
-    : `/api/profile-image`;
-
   return (
     <Avatar
+      key={imageKey} 
       {...avatarProps}
-      src={proxyImageUrl}
+      src={imageUrl}
       name={user?.username || "User"}
       onError={() => setError(true)}
     />
   );
-}
+});
 
-export const createProfileImageRefresher = () => {
-  let refreshFunction: (() => void) | null = null;
-  
-  return {
-    setRefreshFunction: (fn: () => void) => {
-      refreshFunction = fn;
-    },
-    refreshProfileImage: () => {
-      if (refreshFunction) {
-        refreshFunction();
-      }
-    }
-  };
-};
+ProfileImage.displayName = 'ProfileImage';
 
-export const profileImageRefresher = createProfileImageRefresher();
+export default ProfileImage;
