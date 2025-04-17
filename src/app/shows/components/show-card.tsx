@@ -8,7 +8,8 @@ import {
   Tooltip,
   HStack,
   VStack,
-  Icon
+  Icon,
+  Skeleton
 } from '@chakra-ui/react';
 import Image from 'next/image';
 import { StarIcon, TimeIcon } from '@chakra-ui/icons';
@@ -179,7 +180,17 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
         </Tooltip>
 
         <Flex justify="space-between" align="center" mt={1}>
-          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
+          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}
+            fallback={
+              <Skeleton
+                height="16px"
+                width="40%"
+                startColor="surface.light"
+                endColor="surface.dark"
+                opacity="0.2"
+              />
+            }
+          >
             <Text fontSize="sm" color="text.tertiary">
               <Text as="span" fontWeight="semibold" color={show.availableseats > 15 ? "green.500" : "red.500"}>
                 {show.availableseats}
@@ -191,7 +202,19 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           </Text>
         </Flex>
 
-        <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
+        <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}
+          fallback={
+            <Skeleton
+              height="40px"
+              width="100%"
+              startColor="surface.light"
+              endColor="surface.dark"
+              opacity="0.2"
+              borderRadius="md"
+              mt={1}
+            />
+          }
+        >
           <Button
             bg="brand.500"
             color="white"

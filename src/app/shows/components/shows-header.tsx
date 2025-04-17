@@ -3,6 +3,8 @@ import { Flex, Text, Button, Box, Icon } from '@chakra-ui/react';
 import { DatePicker } from '@/app/components/date-picker';
 import { useAuth } from '@/contexts/auth-context';
 import { AddIcon } from '@chakra-ui/icons';
+import { RoleBasedElement } from '@/app/components/auth/role-based-element';
+import { ROLES } from '@/constants';
 
 interface ShowsHeaderProps {
   selectedDate: Date | null;
@@ -16,7 +18,6 @@ const ShowsHeader: React.FC<ShowsHeaderProps> = ({
   onScheduleShow
 }) => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
 
   const formattedDate = selectedDate
     ? selectedDate.toLocaleDateString('en-US', {
@@ -56,7 +57,7 @@ const ShowsHeader: React.FC<ShowsHeaderProps> = ({
             searchParamName="date"
             iconColor="brand.600"
           />
-          {isAdmin && (
+          <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
             <Button
               leftIcon={<Icon as={AddIcon} />}
               colorScheme="brand"
@@ -66,7 +67,7 @@ const ShowsHeader: React.FC<ShowsHeaderProps> = ({
             >
               Schedule Show
             </Button>
-          )}
+          </RoleBasedElement>
         </Flex>
       </Flex>
     </Box>
