@@ -23,10 +23,10 @@ export default function Shows() {
   const [shows, setShows] = useState<Show[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [hasError, setHasError] = useState(false);
-  
+
   const isInitialMount = useRef(true);
   const lastFetchedDate = useRef<string | null>(null);
-  
+
   const searchParams = useSearchParams();
   const { showToast } = useCustomToast();
   const { openDialog } = useDialog();
@@ -45,44 +45,45 @@ export default function Shows() {
   const handleScheduleShow = () => {
     openDialog('scheduleShow', { date: selectedDate });
   };
-  
+
   const loadShows = useCallback(async (date: Date) => {
     const dateString = dayjs(date).format('YYYY-MM-DD');
-    
+
     if (lastFetchedDate.current === dateString) {
       return;
     }
-    
+
     setIsLoading(true);
     setHasError(false);
-    
+
     try {
       lastFetchedDate.current = dateString;
       const result = await fetchShows(date, showToast);
-      
+
       if (result.success && result.data) {
         const sortedShows = [...result.data].sort((a, b) =>
           a.slot.startTime.localeCompare(b.slot.startTime)
         );
         setShows(sortedShows);
+        setIsLoading(false);
       } else {
         if ('resetToToday' in result && result.resetToToday) {
           const today = new Date();
           today.setHours(12, 0, 0, 0);
           setSelectedDate(today);
         } else {
+          setShows([]);
           setHasError(true);
+          setIsLoading(false);
         }
       }
     } catch (error) {
       console.error('Failed to load shows:', error);
       setShows([]);
       setHasError(true);
-    } finally {
-      setIsLoading(false);
     }
   }, [showToast]);
-  
+
   useEffect(() => {
     if (selectedDate) {
       if (lastRefreshTime) {
@@ -91,25 +92,25 @@ export default function Shows() {
       loadShows(selectedDate);
     }
   }, [selectedDate, loadShows, lastRefreshTime]);
-  
+
   useEffect(() => {
     if (isInitialMount.current) {
       const dateParam = searchParams.get('date');
       const today = new Date();
       today.setHours(12, 0, 0, 0);
-      
+
       if (dateParam) {
         try {
           const isValidDateFormat = /^\d{4}-\d{2}-\d{2}$/.test(dateParam);
-          
+
           if (!isValidDateFormat) {
             throw new Error('Invalid date format');
           }
-          
+
           const [year, month, day] = dateParam.split('-').map(Number);
-          
+
           const parsedDate = new Date(year, month - 1, day, 12, 0, 0, 0);
-          
+
           if (
             parsedDate.getFullYear() !== year ||
             parsedDate.getMonth() !== month - 1 ||
@@ -117,7 +118,7 @@ export default function Shows() {
           ) {
             throw new Error('Invalid date');
           }
-          
+
           setSelectedDate(parsedDate);
         } catch (error) {
           console.error('Invalid date parameter:', error);
@@ -126,7 +127,7 @@ export default function Shows() {
           const url = new URL(window.location.href);
           url.searchParams.set('date', formatDateForAPI(today));
           window.history.replaceState({}, '', url.toString());
-          
+
           showToast({
             type: 'warning',
             title: 'Invalid Date',
@@ -136,7 +137,7 @@ export default function Shows() {
       } else {
         setSelectedDate(today);
       }
-      
+
       isInitialMount.current = false;
     }
   }, [searchParams, showToast]);
@@ -157,12 +158,12 @@ export default function Shows() {
         Movie Shows
       </Heading>
 
-      <ShowsHeader 
-        selectedDate={selectedDate} 
-        onDateChange={handleDateChange} 
+      <ShowsHeader
+        selectedDate={selectedDate}
+        onDateChange={handleDateChange}
         onScheduleShow={handleScheduleShow}
       />
-      
+
       <Box my={4}>
         {isLoading && <LoadingState />}
         {!isLoading && hasError && <NoShows />}
