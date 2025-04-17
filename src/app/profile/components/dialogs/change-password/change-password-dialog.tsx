@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   Modal,
@@ -9,25 +11,29 @@ import {
   ModalCloseButton,
   Button,
   VStack,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  Input,
   Divider,
   useBreakpointValue,
+  IconButton,
 } from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { changePassword, ChangePasswordRequest } from '@/services/auth-service';
+import { validatePassword } from '@/utils/validators';
+import FormInput from '@/app/components/form-input';
 
 const ChangePasswordDialog: React.FC = () => {
   const { closeDialog } = useDialog();
   const { showToast } = useCustomToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const modalSize = useBreakpointValue({base: 'xs', sm: 'sm', md: 'md'});
+  const modalSize = useBreakpointValue({ base: 'xs', sm: 'sm', md: 'md' });
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{
     currentPassword?: string;
     newPassword?: string;
@@ -45,10 +51,9 @@ const ChangePasswordDialog: React.FC = () => {
       newErrors.currentPassword = 'Current password is required';
     }
 
-    if (!newPassword) {
-      newErrors.newPassword = 'New password is required';
-    } else if (newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters';
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      newErrors.newPassword = passwordError;
     }
 
     if (!confirmPassword) {
@@ -66,24 +71,15 @@ const ChangePasswordDialog: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const passwordData: ChangePasswordRequest = {
+        current_password: currentPassword,
+        new_password: newPassword
+      };
 
-      showToast({
-        type: 'success',
-        title: 'Password Updated',
-        description: 'Your password has been changed successfully',
-      });
-      
+      await changePassword(passwordData, showToast);
       closeDialog();
-    } catch (error) {
-      console.error("Error changing password:", error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        description: 'Failed to change password',
-      });
+    } catch (error: any) {
+      // Error handling is done in the service layer
     } finally {
       setIsSubmitting(false);
     }
@@ -111,56 +107,62 @@ const ChangePasswordDialog: React.FC = () => {
 
         <ModalBody py={6}>
           <VStack spacing={4} align="stretch">
-            <FormControl isRequired isInvalid={!!errors.currentPassword}>
-              <FormLabel color="text.primary">Current Password</FormLabel>
-              <Input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter your current password"
-                bg="background.secondary"
-                borderColor="surface.light"
-                _hover={{ borderColor: "surface.medium" }}
-                _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-              />
-              {errors.currentPassword && (
-                <FormErrorMessage>{errors.currentPassword}</FormErrorMessage>
-              )}
-            </FormControl>
+            <FormInput
+              label="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter your current password"
+              type={showCurrentPassword ? 'text' : 'password'}
+              error={errors.currentPassword}
+              rightElement={
+                <IconButton
+                  aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  icon={showCurrentPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  variant="ghost"
+                  size="sm"
+                  color="text.tertiary"
+                />
+              }
+            />
 
-            <FormControl isRequired isInvalid={!!errors.newPassword}>
-              <FormLabel color="text.primary">New Password</FormLabel>
-              <Input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
-                bg="background.secondary"
-                borderColor="surface.light"
-                _hover={{ borderColor: "surface.medium" }}
-                _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-              />
-              {errors.newPassword && (
-                <FormErrorMessage>{errors.newPassword}</FormErrorMessage>
-              )}
-            </FormControl>
+            <FormInput
+              label="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              type={showNewPassword ? 'text' : 'password'}
+              error={errors.newPassword}
+              rightElement={
+                <IconButton
+                  aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                  icon={showNewPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  variant="ghost"
+                  size="sm"
+                  color="text.tertiary"
+                />
+              }
+            />
 
-            <FormControl isRequired isInvalid={!!errors.confirmPassword}>
-              <FormLabel color="text.primary">Confirm New Password</FormLabel>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                bg="background.secondary"
-                borderColor="surface.light"
-                _hover={{ borderColor: "surface.medium" }}
-                _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-              />
-              {errors.confirmPassword && (
-                <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
-              )}
-            </FormControl>
+            <FormInput
+              label="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              error={errors.confirmPassword}
+              rightElement={
+                <IconButton
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  variant="ghost"
+                  size="sm"
+                  color="text.tertiary"
+                />
+              }
+            />
           </VStack>
         </ModalBody>
 

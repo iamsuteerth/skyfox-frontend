@@ -325,7 +325,7 @@ const UpdateProfileDialog: React.FC = () => {
                 isLoading={isSubmitting}
                 loadingText="Updating"
               >
-                Update Profile
+                Confirm
               </Button>
             </>
           )}

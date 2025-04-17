@@ -181,7 +181,6 @@ export const verifySecurityAnswer = async ({
   }
 };
 
-
 export const resetPassword = async ({
   email,
   reset_token,
@@ -252,5 +251,49 @@ export const resetPassword = async ({
     }
     
     throw new Error(handleApiError(error));
+  }
+};
+
+export type ChangePasswordRequest = {
+  current_password: string;
+  new_password: string;
+};
+
+export const changePassword = async (
+  passwordData: ChangePasswordRequest,
+  showToast?: Function,
+): Promise<ResetPasswordResponse> => {
+  try {
+    const response = await fetch(API_ROUTES.CHANGE_PASWORD, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(passwordData)
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || `Request failed with status ${response.status}`);
+    }
+    if (showToast) {
+      showToast({
+        type: 'success',
+        title: 'Success',
+        description: 'Password changed successfully',
+      });
+    }
+    return data
+  } catch (error: any) {
+    console.error('Error changing password:', error);
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Failed to change passwords!',
+        description: error.message || handleApiError(error),
+      });
+    }
+    throw handleApiError(error);
   }
 };

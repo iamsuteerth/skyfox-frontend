@@ -28,20 +28,6 @@ interface Show {
   availableseats: number;
 }
 
-interface ShowsResponse {
-  message: string;
-  request_id: string;
-  status: string;
-  data: Show[];
-}
-
-interface ShowsErrorResponse {
-  status: string;
-  code: string;
-  message: string;
-  request_id: string;
-}
-
 interface FetchShowsResult {
   success: boolean;
   data?: Show[];

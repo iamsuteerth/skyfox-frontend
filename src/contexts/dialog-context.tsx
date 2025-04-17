@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type DialogType = 'none' | 'adminBooking' | 'customerBooking' | 'payment' | 'scheduleShow' | 'changePassword' | 'updateProfile';
+type DialogType = 'none' | 'adminBooking' | 'customerBooking' | 'payment' | 'scheduleShow' | 'changePassword' | 'updateProfile' | 'updateProfileImage';
 
 interface DialogContextType {
   currentDialog: DialogType;
