@@ -66,8 +66,11 @@ export default function Shows() {
         );
         setShows(sortedShows);
       } else {
-        setShows([]);
-        if (result.error) {
+        if ('resetToToday' in result && result.resetToToday) {
+          const today = new Date();
+          today.setHours(12, 0, 0, 0);
+          setSelectedDate(today);
+        } else {
           setHasError(true);
         }
       }

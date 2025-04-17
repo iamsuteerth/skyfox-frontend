@@ -32,6 +32,7 @@ interface FetchShowsResult {
   success: boolean;
   data?: Show[];
   error?: string;
+  resetToToday?:boolean;
 }
 
 interface FetchMoviesResult {
@@ -93,10 +94,15 @@ export const fetchShows = async (
             description: data.message || 'Customers can only view shows from today to the next 6 days',
           });
         } 
-        
+        const today = new Date();
+        const todayFormatted = formatDateForAPI(today);
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('date', todayFormatted);
+        window.history.replaceState({}, '', currentUrl.toString());
         return {
           success: false,
-          error: data.message
+          error: data.message,
+          resetToToday: true,
         };
       }
       
