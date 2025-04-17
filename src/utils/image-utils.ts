@@ -75,7 +75,6 @@ export const processImageForUpload = async (file: File): Promise<{ base64: strin
   }
 };
 
-
 export const processDefaultAvatar = async (avatarId: number): Promise<{ base64: string, hash: string }> => {
   try {
     const response = await fetch(`/default_avatars/default_${avatarId}.jpg`);

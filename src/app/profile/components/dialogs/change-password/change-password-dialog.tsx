@@ -79,7 +79,6 @@ const ChangePasswordDialog: React.FC = () => {
       await changePassword(passwordData, showToast);
       closeDialog();
     } catch (error: any) {
-      // Error handling is done in the service layer
     } finally {
       setIsSubmitting(false);
     }

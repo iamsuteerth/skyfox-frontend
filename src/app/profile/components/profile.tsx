@@ -76,7 +76,7 @@ const Profile: React.FC = () => {
     if(isLoading){
       return;
     }
-    openDialog('updateProfileImage')
+    openDialog('updateProfileImage', customerData)
   }
 
   const formatRole = (role?: string) => {
@@ -200,7 +200,7 @@ const Profile: React.FC = () => {
 
                       <Skeleton isLoaded={!isLoading}>
                         <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Phone</Text>
+                          <Text color="text.secondary" fontWeight="medium">Phone Number</Text>
                           <Text color="text.primary">{customerData?.phone_number || '-'}</Text>
                         </HStack>
                       </Skeleton>

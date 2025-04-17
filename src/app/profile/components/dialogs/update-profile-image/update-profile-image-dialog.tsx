@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -8,73 +10,70 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
+  VStack,
+  Divider,
+  useBreakpointValue,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
-  useBreakpointValue,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  Input,
   Text,
   Box,
-  Divider,
+  Radio,
+  RadioGroup,
+  SimpleGrid,
+  Grid,
+  AspectRatio,
+  Image,
+  Center,
+  FormControl,
+  FormLabel,
 } from '@chakra-ui/react';
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { useAuth } from '@/contexts/auth-context';
-import ProfileImageSection from '@/app/signup/components/profile-image-selection';
+import FormInput from '@/app/components/form-input';
+import { getSecurityQuestionByEmail } from '@/services/security-question-service';
+import { processDefaultAvatar, processImageForUpload } from '@/utils/image-utils';
+import { updateProfileImage } from '@/services/profile-service';
+import { profileImageRefresher } from '@/app/components/profile-image';
+import { AddIcon } from '@chakra-ui/icons';
+
+const DEFAULT_AVATARS = [1, 2, 3, 4, 5, 6].map(id => ({
+  id,
+  src: `/default_avatars/default_${id}.jpg`
+}));
 
 const UpdateProfileImageDialog: React.FC = () => {
-  const { closeDialog } = useDialog();
-  const { user } = useAuth();
+  const { dialogData, closeDialog } = useDialog();
   const { showToast } = useCustomToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [securityQuestion, setSecurityQuestion] = useState<string | null>(null);
   const modalSize = useBreakpointValue({
     base: 'xs',
     sm: 'md',
-    md: '3xl'
+    md: 'lg'
   });
 
-  // Form state for image selection
   const [imageForm, setImageForm] = useState({
     imageType: 'default' as 'default' | 'custom',
     selectedImageId: undefined as number | undefined,
     customImage: undefined as File | undefined,
     imageChanged: false,
+    previewUrl: null as string | null,
     errors: {
       imageType: '',
       selectedImageId: '',
     },
   });
 
-  // Form state for security verification
   const [securityAnswer, setSecurityAnswer] = useState('');
-  const [securityQuestion, setSecurityQuestion] = useState('What was the name of your first pet?'); // Placeholder
   const [securityError, setSecurityError] = useState('');
 
-  // Initialize with current user image if available
-  useEffect(() => {
-    // This is a placeholder implementation
-    // In actual implementation, we would determine if user has a default avatar or custom image
-    // and set the appropriate values
-    
-    // For now, let's assume user has default avatar with ID 1
-    setImageForm({
-      ...imageForm,
-      imageType: 'default',
-      selectedImageId: 1,
-      imageChanged: false,
-      errors: {
-        imageType: '',
-        selectedImageId: '',
-      },
-    });
-  }, []);
+
+  const [processedImage, setProcessedImage] = useState<{ base64: string; hash: string } | null>(null);
 
   const handleImageTypeChange = (value: 'default' | 'custom') => {
     setImageForm({
@@ -93,6 +92,7 @@ const UpdateProfileImageDialog: React.FC = () => {
       selectedImageId: imageId,
       customImage: undefined,
       imageChanged: true,
+      previewUrl: `/default_avatars/default_${imageId}.jpg`,
       errors: {
         ...imageForm.errors,
         selectedImageId: '',
@@ -100,23 +100,70 @@ const UpdateProfileImageDialog: React.FC = () => {
     });
   };
 
-  const handleCustomImageUpload = (file: File) => {
-    setIsProcessingImage(true);
-    
-    // Simulate image processing
-    setTimeout(() => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      if (file.size > 5 * 1024 * 1024) {
+        setImageForm(prev => ({
+          ...prev,
+          errors: {
+            ...prev.errors,
+            selectedImageId: 'Image size must be less than 5MB'
+          }
+        }));
+        return;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      
       setImageForm({
         ...imageForm,
         customImage: file,
         selectedImageId: undefined,
         imageChanged: true,
+        previewUrl: previewUrl,
         errors: {
           ...imageForm.errors,
           selectedImageId: '',
         },
       });
+    }
+  };
+
+  const processSelectedImage = async () => {
+    try {
+      setIsProcessingImage(true);
+      
+      if (imageForm.imageType === 'default' && imageForm.selectedImageId) {
+        const processed = await processDefaultAvatar(imageForm.selectedImageId);
+        setProcessedImage(processed);
+        return true;
+      } else if (imageForm.imageType === 'custom' && imageForm.customImage) {
+        const processed = await processImageForUpload(imageForm.customImage);
+        setProcessedImage(processed);
+        return true;
+      }
+      
+      setImageForm(prev => ({
+        ...prev,
+        errors: {
+          ...prev.errors,
+          selectedImageId: 'Please select an image first'
+        }
+      }));
+      return false;
+    } catch (error) {
+      console.error('Error processing image:', error);
+      showToast({
+        type: 'error',
+        title: 'Image Processing Error',
+        description: 'Failed to process the selected image.',
+      });
+      return false;
+    } finally {
       setIsProcessingImage(false);
-    }, 1000);
+    }
   };
 
   const validateImageStep = () => {
@@ -146,7 +193,7 @@ const UpdateProfileImageDialog: React.FC = () => {
     return isValid;
   };
 
-  const validateSecurityStep = () => {
+  const validateSecurityAnswer = () => {
     if (!securityAnswer.trim()) {
       setSecurityError('Security answer is required');
       return false;
@@ -156,14 +203,59 @@ const UpdateProfileImageDialog: React.FC = () => {
     return true;
   };
 
-  const handleNext = () => {
+  const fetchSecurityQuestion = async () => {
+    try {
+      const email = dialogData?.email;
+      
+      if (!email) {
+        showToast({
+          type: 'error',
+          title: 'Error',
+          description: 'Email address is missing. Cannot fetch security question.',
+        });
+        closeDialog();
+        return false;
+      }
+      
+      const response = await getSecurityQuestionByEmail(email);
+      
+      if (response?.status === 'SUCCESS' && response.data?.question) {
+        setSecurityQuestion(response.data.question);
+        return true;
+      } else {
+        throw new Error('Security question not found in the response');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch security question:', error);
+      showToast({
+        type: 'error',
+        title: 'Security Question Error',
+        description: error.message || 'Failed to fetch your security question. Please try again later.',
+      });
+      closeDialog();
+      return false;
+    }
+  };
+
+  const handleNext = async () => {
     if (currentStep === 0 && validateImageStep()) {
-      setCurrentStep(1);
+      const imageProcessed = await processSelectedImage();
+      
+      if (!imageProcessed) {
+        return;
+      }
+      
+      const securityQuestionFetched = await fetchSecurityQuestion();
+      if (securityQuestionFetched) {
+        setCurrentStep(1);
+      }
     }
   };
 
   const handleBack = () => {
     setCurrentStep(0);
+    setSecurityAnswer('');
+    setSecurityError('');
   };
 
   const handleSubmit = async () => {
@@ -172,31 +264,42 @@ const UpdateProfileImageDialog: React.FC = () => {
       return;
     }
     
-    if (!validateSecurityStep()) return;
+    if (!validateSecurityAnswer()) return;
+    if (!processedImage) {
+      showToast({
+        type: 'error',
+        title: 'Image Error',
+        description: 'Image data is missing. Please try again.',
+      });
+      setCurrentStep(0);
+      return;
+    }
     
     try {
       setIsSubmitting(true);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const imageData = {
+        security_answer: securityAnswer,
+        profile_img: processedImage.base64,
+        profile_img_sha: processedImage.hash
+      };
       
-      showToast({
-        type: 'success',
-        title: 'Profile Image Updated',
-        description: 'Your profile image has been updated successfully',
-      });
+      const result = await updateProfileImage(imageData, showToast);
       
-      // Here we would trigger a refresh of the profile image
-      // This will be implemented later
-      
-      closeDialog();
+      if (result.success) {
+        profileImageRefresher.refreshProfileImage();
+        
+        // Call the onSuccess callback if provided
+        if (dialogData?.onSuccess && typeof dialogData.onSuccess === 'function') {
+          dialogData.onSuccess();
+        }
+        
+        closeDialog();
+      } else {
+        setCurrentStep(0);
+      }
     } catch (error) {
-      console.error("Error updating profile image:", error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        description: 'Failed to update profile image',
-      });
+      setCurrentStep(0);
     } finally {
       setIsSubmitting(false);
     }
@@ -251,64 +354,168 @@ const UpdateProfileImageDialog: React.FC = () => {
 
             <TabPanels>
               <TabPanel px={0}>
-                <ProfileImageSection
-                  formData={{
-                    imageType: imageForm.imageType,
-                    selectedImageId: imageForm.selectedImageId,
-                    customImage: imageForm.customImage,
-                    errors: imageForm.errors,
-                  }}
-                  handleImageTypeChange={handleImageTypeChange}
-                  handleDefaultImageSelect={handleDefaultImageSelect}
-                  handleCustomImageUpload={handleCustomImageUpload}
-                  isProcessingImage={isProcessingImage}
-                />
-                
-                {!imageForm.imageChanged && (
-                  <Text color="blue.500" fontSize="sm" mt={2}>
-                    Note: You need to select a new image or upload a custom one to proceed.
-                  </Text>
-                )}
+                <VStack spacing={5} align="stretch">
+                  <FormControl isInvalid={!!imageForm.errors.imageType}>
+                    <FormLabel fontWeight="medium" color="text.primary">Choose Image Source</FormLabel>
+                    <RadioGroup
+                      onChange={(value) => handleImageTypeChange(value as 'default' | 'custom')}
+                      value={imageForm.imageType}
+                    >
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                        <Radio value="default" colorScheme="brand" borderColor="primary" background="background.primary">
+                          <Text fontWeight="medium" color="text.primary">Use Default Avatar</Text>
+                        </Radio>
+                        <Radio value="custom" colorScheme="brand" borderColor="primary" background="background.primary">
+                          <Text fontWeight="medium" color="text.primary">Upload Your Photo</Text>
+                        </Radio>
+                      </SimpleGrid>
+                    </RadioGroup>
+                  </FormControl>
+
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                    <Box>
+                      <FormLabel fontWeight="medium" color="text.primary">Image Preview</FormLabel>
+                      <Center
+                        border="2px dashed"
+                        borderColor={imageForm.errors.selectedImageId ? "error" : "gray.200"}
+                        borderRadius="xl"
+                        h="150px"
+                        w="150px"
+                        mx="auto"
+                        bg="background.secondary"
+                        overflow="hidden"
+                        flexDirection="column"
+                        textAlign="center"
+                        padding={3}
+                      >
+                        {isProcessingImage ? (
+                          <Text color="text.tertiary">Processing...</Text>
+                        ) : imageForm.previewUrl ? (
+                          <Image
+                            src={imageForm.previewUrl}
+                            alt="Profile preview"
+                            objectFit="cover"
+                            h="100%"
+                            w="100%"
+                          />
+                        ) : (
+                          <Text color="text.tertiary">
+                            No image selected
+                          </Text>
+                        )}
+                      </Center>
+                      {imageForm.errors.selectedImageId && (
+                        <Text color="error" fontSize="sm" textAlign="center" mt={2}>
+                          {imageForm.errors.selectedImageId}
+                        </Text>
+                      )}
+                    </Box>
+
+                    <Box>
+                      {imageForm.imageType === 'default' ? (
+                        <Box>
+                          <FormLabel fontWeight="medium" color="text.primary">Select Default Avatar</FormLabel>
+                          <Grid
+                            templateColumns="repeat(3, 1fr)"
+                            gap={3}
+                          >
+                            {DEFAULT_AVATARS.map((avatar) => (
+                              <AspectRatio ratio={1} key={avatar.id}>
+                                <Box
+                                  as="button"
+                                  type="button"
+                                  onClick={() => handleDefaultImageSelect(avatar.id)}
+                                  border="2px solid"
+                                  borderColor={imageForm.selectedImageId === avatar.id ? "primary" : "transparent"}
+                                  borderRadius="md"
+                                  overflow="hidden"
+                                  transition="all 0.2s"
+                                  _hover={{
+                                    transform: "scale(1.05)",
+                                    boxShadow: "md"
+                                  }}
+                                >
+                                  <Image
+                                    src={avatar.src}
+                                    alt={`Default avatar ${avatar.id}`}
+                                    objectFit="cover"
+                                  />
+                                </Box>
+                              </AspectRatio>
+                            ))}
+                          </Grid>
+                        </Box>
+                      ) : (
+                        <Box>
+                          <FormLabel fontWeight="medium" color="text.primary">Upload Custom Image</FormLabel>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="image-upload"
+                          />
+                          <label htmlFor="image-upload">
+                            <Button
+                              as="span"
+                              leftIcon={<AddIcon />}
+                              size="lg"
+                              height="56px"
+                              width="100%"
+                              borderRadius="xl"
+                              bg="background.secondary"
+                              color="text.primary"
+                              _hover={{
+                                bg: "gray.200",
+                              }}
+                              cursor="pointer"
+                              display="flex"
+                            >
+                              Choose Image
+                            </Button>
+                          </label>
+                          <Text fontSize="sm" color="text.tertiary" mt={1}>
+                            Recommended: Square image, max 5MB
+                          </Text>
+                        </Box>
+                      )}
+                    </Box>
+                  </SimpleGrid>
+                  
+                  {!imageForm.imageChanged && (
+                    <Text color="blue.500" fontSize="sm" mt={2}>
+                      You need to select a new image to proceed.
+                    </Text>
+                  )}
+                </VStack>
               </TabPanel>
 
               <TabPanel px={0}>
-                <Box>
+                <VStack spacing={4} align="stretch">
                   <Box
                     p={4}
                     borderRadius="md"
                     bg="background.secondary"
                     borderWidth="1px"
                     borderColor="surface.light"
-                    mb={4}
                   >
                     <Text fontWeight="medium" color="text.primary" mb={1}>Security Question</Text>
-                    <Text color="text.secondary">{securityQuestion}</Text>
+                    <Text color="text.secondary">{securityQuestion || 'Loading security question...'}</Text>
                   </Box>
 
-                  <FormControl isInvalid={!!securityError} mb={4}>
-                    <FormLabel color="text.primary">Your Answer</FormLabel>
-                    <Input
-                      type="password"
-                      value={securityAnswer}
-                      onChange={(e) => setSecurityAnswer(e.target.value)}
-                      placeholder="Enter your answer"
-                      bg="background.secondary"
-                      borderColor="surface.light"
-                      _hover={{ borderColor: "surface.medium" }}
-                      _focus={{ 
-                        borderColor: "primary", 
-                        boxShadow: "0 0 0 1px var(--chakra-colors-primary)" 
-                      }}
-                    />
-                    {securityError && (
-                      <FormErrorMessage>{securityError}</FormErrorMessage>
-                    )}
-                  </FormControl>
-
-                  <Text fontSize="sm" color="text.tertiary">
+                  <FormInput
+                    label="Your Answer"
+                    value={securityAnswer}
+                    onChange={(e) => setSecurityAnswer(e.target.value)}
+                    placeholder="Enter your answer"
+                    type="password"
+                    error={securityError}
+                  />
+                  
+                  <Text fontSize="sm" color="text.tertiary" mt={2}>
                     For security reasons, we need to confirm your identity before making changes to your profile.
                   </Text>
-                </Box>
+                </VStack>
               </TabPanel>
             </TabPanels>
           </Tabs>

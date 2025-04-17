@@ -1,85 +1,55 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Avatar, AvatarProps, Spinner } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth-context';
 
 type ProfileImageProps = Omit<AvatarProps, 'src'> & {
   fallbackImageSrc?: string;
-  onRefreshRequest?: () => void; 
 };
 
-const profileImageRefresher = (() => {
-  let refreshFunction: (() => void) | null = null;
-  let currentTimestamp: number | null = null;
+export const profileImageRefresher = (() => {
+  let globalTimestamp = localStorage.getItem('profileImageTimestamp') 
+    ? Number(localStorage.getItem('profileImageTimestamp')) 
+    : null;
+    
+  const listeners = new Set<() => void>();
   
   return {
-    setRefreshFunction: (fn: () => void) => {
-      refreshFunction = fn;
+    addListener: (listener: () => void): (() => void) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
     },
     refreshProfileImage: () => {
-      if (refreshFunction) {
-        currentTimestamp = Date.now();
-        refreshFunction();
-      }
+      globalTimestamp = Date.now();
+      localStorage.setItem('profileImageTimestamp', globalTimestamp.toString());
+      listeners.forEach(listener => listener());
     },
-    getCurrentTimestamp: () => currentTimestamp
+    getTimestamp: () => globalTimestamp
   };
 })();
 
-export { profileImageRefresher };
-
 const ProfileImage = memo(({ 
   fallbackImageSrc = '/default_avatars/default_1.jpg',
-  onRefreshRequest,
   ...avatarProps 
 }: ProfileImageProps) => {
   const { user, token } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
-  const isMounted = useRef(true);
-  const [imageKey, setImageKey] = useState<number>(0);
+  const [localTimestamp, setLocalTimestamp] = useState<number | null>(profileImageRefresher.getTimestamp());
+  
+  useEffect(() => {
+    const unsubscribe = profileImageRefresher.addListener(() => {
+      setLocalTimestamp(profileImageRefresher.getTimestamp());
+    });
+    
+    return unsubscribe;
+  }, []);
 
   const imageUrl = token && user 
-    ? `/api/profile-image${profileImageRefresher.getCurrentTimestamp() ? `?t=${profileImageRefresher.getCurrentTimestamp()}` : ''}`
+    ? `/api/profile-image${localTimestamp ? `?t=${localTimestamp}` : ''}`
     : null;
-
-  const refreshImage = useCallback(() => {
-    if (!isMounted.current) return;
-    
-    setIsLoading(true);
-    setError(false);
-    
-    if (onRefreshRequest) {
-      onRefreshRequest();
-    }
-    
-    setImageKey(prev => prev + 1);
-    
-    setTimeout(() => {
-      if (isMounted.current) {
-        setIsLoading(false);
-      }
-    }, 100);
-  }, [onRefreshRequest]);
-
-  useEffect(() => {
-    profileImageRefresher.setRefreshFunction(refreshImage);
-    
-    return () => {
-      isMounted.current = false;
-    };
-  }, [refreshImage]);
-
-  if (isLoading) {
-    return (
-      <Avatar 
-        {...avatarProps} 
-        icon={<Spinner size="xs" color="white" />} 
-        bg="primary"
-      />
-    );
-  }
 
   if (error || !token || !user || !imageUrl) {
     return (
@@ -95,7 +65,6 @@ const ProfileImage = memo(({
 
   return (
     <Avatar
-      key={imageKey} 
       {...avatarProps}
       src={imageUrl}
       name={user?.username || "User"}
@@ -103,7 +72,5 @@ const ProfileImage = memo(({
     />
   );
 });
-
-ProfileImage.displayName = 'ProfileImage';
 
 export default ProfileImage;
