@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, VStack } from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 import PageContainer from '@/app/components/page-container';
 import NeumorphicCard from '@/app/components/neumorphic-card';
 import SignupHeader from '@/app/signup/components/signup-header';

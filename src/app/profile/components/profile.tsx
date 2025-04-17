@@ -44,23 +44,23 @@ const Profile: React.FC = () => {
   const spacing = useBreakpointValue({ base: 4, md: 6 });
   const profileImageSize = useBreakpointValue({ base: 'xl', sm: '2xl', md: '2xl' })
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getProfile(showToast);
-        if (response && response.status === 'SUCCESS') {
-          setProfileData(response.data);
-          setError(null);
-        }
-      } catch (err: any) {
-        console.error('Error fetching profile data:', err);
-        setError('Failed to load profile data');
-      } finally {
-        setIsLoading(false);
+  const fetchProfileData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getProfile(showToast);
+      if (response && response.status === 'SUCCESS') {
+        setProfileData(response.data);
+        setError(null);
       }
-    };
-
+    } catch (err: any) {
+      console.error('Error fetching profile data:', err);
+      setError('Failed to load profile data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchProfileData();
   }, [showToast]);
 
@@ -69,10 +69,13 @@ const Profile: React.FC = () => {
   };
 
   const handleUpdateProfile = () => {
-    openDialog('updateProfile');
+    openDialog('updateProfile', {...customerData, onSuccess: fetchProfileData});
   };
 
   const handleUpdateProfileImage = () => {
+    if(isLoading){
+      return;
+    }
     openDialog('updateProfileImage')
   }
 

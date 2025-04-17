@@ -197,15 +197,14 @@ export const updateCustomerProfile = async (
     const data = await response.json();
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Request failed to fetch profile!`)
+      throw new Error(data.message || `Request failed to fetch profile!`)
     }
 
     if (showToast) {
       showToast({
         type: 'success',
         title: 'Success',
-        description: 'Profile image updated successfully',
+        description: 'Profile updated successfully',
       });
     }
     return {
@@ -217,7 +216,7 @@ export const updateCustomerProfile = async (
     if (showToast) {
       showToast({
         type: 'error',
-        title: 'Failed to update customer profile image',
+        title: 'Error',
         description: error.message || handleApiError(error),
       });
     }

@@ -138,7 +138,7 @@ export default function Header() {
                 {formatRole(user?.role)}
               </Text>
               <MenuDivider borderColor="surface.light" />
-              <MenuItem as={NextLink} href="/profile" bg="background.primary" _hover={{ bg: 'background.secondary' }}>
+              <MenuItem as={NextLink} href={APP_ROUTES.PROFILE} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Profile
               </MenuItem>
               {/* {user?.role === 'customer' && (

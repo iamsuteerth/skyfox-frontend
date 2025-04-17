@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -9,10 +11,6 @@ import {
   ModalCloseButton,
   Button,
   VStack,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  Input,
   Divider,
   useBreakpointValue,
   Tabs,
@@ -25,79 +23,210 @@ import {
 } from '@chakra-ui/react';
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { useAuth } from '@/contexts/auth-context';
-import ProfileImage from '@/app/components/profile-image';
+import FormInput from '@/app/components/form-input';
+import { validateName, validateEmail, validatePhone } from '@/utils/validators';
+import { updateCustomerProfile } from '@/services/profile-service';
+import { getSecurityQuestionByEmail } from '@/services/security-question-service';
 
 const UpdateProfileDialog: React.FC = () => {
-  const { closeDialog } = useDialog();
-  const { user } = useAuth();
+  const { dialogData, closeDialog } = useDialog();
   const { showToast } = useCustomToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [securityQuestion, setSecurityQuestion] = useState<string | null>(null);
+  
   const modalSize = useBreakpointValue({
     base: 'xs',
     sm: 'md',
     md: 'lg'
   });
 
-  // Personal info form state
-  const [fullName, setFullName] = useState('John Doe');
-  const [email, setEmail] = useState('john@gmail.com');
-  const [phone, setPhone] = useState('1234567890');
+  const customerData = dialogData || {
+    name: '',
+    email: '',
+    phone_number: '',
+    security_question_exists: false
+  };
 
-  // Security verification state
-  const [securityAnswer, setSecurityAnswer] = useState('');
+  const [formState, setFormState] = useState({
+    name: customerData.name || '',
+    email: customerData.email || '',
+    phone_number: customerData.phone_number || '',
+    security_answer: '',
+    errors: {
+      name: '',
+      email: '',
+      phone_number: '',
+      security_answer: '',
+    },
+    touched: {
+      name: false,
+      email: false,
+      phone_number: false,
+    }
+  });
 
-  // Error state
-  const [errors, setErrors] = useState<{
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    securityAnswer?: string;
-  }>({});
+  useEffect(() => {
+    if (dialogData) {
+      setFormState(prev => ({
+        ...prev,
+        name: dialogData.name || '',
+        email: dialogData.email || '',
+        phone_number: dialogData.phone_number || '',
+      }));
+    }
+  }, [dialogData]);
+
+  const [originalValues] = useState({
+    name: customerData.name || '',
+    email: customerData.email || '',
+    phone_number: customerData.phone_number || '',
+  });
+
+  const hasChanges =
+    formState.name !== originalValues.name ||
+    formState.email !== originalValues.email ||
+    formState.phone_number !== originalValues.phone_number;
+
+  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    let error = '';
+    if (field === 'name') {
+      error = validateName(value) || '';
+    } else if (field === 'email') {
+      error = validateEmail(value) || '';
+    } else if (field === 'phone_number') {
+      error = validatePhone(value) || '';
+    }
+
+    setFormState(prev => ({
+      ...prev,
+      [field]: value,
+      errors: {
+        ...prev.errors,
+        [field]: error
+      },
+      touched: {
+        ...prev.touched,
+        [field]: true
+      }
+    }));
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      e.key === 'Backspace' ||
+      e.key === 'Delete' ||
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'Tab' ||
+      e.key === 'Enter' ||
+      e.key === ' ' ||
+      e.metaKey
+    ) {
+      return;
+    }
+    if (!/^[a-zA-Z]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      e.key === 'Backspace' ||
+      e.key === 'Delete' ||
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'Tab' ||
+      e.key === 'Enter' ||
+      e.metaKey
+    ) {
+      return;
+    }
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
 
   const validatePersonalInfo = () => {
-    const newErrors: { fullName?: string; email?: string; phone?: string } = {};
+    const errors = {
+      name: validateName(formState.name) || '',
+      email: validateEmail(formState.email) || '',
+      phone_number: validatePhone(formState.phone_number) || '',
+    };
 
-    if (!fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
-    }
+    setFormState(prev => ({
+      ...prev,
+      errors: {
+        ...prev.errors,
+        ...errors
+      }
+    }));
 
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Invalid email address';
-    }
-
-    if (!phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^\+?\d{10,14}$/.test(phone.replace(/\s+/g, ''))) {
-      newErrors.phone = 'Invalid phone number format';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !Object.values(errors).some(error => error !== '');
   };
 
   const validateSecurityAnswer = () => {
-    const newErrors: { securityAnswer?: string } = {};
+    const error = !formState.security_answer.trim()
+      ? 'Security answer is required'
+      : '';
 
-    if (!securityAnswer.trim()) {
-      newErrors.securityAnswer = 'Security answer is required';
-    }
+    setFormState(prev => ({
+      ...prev,
+      errors: {
+        ...prev.errors,
+        security_answer: error
+      }
+    }));
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return error === '';
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 0 && validatePersonalInfo()) {
-      setCurrentStep(1);
+      const securityQuestionFetched = await fetchSecurityQuestion();
+      if (securityQuestionFetched) {
+        setCurrentStep(1);
+      }
     }
   };
 
   const handleBack = () => {
     setCurrentStep(0);
+  };
+
+  const fetchSecurityQuestion = async () => {
+    try {
+      const email = customerData.email;
+      
+      if (!email) {
+        showToast({
+          type: 'error',
+          title: 'Error',
+          description: 'Email address is missing. Cannot fetch security question.',
+        });
+        closeDialog();
+        return false;
+      }
+      
+      const response = await getSecurityQuestionByEmail(email);
+      
+      if (response && response.status === 'SUCCESS' && response.data && response.data.question) {
+        setSecurityQuestion(response.data.question);
+        return true;
+      } else {
+        throw new Error('Security question not found in the response');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch security question:', error);
+      showToast({
+        type: 'error',
+        title: 'Security Question Error',
+        description: error.message || 'Failed to fetch your security question. Please try again later.',
+      });
+      closeDialog();
+      return false;
+    }
   };
 
   const handleSubmit = async () => {
@@ -111,23 +240,25 @@ const UpdateProfileDialog: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const updateData = {
+        name: formState.name,
+        email: formState.email,
+        phone_number: formState.phone_number,
+        security_answer: formState.security_answer
+      };
 
-      showToast({
-        type: 'success',
-        title: 'Profile Updated',
-        description: 'Your profile has been updated successfully',
-      });
+      const result = await updateCustomerProfile(updateData, showToast);
 
-      closeDialog();
+      if (result.success) {
+        if (dialogData.onSuccess && typeof dialogData.onSuccess === 'function') {
+          dialogData.onSuccess();
+        }
+        closeDialog();
+      } else {
+        setCurrentStep(0);
+      }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        description: 'Failed to update profile',
-      });
+      setCurrentStep(0);
     } finally {
       setIsSubmitting(false);
     }
@@ -183,97 +314,69 @@ const UpdateProfileDialog: React.FC = () => {
             <TabPanels>
               <TabPanel px={0}>
                 <VStack spacing={4} align="stretch">
-                  <Box textAlign="center" mb={2}>
-                    <ProfileImage size="xl" />
-                  </Box>
+                  <FormInput
+                    label="Full Name"
+                    value={formState.name}
+                    onChange={handleInputChange('name')}
+                    onKeyDown={handleNameKeyDown}
+                    placeholder="Enter your full name"
+                    error={formState.errors.name}
+                  />
 
-                  <FormControl isRequired isInvalid={!!errors.fullName}>
-                    <FormLabel color="text.primary">Full Name</FormLabel>
-                    <Input
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="John Doe"
-                      bg="background.secondary"
-                      borderColor="surface.light"
-                      _hover={{ borderColor: "surface.medium" }}
-                      _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-                    />
-                    {errors.fullName && (
-                      <FormErrorMessage>{errors.fullName}</FormErrorMessage>
-                    )}
-                  </FormControl>
+                  <FormInput
+                    label="Email"
+                    value={formState.email}
+                    onChange={handleInputChange('email')}
+                    placeholder="Enter your email"
+                    type="email"
+                    error={formState.errors.email}
+                  />
 
-                  <FormControl isRequired isInvalid={!!errors.email}>
-                    <FormLabel color="text.primary">Email</FormLabel>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="john.doe@example.com"
-                      bg="background.secondary"
-                      borderColor="surface.light"
-                      _hover={{ borderColor: "surface.medium" }}
-                      _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-                    />
-                    {errors.email && (
-                      <FormErrorMessage>{errors.email}</FormErrorMessage>
-                    )}
-                  </FormControl>
+                  <FormInput
+                    label="Phone Number"
+                    value={formState.phone_number}
+                    onChange={handleInputChange('phone_number')}
+                    onKeyDown={handlePhoneKeyDown}
+                    placeholder="Enter your phone number"
+                    type="tel"
+                    error={formState.errors.phone_number}
+                  />
 
-                  <FormControl isRequired isInvalid={!!errors.phone}>
-                    <FormLabel color="text.primary">Phone Number</FormLabel>
-                    <Input
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+1 (555) 123-4567"
-                      bg="background.secondary"
-                      borderColor="surface.light"
-                      _hover={{ borderColor: "surface.medium" }}
-                      _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-                    />
-                    {errors.phone && (
-                      <FormErrorMessage>{errors.phone}</FormErrorMessage>
-                    )}
-                  </FormControl>
+                  {!hasChanges && (
+                    <Text color="blue.500" fontSize="sm" mt={2}>
+                      You need to change at least one field to update your profile.
+                    </Text>
+                  )}
                 </VStack>
               </TabPanel>
 
               <TabPanel px={0}>
-                <VStack spacing={4} align="stretch">
+                <Box>
                   <Box
                     p={4}
                     borderRadius="md"
                     bg="background.secondary"
-                    borderWidth="1px"
                     borderColor="surface.light"
+                    borderWidth="1px"
+                    mb={4}
                   >
                     <Text fontWeight="medium" color="text.primary" mb={1}>Security Question</Text>
-                    <Text color="text.secondary">What was the name of your first pet?</Text>
+                    <Text color="text.secondary">{securityQuestion || 'Loading security question...'}</Text>
                   </Box>
 
-                  <FormControl isRequired isInvalid={!!errors.securityAnswer}>
-                    <FormLabel color="text.primary">Your Answer</FormLabel>
-                    <Input
-                      type="password"
-                      value={securityAnswer}
-                      onChange={(e) => setSecurityAnswer(e.target.value)}
-                      placeholder="Enter your answer"
-                      bg="background.secondary"
-                      borderColor="surface.light"
-                      _hover={{ borderColor: "surface.medium" }}
-                      _focus={{ borderColor: "primary", boxShadow: "0 0 0 1px var(--chakra-colors-primary)" }}
-                    />
-                    {errors.securityAnswer && (
-                      <FormErrorMessage>{errors.securityAnswer}</FormErrorMessage>
-                    )}
-                  </FormControl>
+                  <FormInput
+                    label="Your Answer"
+                    value={formState.security_answer}
+                    onChange={handleInputChange('security_answer')}
+                    placeholder="Enter your security answer"
+                    type="password"
+                    error={formState.errors.security_answer}
+                  />
 
-                  <Box>
-                    <Text fontSize="sm" color="text.tertiary">
-                      Please provide your security answer to verify your identity before updating your profile information.
-                    </Text>
-                  </Box>
-                </VStack>
+                  <Text fontSize="sm" color="text.tertiary" mt={4}>
+                    For security reasons, we need to confirm your identity before making changes to your profile.
+                  </Text>
+                </Box>
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -300,6 +403,7 @@ const UpdateProfileDialog: React.FC = () => {
               _hover={{ bg: "#CC4300" }}
               _active={{ bg: "#B03B00" }}
               onClick={handleNext}
+              isDisabled={!hasChanges || Object.values(formState.errors).some(e => e !== '')}
             >
               Next
             </Button>
@@ -325,7 +429,7 @@ const UpdateProfileDialog: React.FC = () => {
                 isLoading={isSubmitting}
                 loadingText="Updating"
               >
-                Confirm
+                Update Profile
               </Button>
             </>
           )}
@@ -336,4 +440,3 @@ const UpdateProfileDialog: React.FC = () => {
 };
 
 export default UpdateProfileDialog;
-

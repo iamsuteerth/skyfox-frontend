@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { VStack, Button, Box } from '@chakra-ui/react';
 import FormInput from '@/app/components/form-input';
-import { getSecurityQuestionByEmail } from '@/services/auth-service';
+import { getSecurityQuestionByEmail } from '@/services/security-question-service';
 import { ERROR_MESSAGES } from '@/constants';
 
 interface EmailStepProps {
