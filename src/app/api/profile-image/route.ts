@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(imageData, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400',
+        'Cache-Control': 'public, max-age=240',
       },
     });
   } catch (error) {

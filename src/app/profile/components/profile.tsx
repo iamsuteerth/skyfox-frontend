@@ -264,14 +264,14 @@ const Profile: React.FC = () => {
                       borderRadius="md"
                     >
                       <Text color="text.tertiary" mb={3}>
-                        Your bookings will appear here once you make a reservation.
+                        Your latest bookings!
                       </Text>
                       <Button
                         colorScheme="primary"
                         variant="outline"
                         isDisabled={true}
                       >
-                        View All Bookings (Coming Soon)
+                        (Coming Soon)
                       </Button>
                     </Box>
                   </VStack>

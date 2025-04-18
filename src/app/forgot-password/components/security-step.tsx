@@ -96,6 +96,7 @@ export default function SecurityStep({
 
           <FormInput
             label="Your Answer"
+            type='password'
             value={securityAnswer}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecurityAnswer(e.target.value)}
             placeholder="Enter your answer"

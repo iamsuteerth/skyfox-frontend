@@ -269,7 +269,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 iconColor,
               } as any,
               actionBar: {
-                actions: ['clear', 'today'],
+                actions: ['today'],
               },
               popper: {
                 anchorEl: anchorEl,

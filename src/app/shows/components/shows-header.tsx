@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text, Button, Box, Icon } from '@chakra-ui/react';
+import { Flex, Text, Button, Box, Icon, useBreakpointValue } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { useAuth } from '@/contexts/auth-context';
 import { ROLES } from '@/constants';
@@ -26,6 +26,8 @@ const ShowsHeader: React.FC<ShowsHeaderProps> = ({
       day: 'numeric'
     })
     : 'Today';
+  
+  const formattedDateFontSize = useBreakpointValue({base : 'md', sm : 'xl', md :'xl'})
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -40,7 +42,7 @@ const ShowsHeader: React.FC<ShowsHeaderProps> = ({
         justify="space-between"
       >
         <Text
-          fontSize="xl"
+          fontSize={formattedDateFontSize}
           fontWeight="semibold"
           color="text.primary"
         >
