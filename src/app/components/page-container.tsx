@@ -1,7 +1,14 @@
 'use client';
 
-import { Box, Container, Flex, ContainerProps, FlexProps, BoxProps } from '@chakra-ui/react';
 import { ReactNode } from 'react';
+import {
+  Box,
+  Container,
+  Flex,
+  ContainerProps,
+  FlexProps,
+  BoxProps
+} from '@chakra-ui/react';
 
 interface PageContainerProps {
   children: ReactNode;
@@ -10,33 +17,33 @@ interface PageContainerProps {
   boxProps?: BoxProps;
 }
 
-export default function PageContainer({ 
+export default function PageContainer({
   children,
   containerProps,
   flexProps,
   boxProps,
 }: PageContainerProps) {
   return (
-    <Box 
-      minH="100vh" 
-      bg="background.primary" 
+    <Box
+      minH="100vh"
+      bg="background.primary"
       py={8}
       {...boxProps}
     >
-      <Container 
-        maxW="container.xl" 
-        h="100%" 
-        display="flex" 
-        alignItems="center" 
+      <Container
+        maxW="container.xl"
+        h="100%"
+        display="flex"
+        alignItems="center"
         justifyContent="center"
         {...containerProps}
       >
-        <Flex 
-          direction="column" 
-          align="center" 
-          justify="center" 
-          minH="calc(100vh - 64px)" 
-          px={4} 
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          minH="calc(100vh - 64px)"
+          px={4}
           w="100%"
           {...flexProps}
         >

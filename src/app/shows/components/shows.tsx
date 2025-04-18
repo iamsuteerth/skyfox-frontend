@@ -1,22 +1,23 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Box, Heading, Container } from '@chakra-ui/react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Box, Heading, Container } from '@chakra-ui/react';
 
 import dayjs from 'dayjs';
 
+import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { useDialog } from '@/contexts/dialog-context';
+import DialogManager from './dialogs/dialog-manager';
+import { useShows } from '@/contexts/shows-contex';
+
 import { fetchShows, Show } from '@/services/shows-service';
+import { formatDateForAPI } from '@/utils/date-utils';
+
 import ShowsHeader from './shows-header';
 import ShowsGrid from './shows-grid';
 import NoShows from './no-shows';
 import LoadingState from './loading-state';
-import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { formatDateForAPI } from '@/utils/date-utils';
-import DialogManager from './dialogs/dialog-manager';
-
-import { useDialog } from '@/contexts/dialog-context';
-import { useShows } from '@/contexts/shows-contex';
 
 export default function Shows() {
   const [isLoading, setIsLoading] = useState(true);

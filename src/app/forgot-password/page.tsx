@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ForgotPassword from "@/app/forgot-password/components/forgot-password";
+import ForgotPassword from "./components/forgot-password";
 
 export const metadata: Metadata = {
   title: 'Forgot Password | SkyFox Cinema',

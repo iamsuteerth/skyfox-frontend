@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import NextLink from 'next/link';
 import {
   Button,
   VStack,
@@ -11,7 +12,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import NextLink from 'next/link';
+
 import { useAuth } from '@/contexts/auth-context';
 import { APP_ROUTES } from '@/constants';
 
@@ -62,12 +63,12 @@ export default function LoginClient() {
           <BrandLogo />
 
           {error && (
-            <Box 
-              bg="error" 
-              color="white" 
-              py={2} 
-              px={4} 
-              borderRadius="md" 
+            <Box
+              bg="error"
+              color="white"
+              py={2}
+              px={4}
+              borderRadius="md"
               textAlign="center"
             >
               {error}

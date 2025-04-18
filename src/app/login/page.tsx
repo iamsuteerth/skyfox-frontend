@@ -1,5 +1,5 @@
-import Login from "./components/login";
 import type { Metadata } from 'next';
+import Login from "./components/login";
 
 export const metadata: Metadata = {
   title: 'Login | SkyFox Cinema',

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { VStack, Button, Box, Center, Spinner } from '@chakra-ui/react';
 import {
   validateName,
@@ -11,16 +12,16 @@ import {
   validateConfirmPassword,
   isFormComplete
 } from '@/utils/validators';
+import { processDefaultAvatar, processImageForUpload } from '@/utils/image-utils';
+import { getSecurityQuestions, SecurityQuestion } from '@/services/security-question-service';
+import { signupUser } from '@/services/signup-service';
+
+import { useCustomToast } from '@/app/components/ui/custom-toast';
 
 import PersonalInfoSection from './personal-info';
 import SecurityInfoSection from './security-info';
-import { getSecurityQuestions, SecurityQuestion } from '@/services/security-question-service';
-import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { processDefaultAvatar, processImageForUpload } from '@/utils/image-utils';
 import ProfileImageSection from './profile-image-selection';
-import { signupUser } from '@/services/signup-service';
-import { useRouter } from 'next/navigation';
-import CaptchaSection from '@/app/signup/components/captcha-section';
+import CaptchaSection from './captcha-section';
 
 interface SignupFormState {
   fullName: string;

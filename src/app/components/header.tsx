@@ -1,5 +1,9 @@
 'use client';
 
+import NextLink from 'next/link';
+import router from 'next/router';
+import { usePathname } from 'next/navigation';
+
 import {
   Box,
   Flex,
@@ -19,12 +23,10 @@ import {
   Link,
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
+
 import { useAuth } from '@/contexts/auth-context';
-import NextLink from 'next/link';
 import { APP_ROUTES, ROLES } from '@/constants';
-import { usePathname } from 'next/navigation';
 import ProfileImage from '@/app/components/profile-image';
-import router from 'next/router';
 
 const formatRole = (role?: string) => {
   if (!role) return '';
@@ -47,7 +49,7 @@ export default function Header() {
     e.preventDefault();
     router.push('/shows');
   };
-  
+
   const isActive = (route: string) => pathname === route;
 
   return (
@@ -87,33 +89,6 @@ export default function Header() {
             >
               Shows
             </Button>
-            {/* {user?.role === 'admin' && (
-              <>
-                <Button
-                  as={NextLink}
-                  href="/admin/dashboard"
-                  variant="ghost"
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  as={NextLink}
-                  href="/admin/manage-shows"
-                  variant="ghost"
-                >
-                  Manage Shows
-                </Button>
-              </>
-            )} */}
-            {/* {user?.role === 'staff' && (
-              <Button
-                as={NextLink}
-                href="/staff/check-in"
-                variant="ghost"
-              >
-                Check-In
-              </Button>
-            )} */}
           </HStack>
         </HStack>
         <Flex alignItems={'center'}>
@@ -125,7 +100,7 @@ export default function Header() {
               cursor={'pointer'}
               minW={0}>
               {user?.role === ROLES.CUSTOMER ? (
-                <ProfileImage size="md"/>
+                <ProfileImage size="md" />
               ) : (
                 <Avatar size={'md'} bg="primary" />
               )}
@@ -141,11 +116,6 @@ export default function Header() {
               <MenuItem as={NextLink} href={APP_ROUTES.PROFILE} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Profile
               </MenuItem>
-              {/* {user?.role === 'customer' && (
-                <MenuItem as={NextLink} href="/bookings" bg="background.primary" _hover={{ bg: 'background.secondary' }}>
-                  My Bookings
-                </MenuItem>
-              )} */}
               <MenuDivider borderColor="surface.light" />
               <MenuItem onClick={logout} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Sign Out
@@ -155,58 +125,17 @@ export default function Header() {
         </Flex>
       </Flex>
 
-      {/* Mobile menu */}
       {isOpen && (
         <Box pb={4} display={{ md: 'none' }} bg={bg}>
           <Stack as={'nav'} spacing={4}>
             <Button
               as={NextLink}
               href={APP_ROUTES.SHOWS}
-              w="full" 
+              w="full"
               variant="ghost"
             >
               Shows
             </Button>
-            {/* {user?.role === 'admin' && (
-              <>
-                <Button
-                  as={NextLink}
-                  href="/admin/dashboard"
-                  w="full" 
-                  variant="ghost"
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  as={NextLink}
-                  href="/admin/manage-shows"
-                  w="full" 
-                  variant="ghost"
-                >
-                  Manage Shows
-                </Button>
-              </>
-            )}
-            {user?.role === 'staff' && (
-              <Button
-                as={NextLink}
-                href="/staff/check-in"
-                w="full" 
-                variant="ghost"
-              >
-                Check-In
-              </Button>
-            )} */}
-            {/* {user?.role === 'customer' && (
-              <Button
-                as={NextLink}
-                href="/bookings"
-                w="full" 
-                variant="ghost"
-              >
-                My Bookings
-              </Button>
-            )} */}
           </Stack>
         </Box>
       )}

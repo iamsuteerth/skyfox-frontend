@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { VStack, Button, FormControl, FormLabel, Text, Box } from '@chakra-ui/react';
-import FormInput from '@/app/components/form-input';
 import { verifySecurityAnswer } from '@/services/auth-service';
 import { ERROR_MESSAGES } from '@/constants';
+import FormInput from '@/app/components/form-input';
 
 interface SecurityStepProps {
   email: string;
@@ -25,41 +25,41 @@ export default function SecurityStep({
   const [securityAnswerError, setSecurityAnswerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [localError, setLocalError] = useState('');
-  
+
   const validateSecurityAnswer = () => {
     if (!securityAnswer) {
       setSecurityAnswerError('Security answer is required');
       return false;
     }
-    
+
     if (securityAnswer.length < 3) {
       setSecurityAnswerError('Security answer must be at least 3 characters long');
       return false;
     }
-    
+
     setSecurityAnswerError('');
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateSecurityAnswer()) return;
-    
+
     setIsLoading(true);
-    setError(''); 
-    setLocalError(''); 
-    
+    setError('');
+    setLocalError('');
+
     try {
       const response = await verifySecurityAnswer({
         email,
         security_answer: securityAnswer
       });
-      
+
       if (response.status === 'ERROR') {
         throw new Error(response.message || ERROR_MESSAGES.GENERIC_ERROR);
       }
-      
+
       setResetToken(response.data.reset_token);
       setActiveStep(2);
     } catch (err: any) {
@@ -73,12 +73,12 @@ export default function SecurityStep({
   return (
     <VStack spacing={6} align="stretch">
       {localError && (
-        <Box 
-          bg="error" 
-          color="white" 
-          py={2} 
-          px={4} 
-          borderRadius="md" 
+        <Box
+          bg="error"
+          color="white"
+          py={2}
+          px={4}
+          borderRadius="md"
           textAlign="center"
         >
           {localError}

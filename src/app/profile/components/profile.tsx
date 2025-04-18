@@ -19,16 +19,19 @@ import {
   FlexProps,
   Avatar,
 } from '@chakra-ui/react';
+import { EditIcon } from '@chakra-ui/icons';
+
 import { useAuth } from '@/contexts/auth-context';
 import { useDialog } from '@/contexts/dialog-context';
-import { RoleBasedElement } from '@/app/components/auth/role-based-element';
-import ProfileImage from '@/app/components/profile-image';
 import DialogManager from './dialogs/dialog-manager';
-import { ROLES } from '@/constants';
-import { formatTimestampToOrdinalDate } from '@/utils/date-utils';
-import { EditIcon } from '@chakra-ui/icons';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+
 import { AdminStaffProfileResponse, CustomerProfileResponse, getProfile } from '@/services/profile-service';
+import { formatTimestampToOrdinalDate } from '@/utils/date-utils';
+import { ROLES } from '@/constants';
+
+import ProfileImage from '@/app/components/profile-image';
+import { RoleBasedElement } from '@/app/components/auth/role-based-element';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -59,7 +62,7 @@ const Profile: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchProfileData();
   }, [showToast]);
@@ -69,11 +72,11 @@ const Profile: React.FC = () => {
   };
 
   const handleUpdateProfile = () => {
-    openDialog('updateProfile', {...customerData, onSuccess: fetchProfileData});
+    openDialog('updateProfile', { ...customerData, onSuccess: fetchProfileData });
   };
 
   const handleUpdateProfileImage = () => {
-    if(isLoading){
+    if (isLoading) {
       return;
     }
     openDialog('updateProfileImage', customerData)

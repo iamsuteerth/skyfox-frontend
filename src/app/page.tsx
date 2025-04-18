@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { APP_ROUTES } from '@/constants';
-import { useAuth } from '@/contexts/auth-context';
 import { Box, Center, Spinner } from '@chakra-ui/react';
+import { useAuth } from '@/contexts/auth-context';
+import { APP_ROUTES } from '@/constants';
 
 export default function Home() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function Home() {
           thickness="4px"
           speed="0.65s"
           color={spinnerColor}
-          emptyColor="surface.light" 
+          emptyColor="surface.light"
           size="xl"
         />
 

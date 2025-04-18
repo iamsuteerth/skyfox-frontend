@@ -1,17 +1,17 @@
 'use client';
 
-import { Card, CardProps, CardBody } from '@chakra-ui/react';
 import { ReactNode } from 'react';
+import { Card, CardProps, CardBody } from '@chakra-ui/react';
 
 interface NeumorphicCardProps extends CardProps {
   children: ReactNode;
   padding?: string | object;
 }
 
-export default function NeumorphicCard({ 
-  children, 
+export default function NeumorphicCard({
+  children,
   padding = { base: 6, md: 10 },
-  ...rest 
+  ...rest
 }: NeumorphicCardProps) {
   const neumorphicStyle = {
     borderRadius: '50px',

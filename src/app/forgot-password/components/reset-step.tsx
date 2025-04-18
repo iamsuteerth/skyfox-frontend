@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import { VStack, Button, IconButton, Box } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useRouter } from 'next/navigation';
-import FormInput from '@/app/components/form-input';
-import { resetPassword } from '@/services/auth-service';
-import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
+
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { resetPassword } from '@/services/auth-service';
 import { validatePasswords } from '@/utils/validators'
+import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
+import FormInput from '@/app/components/form-input';
 
 interface ResetStepProps {
   email: string;
@@ -31,26 +33,26 @@ export default function ResetStep({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [localError, setLocalError] = useState('');
-  
+
   const router = useRouter();
   const { showToast } = useCustomToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validatePasswords(newPassword, confirmPassword, setNewPasswordError, setConfirmPasswordError)) return;
-    
+
     setIsLoading(true);
     setError('');
-    setLocalError(''); 
-    
+    setLocalError('');
+
     try {
       const response = await resetPassword({
         email,
         reset_token: resetToken,
         new_password: newPassword
       });
-      
+
       if (response.status === 'ERROR') {
         if (response.code === 'INVALID_RESET_TOKEN' || response.code === 'TOKEN_EXPIRED') {
           resetFlow();
@@ -58,13 +60,13 @@ export default function ResetStep({
         }
         throw new Error(response.message || ERROR_MESSAGES.GENERIC_ERROR);
       }
-      
+
       showToast({
         type: 'success',
         title: 'Success',
         description: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESS
       });
-      
+
       router.push(APP_ROUTES.LOGIN);
     } catch (err: any) {
       console.error('Error resetting password:', err);
@@ -77,12 +79,12 @@ export default function ResetStep({
   return (
     <VStack spacing={6} align="stretch">
       {localError && (
-        <Box 
-          bg="error" 
-          color="white" 
-          py={2} 
-          px={4} 
-          borderRadius="md" 
+        <Box
+          bg="error"
+          color="white"
+          py={2}
+          px={4}
+          borderRadius="md"
           textAlign="center"
         >
           {localError}

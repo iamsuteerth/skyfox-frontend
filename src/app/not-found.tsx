@@ -1,9 +1,18 @@
 'use client';
 
-import { startTransition, useEffect, useState } from 'react';
-import { Box, Heading, Text, Center, VStack, Button, Spinner } from '@chakra-ui/react';
-import { useAuth } from '@/contexts/auth-context';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Box,
+  Heading,
+  Text,
+  Center,
+  VStack,
+  Button,
+  Spinner
+} from '@chakra-ui/react';
+
+import { useAuth } from '@/contexts/auth-context';
 import { APP_ROUTES } from '@/constants';
 
 export default function NotFound() {
@@ -11,11 +20,11 @@ export default function NotFound() {
   const router = useRouter();
   const [redirectTimeLeft, setRedirectTimeLeft] = useState(5);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  
+
   const bgColor = 'background.primary';
   const textColor = 'text.primary';
   const headingColor = 'text.primary';
-  
+
   useEffect(() => {
     let isMounted = true;
     if (!isLoading && user) {
@@ -54,7 +63,7 @@ export default function NotFound() {
           <Heading size="2xl" color={headingColor}>404</Heading>
           <Heading size="lg" color={headingColor}>Page Not Found</Heading>
           <Text color={textColor}>The page you are looking for doesn't exist or has been moved.</Text>
-          
+
           <Box minH="60px" display="flex" alignItems="center" justifyContent="center">
             {isLoading ? (
               <Spinner color="primary" size="md" />
@@ -65,14 +74,14 @@ export default function NotFound() {
                 </Text>
               )
             )}
-            
+
             {isRedirecting && redirectTimeLeft === 0 && (
               <Text color={textColor}>
                 Redirecting now...
               </Text>
             )}
           </Box>
-          
+
           {isLoading ? (
             <Button
               isLoading
@@ -84,7 +93,7 @@ export default function NotFound() {
               Loading
             </Button>
           ) : (
-            <Button 
+            <Button
               onClick={handleRedirect}
               bg="primary"
               color="white"

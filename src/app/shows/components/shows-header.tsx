@@ -1,10 +1,10 @@
 import React from 'react';
 import { Flex, Text, Button, Box, Icon } from '@chakra-ui/react';
-import { DatePicker } from '@/app/components/date-picker';
-import { useAuth } from '@/contexts/auth-context';
 import { AddIcon } from '@chakra-ui/icons';
-import { RoleBasedElement } from '@/app/components/auth/role-based-element';
+import { useAuth } from '@/contexts/auth-context';
 import { ROLES } from '@/constants';
+import { RoleBasedElement } from '@/app/components/auth/role-based-element';
+import { DatePicker } from '@/app/components/date-picker';
 
 interface ShowsHeaderProps {
   selectedDate: Date | null;

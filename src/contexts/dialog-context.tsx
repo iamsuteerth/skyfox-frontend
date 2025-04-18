@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type DialogType = 'none' | 'adminBooking' | 'customerBooking' | 'payment' | 'scheduleShow' | 'changePassword' | 'updateProfile' | 'updateProfileImage';
+type DialogType = 'none'
+  | 'adminBooking'
+  | 'customerBooking'
+  | 'payment'
+  | 'scheduleShow'
+  | 'changePassword'
+  | 'updateProfile'
+  | 'updateProfileImage';
 
 interface DialogContextType {
   currentDialog: DialogType;
@@ -11,7 +18,7 @@ interface DialogContextType {
 
 const DialogContext = createContext<DialogContextType | undefined>(undefined);
 
-export const DialogProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentDialog, setCurrentDialog] = useState<DialogType>('none');
   const [dialogData, setDialogData] = useState<any>(null);
 

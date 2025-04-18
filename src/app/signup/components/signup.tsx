@@ -4,9 +4,9 @@ import React from 'react';
 import { VStack } from '@chakra-ui/react';
 import PageContainer from '@/app/components/page-container';
 import NeumorphicCard from '@/app/components/neumorphic-card';
-import SignupHeader from '@/app/signup/components/signup-header';
 import BrandLogo from '@/app/components/brand-logo';
-import SignupForm from '@/app/signup/components/signup-form';
+import SignupHeader from './signup-header';
+import SignupForm from './signup-form';
 
 export default function Signup() {
   return (

@@ -1,18 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  VStack,
-  Box,
-} from '@chakra-ui/react';
+import { VStack, Box } from '@chakra-ui/react';
+import { useSteps } from '@chakra-ui/react';
+
 import BrandLogo from '@/app/components/brand-logo';
 import NeumorphicCard from '@/app/components/neumorphic-card';
 import PageContainer from '@/app/components/page-container';
-import EmailStep from '@/app/forgot-password/components/email-step';
-import SecurityStep from '@/app/forgot-password/components/security-step';
-import ResetStep from '@/app/forgot-password/components/reset-step';
+
+import EmailStep from './email-step';
+import SecurityStep from './security-step';
+import ResetStep from './reset-step';
 import ForgotPasswordHeader from './forgot-password-stepper';
-import { useSteps } from '@chakra-ui/react';
 
 const steps = [
   { title: 'Email', description: 'Enter your email address' },

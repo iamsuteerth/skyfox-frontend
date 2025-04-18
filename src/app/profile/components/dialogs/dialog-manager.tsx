@@ -15,7 +15,7 @@ export const DialogManager: React.FC = () => {
     case 'updateProfile':
       return <UpdateProfileDialog />;
     case 'updateProfileImage':
-      return <UpdateProfileImageDialog/>;
+      return <UpdateProfileImageDialog />;
     default:
       return null;
   }

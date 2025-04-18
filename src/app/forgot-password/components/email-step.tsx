@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { VStack, Button, Box } from '@chakra-ui/react';
-import FormInput from '@/app/components/form-input';
 import { getSecurityQuestionByEmail } from '@/services/security-question-service';
 import { ERROR_MESSAGES } from '@/constants';
+import FormInput from '@/app/components/form-input';
 
 interface EmailStepProps {
   email: string;
@@ -26,39 +26,39 @@ export default function EmailStep({
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [localError, setLocalError] = useState('');
-  
+
   const validateEmail = () => {
     if (!email) {
       setEmailError('Email is required');
       return false;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError('Please enter a valid email');
       return false;
     }
-    
+
     setEmailError('');
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateEmail()) return;
-    
+
     setIsLoading(true);
-    setError(''); 
-    setLocalError(''); 
-    
+    setError('');
+    setLocalError('');
+
     try {
       const response = await getSecurityQuestionByEmail(email);
-      
+
       if (response.status === 'ERROR') {
         throw new Error(response.message || ERROR_MESSAGES.GENERIC_ERROR);
       }
-      
+
       setQuestion(response.data.question);
       setQuestionId(response.data.question_id);
       setActiveStep(1);
@@ -73,12 +73,12 @@ export default function EmailStep({
   return (
     <VStack spacing={6} align="stretch">
       {localError && (
-        <Box 
-          bg="error" 
-          color="white" 
-          py={2} 
-          px={4} 
-          borderRadius="md" 
+        <Box
+          bg="error"
+          color="white"
+          py={2}
+          px={4}
+          borderRadius="md"
           textAlign="center"
         >
           {localError}

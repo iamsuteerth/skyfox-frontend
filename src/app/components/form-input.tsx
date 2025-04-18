@@ -1,5 +1,7 @@
 'use client';
 
+import { ReactNode } from 'react';
+
 import {
   FormControl,
   FormLabel,
@@ -9,8 +11,8 @@ import {
   InputRightElement,
   SystemStyleObject,
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
-import CustomDatePicker from '@/app/shows/components/dialogs/schedule-show/custom-date-picker'; 
+
+import CustomDatePicker from '@/app/shows/components/dialogs/schedule-show/custom-date-picker';
 
 interface FormInputProps {
   label: string;
@@ -58,7 +60,7 @@ export default function FormInput({
   return (
     <FormControl isInvalid={!!error}>
       <FormLabel fontWeight="medium" color="text.primary">{label}</FormLabel>
-      
+
       {type === 'date' ? (
         <CustomDatePicker
           value={value}
@@ -74,7 +76,7 @@ export default function FormInput({
             type={type}
             value={value}
             onChange={onChange}
-            onKeyDown={onKeyDown} 
+            onKeyDown={onKeyDown}
             placeholder={placeholder}
             disabled={isDisabled}
             color="text.primary"
@@ -88,7 +90,7 @@ export default function FormInput({
           {rightElement && <InputRightElement width="4.5rem">{rightElement}</InputRightElement>}
         </InputGroup>
       )}
-      
+
       {error && <FormErrorMessage color="error">{error}</FormErrorMessage>}
     </FormControl>
   );

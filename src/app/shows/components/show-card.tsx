@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import {
   Box,
   Flex,
@@ -9,24 +10,18 @@ import {
   HStack,
   VStack,
   Icon,
-  Skeleton
 } from '@chakra-ui/react';
-import Image from 'next/image';
 import { StarIcon, TimeIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';
 import { formatDuration } from '@/utils/date-utils';
-import { useAuth } from '@/contexts/auth-context';
-import { RoleBasedElement } from '@/app/components/auth/role-based-element';
 import { ROLES } from '@/constants';
+import { RoleBasedElement } from '@/app/components/auth/role-based-element';
 
 interface ShowCardProps {
   show: Show;
 }
 
 const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
-
-  const { user } = useAuth();
-
   const formattedCost = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -180,17 +175,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
         </Tooltip>
 
         <Flex justify="space-between" align="center" mt={1}>
-          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}
-            fallback={
-              <Skeleton
-                height="16px"
-                width="40%"
-                startColor="surface.light"
-                endColor="surface.dark"
-                opacity="0.2"
-              />
-            }
-          >
+          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]} >
             <Text fontSize="sm" color="text.tertiary">
               <Text as="span" fontWeight="semibold" color={show.availableseats > 15 ? "green.500" : "red.500"}>
                 {show.availableseats}
@@ -202,19 +187,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           </Text>
         </Flex>
 
-        <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}
-          fallback={
-            <Skeleton
-              height="40px"
-              width="100%"
-              startColor="surface.light"
-              endColor="surface.dark"
-              opacity="0.2"
-              borderRadius="md"
-              mt={1}
-            />
-          }
-        >
+        <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
           <Button
             bg="brand.500"
             color="white"

@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   Box,
   Heading,
@@ -20,8 +23,6 @@ import {
   VStack,
   HStack
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function ThemePreview() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function ThemePreview() {
   }, [router]);
 
   if (process.env.NODE_ENV !== 'development') {
-    return null; 
+    return null;
   }
   return (
     <Box p={8} maxWidth="1200px" mx="auto" bg="background.primary">

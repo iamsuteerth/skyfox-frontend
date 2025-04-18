@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import { Avatar, AvatarProps, Spinner } from '@chakra-ui/react';
+import { Avatar, AvatarProps } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/auth-context';
 
 type ProfileImageProps = Omit<AvatarProps, 'src'> & {
@@ -9,12 +9,12 @@ type ProfileImageProps = Omit<AvatarProps, 'src'> & {
 };
 
 export const profileImageRefresher = (() => {
-  let globalTimestamp = localStorage.getItem('profileImageTimestamp') 
-    ? Number(localStorage.getItem('profileImageTimestamp')) 
+  let globalTimestamp = localStorage.getItem('profileImageTimestamp')
+    ? Number(localStorage.getItem('profileImageTimestamp'))
     : null;
-    
+
   const listeners = new Set<() => void>();
-  
+
   return {
     addListener: (listener: () => void): (() => void) => {
       listeners.add(listener);
@@ -31,23 +31,23 @@ export const profileImageRefresher = (() => {
   };
 })();
 
-const ProfileImage = memo(({ 
+const ProfileImage = memo(({
   fallbackImageSrc = '/default_avatars/default_1.jpg',
-  ...avatarProps 
+  ...avatarProps
 }: ProfileImageProps) => {
   const { user, token } = useAuth();
   const [error, setError] = useState(false);
   const [localTimestamp, setLocalTimestamp] = useState<number | null>(profileImageRefresher.getTimestamp());
-  
+
   useEffect(() => {
     const unsubscribe = profileImageRefresher.addListener(() => {
       setLocalTimestamp(profileImageRefresher.getTimestamp());
     });
-    
+
     return unsubscribe;
   }, []);
 
-  const imageUrl = token && user 
+  const imageUrl = token && user
     ? `/api/profile-image${localTimestamp ? `?t=${localTimestamp}` : ''}`
     : null;
 

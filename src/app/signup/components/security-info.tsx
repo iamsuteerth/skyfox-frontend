@@ -12,8 +12,8 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import FormInput from '@/app/components/form-input';
 import { SecurityQuestion } from '@/services/security-question-service';
+import FormInput from '@/app/components/form-input';
 import Select from '@/app/components/select';
 
 interface SecurityInfoSectionProps {
@@ -120,20 +120,20 @@ const SecurityInfoSection: React.FC<SecurityInfoSectionProps> = ({
               name="securityQuestionId"
               sizeOverride={48}
             />
-        </Box>
-        {formData.errors.securityQuestionId && (
-          <FormErrorMessage color="error">{formData.errors.securityQuestionId}</FormErrorMessage>
-        )}
-      </FormControl>
+          </Box>
+          {formData.errors.securityQuestionId && (
+            <FormErrorMessage color="error">{formData.errors.securityQuestionId}</FormErrorMessage>
+          )}
+        </FormControl>
 
-      <FormInput
-        label="Security Answer"
-        value={formData.securityAnswer}
-        onChange={handleInputChange('securityAnswer')}
-        placeholder="Enter your answer"
-        error={formData.errors.securityAnswer}
-      />
-    </SimpleGrid >
+        <FormInput
+          label="Security Answer"
+          value={formData.securityAnswer}
+          onChange={handleInputChange('securityAnswer')}
+          placeholder="Enter your answer"
+          error={formData.errors.securityAnswer}
+        />
+      </SimpleGrid >
     </>
   );
 };

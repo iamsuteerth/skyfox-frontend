@@ -26,16 +26,16 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
-    
+
     const data = await response.json();
-    
+
     if (!response.ok) {
-      throw { 
-        error: data, 
-        statusCode: response.status 
+      throw {
+        error: data,
+        statusCode: response.status
       };
     }
-    
+
     return data;
   } catch (error: any) {
     if (error.statusCode && error.error) {
@@ -83,13 +83,13 @@ export const verifySecurityAnswer = async ({
     });
 
     const text = await response.text();
-    
+
     if (!text.trim()) {
       throw new Error('No response received from server. Please try again later.');
     }
-    
+
     let data;
-    
+
     try {
       data = JSON.parse(text);
     } catch (parseError) {
@@ -116,7 +116,7 @@ export const verifySecurityAnswer = async ({
     return data;
   } catch (error: any) {
     console.error('Error verifying security answer:', error);
-    
+
     if (error.message) {
       throw error;
     }
@@ -147,13 +147,13 @@ export const resetPassword = async ({
     });
 
     const text = await response.text();
-    
+
     if (!text.trim()) {
       throw new Error('No response received from server. Please try again later.');
     }
-    
+
     let data;
-    
+
     try {
       data = JSON.parse(text);
     } catch (parseError) {
@@ -165,17 +165,17 @@ export const resetPassword = async ({
       switch (data.code) {
         case 'INVALID_RESET_TOKEN':
           throw new Error('The reset token is invalid, expired, or has already been used. Please start again.');
-        
+
         case 'PASSWORD_REUSE':
           throw new Error('New password cannot match any of your previous passwords. Please choose a different password.');
-        
+
         case 'VALIDATION_ERROR':
           if (data.errors && data.errors.length > 0) {
             const validationErrors = data.errors.map((err: any) => err.message).join(', ');
             throw new Error(`Validation failed: ${validationErrors}`);
           }
           throw new Error(data.message || 'Validation failed. Please check your input.');
-        
+
         default:
           throw new Error(data.message || ERROR_MESSAGES.GENERIC_ERROR);
       }
@@ -188,11 +188,11 @@ export const resetPassword = async ({
     return data;
   } catch (error: any) {
     console.error('Error resetting password:', error);
-    
+
     if (error.message) {
       throw error;
     }
-    
+
     throw new Error(handleApiError(error));
   }
 };
@@ -216,7 +216,7 @@ export const changePassword = async (
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       throw new Error(data.message || `Request failed with status ${response.status}`);
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useState, useCallback, useEffect } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -19,27 +19,23 @@ import {
   Tab,
   TabPanel,
   Text,
-  Box,
 } from '@chakra-ui/react';
+
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import FormInput from '@/app/components/form-input';
-import { validateName, validateEmail, validatePhone } from '@/utils/validators';
+
 import { updateCustomerProfile } from '@/services/profile-service';
 import { getSecurityQuestionByEmail } from '@/services/security-question-service';
+import { validateName, validateEmail, validatePhone } from '@/utils/validators';
+
+import { profileFormReducer, createInitialState, ProfileFormState } from './profile-form-reducer';
+
+import FormInput from '@/app/components/form-input';
+import SecurityVerificationForm from '../shared/security-verification-tab';
 
 const UpdateProfileDialog: React.FC = () => {
   const { dialogData, closeDialog } = useDialog();
   const { showToast } = useCustomToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [securityQuestion, setSecurityQuestion] = useState<string | null>(null);
-  
-  const modalSize = useBreakpointValue({
-    base: 'xs',
-    sm: 'md',
-    md: 'lg'
-  });
 
   const customerData = dialogData || {
     name: '',
@@ -48,34 +44,15 @@ const UpdateProfileDialog: React.FC = () => {
     security_question_exists: false
   };
 
-  const [formState, setFormState] = useState({
-    name: customerData.name || '',
-    email: customerData.email || '',
-    phone_number: customerData.phone_number || '',
-    security_answer: '',
-    errors: {
-      name: '',
-      email: '',
-      phone_number: '',
-      security_answer: '',
-    },
-    touched: {
-      name: false,
-      email: false,
-      phone_number: false,
-    }
-  });
+  const [formState, dispatch] = useReducer(
+    profileFormReducer,
+    customerData,
+    createInitialState
+  );
 
-  useEffect(() => {
-    if (dialogData) {
-      setFormState(prev => ({
-        ...prev,
-        name: dialogData.name || '',
-        email: dialogData.email || '',
-        phone_number: dialogData.phone_number || '',
-      }));
-    }
-  }, [dialogData]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [securityQuestion, setSecurityQuestion] = useState<string | null>(null);
 
   const [originalValues] = useState({
     name: customerData.name || '',
@@ -88,9 +65,25 @@ const UpdateProfileDialog: React.FC = () => {
     formState.email !== originalValues.email ||
     formState.phone_number !== originalValues.phone_number;
 
-  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const modalSize = useBreakpointValue({
+    base: 'xs',
+    sm: 'md',
+    md: 'lg'
+  });
+
+  useEffect(() => {
+    if (dialogData) {
+      dispatch({
+        type: 'RESET_FORM',
+        payload: createInitialState(dialogData)
+      });
+    }
+  }, [dialogData]);
+
+  const handleInputChange = useCallback((field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let error = '';
+
     if (field === 'name') {
       error = validateName(value) || '';
     } else if (field === 'email') {
@@ -99,21 +92,13 @@ const UpdateProfileDialog: React.FC = () => {
       error = validatePhone(value) || '';
     }
 
-    setFormState(prev => ({
-      ...prev,
-      [field]: value,
-      errors: {
-        ...prev.errors,
-        [field]: error
-      },
-      touched: {
-        ...prev.touched,
-        [field]: true
-      }
-    }));
-  };
+    dispatch({
+      type: 'SET_FIELD',
+      payload: { field, value, error }
+    });
+  }, []);
 
-  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleNameKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (
       e.key === 'Backspace' ||
       e.key === 'Delete' ||
@@ -126,12 +111,13 @@ const UpdateProfileDialog: React.FC = () => {
     ) {
       return;
     }
+
     if (!/^[a-zA-Z]$/.test(e.key)) {
       e.preventDefault();
     }
-  };
+  }, []);
 
-  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handlePhoneKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (
       e.key === 'Backspace' ||
       e.key === 'Delete' ||
@@ -143,43 +129,87 @@ const UpdateProfileDialog: React.FC = () => {
     ) {
       return;
     }
+
     if (!/^\d$/.test(e.key)) {
       e.preventDefault();
     }
-  };
+  }, []);
 
-  const validatePersonalInfo = () => {
+  const handleSecurityAnswerChange = useCallback((value: string) => {
+    dispatch({
+      type: 'SET_FIELD',
+      payload: { field: 'security_answer', value }
+    });
+  }, []);
+
+  const validatePersonalInfo = useCallback(() => {
     const errors = {
       name: validateName(formState.name) || '',
       email: validateEmail(formState.email) || '',
       phone_number: validatePhone(formState.phone_number) || '',
     };
 
-    setFormState(prev => ({
-      ...prev,
-      errors: {
-        ...prev.errors,
-        ...errors
+    let isValid = true;
+    Object.entries(errors).forEach(([field, error]) => {
+      if (error) {
+        dispatch({
+          type: 'SET_ERROR',
+          payload: { field: field as keyof ProfileFormState['errors'], message: error }
+        });
+        isValid = false;
       }
-    }));
+    });
 
-    return !Object.values(errors).some(error => error !== '');
-  };
+    return isValid;
+  }, [formState.name, formState.email, formState.phone_number]);
 
-  const validateSecurityAnswer = () => {
-    const error = !formState.security_answer.trim()
-      ? 'Security answer is required'
-      : '';
+  const validateSecurityAnswer = useCallback(() => {
+    if (!formState.security_answer.trim()) {
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { field: 'security_answer', message: 'Security answer is required' }
+      });
+      return false;
+    }
 
-    setFormState(prev => ({
-      ...prev,
-      errors: {
-        ...prev.errors,
-        security_answer: error
+    dispatch({
+      type: 'SET_ERROR',
+      payload: { field: 'security_answer', message: '' }
+    });
+    return true;
+  }, [formState.security_answer]);
+
+  const fetchSecurityQuestion = async () => {
+    try {
+      const email = customerData.email;
+
+      if (!email) {
+        showToast({
+          type: 'error',
+          title: 'Error',
+          description: 'Email address is missing. Cannot fetch security question.',
+        });
+        closeDialog();
+        return false;
       }
-    }));
 
-    return error === '';
+      const response = await getSecurityQuestionByEmail(email);
+
+      if (response && response.status === 'SUCCESS' && response.data && response.data.question) {
+        setSecurityQuestion(response.data.question);
+        return true;
+      } else {
+        throw new Error('Security question not found in the response');
+      }
+    } catch (error: any) {
+      showToast({
+        type: 'error',
+        title: 'Security Question Error',
+        description: error.message || 'Failed to fetch your security question. Please try again later.',
+      });
+      closeDialog();
+      return false;
+    }
   };
 
   const handleNext = async () => {
@@ -191,43 +221,9 @@ const UpdateProfileDialog: React.FC = () => {
     }
   };
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setCurrentStep(0);
-  };
-
-  const fetchSecurityQuestion = async () => {
-    try {
-      const email = customerData.email;
-      
-      if (!email) {
-        showToast({
-          type: 'error',
-          title: 'Error',
-          description: 'Email address is missing. Cannot fetch security question.',
-        });
-        closeDialog();
-        return false;
-      }
-      
-      const response = await getSecurityQuestionByEmail(email);
-      
-      if (response && response.status === 'SUCCESS' && response.data && response.data.question) {
-        setSecurityQuestion(response.data.question);
-        return true;
-      } else {
-        throw new Error('Security question not found in the response');
-      }
-    } catch (error: any) {
-      console.error('Failed to fetch security question:', error);
-      showToast({
-        type: 'error',
-        title: 'Security Question Error',
-        description: error.message || 'Failed to fetch your security question. Please try again later.',
-      });
-      closeDialog();
-      return false;
-    }
-  };
+  }, []);
 
   const handleSubmit = async () => {
     if (currentStep === 0) {
@@ -253,11 +249,13 @@ const UpdateProfileDialog: React.FC = () => {
         if (dialogData.onSuccess && typeof dialogData.onSuccess === 'function') {
           dialogData.onSuccess();
         }
+
         closeDialog();
       } else {
         setCurrentStep(0);
       }
     } catch (error) {
+      console.error("Error updating profile:", error);
       setCurrentStep(0);
     } finally {
       setIsSubmitting(false);
@@ -265,21 +263,9 @@ const UpdateProfileDialog: React.FC = () => {
   };
 
   return (
-    <Modal
-      isOpen={true}
-      onClose={closeDialog}
-      size={modalSize}
-      isCentered
-      motionPreset="slideInBottom"
-    >
+    <Modal isOpen={true} onClose={closeDialog} size={modalSize} isCentered motionPreset="slideInBottom" >
       <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
-      <ModalContent
-        bg="background.primary"
-        borderColor="surface.light"
-        borderWidth="1px"
-        borderRadius="xl"
-        mx={2}
-      >
+      <ModalContent bg="background.primary" borderColor="surface.light" borderWidth="1px" borderRadius="xl" mx={2} >
         <ModalHeader color="text.primary">Update Profile</ModalHeader>
         <ModalCloseButton color="text.tertiary" />
         <Divider borderColor="surface.light" />
@@ -351,32 +337,12 @@ const UpdateProfileDialog: React.FC = () => {
               </TabPanel>
 
               <TabPanel px={0}>
-                <Box>
-                  <Box
-                    p={4}
-                    borderRadius="md"
-                    bg="background.secondary"
-                    borderColor="surface.light"
-                    borderWidth="1px"
-                    mb={4}
-                  >
-                    <Text fontWeight="medium" color="text.primary" mb={1}>Security Question</Text>
-                    <Text color="text.secondary">{securityQuestion || 'Loading security question...'}</Text>
-                  </Box>
-
-                  <FormInput
-                    label="Your Answer"
-                    value={formState.security_answer}
-                    onChange={handleInputChange('security_answer')}
-                    placeholder="Enter your security answer"
-                    type="password"
-                    error={formState.errors.security_answer}
-                  />
-
-                  <Text fontSize="sm" color="text.tertiary" mt={4}>
-                    For security reasons, we need to confirm your identity before making changes to your profile.
-                  </Text>
-                </Box>
+                <SecurityVerificationForm
+                  securityQuestion={securityQuestion}
+                  securityAnswer={formState.security_answer}
+                  securityError={formState.errors.security_answer}
+                  onChange={handleSecurityAnswerChange}
+                />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -429,7 +395,7 @@ const UpdateProfileDialog: React.FC = () => {
                 isLoading={isSubmitting}
                 loadingText="Updating"
               >
-                Update Profile
+                Confirm
               </Button>
             </>
           )}

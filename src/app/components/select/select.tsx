@@ -1,7 +1,15 @@
 import React from 'react';
-import { Select as MuiSelect, MenuItem, FormControl as MuiFormControl, SelectChangeEvent, ThemeProvider } from '@mui/material';
+
 import { Box, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
+import {
+  Select as MuiSelect,
+  MenuItem,
+  FormControl as MuiFormControl,
+  SelectChangeEvent,
+  ThemeProvider
+} from '@mui/material';
 import { createTheme } from '@mui/material/styles';
+
 import { formatTimeForDisplay } from '@/utils/date-utils';
 
 export interface SelectOption {
@@ -181,7 +189,7 @@ const Select: React.FC<SelectProps> = ({
                 return selectedOption ? selectedOption.label : '';
               }}
               MenuProps={{
-                
+
                 anchorOrigin: {
                   vertical: 'bottom',
                   horizontal: 'left',
@@ -196,7 +204,7 @@ const Select: React.FC<SelectProps> = ({
                     zIndex: 9999,
                   },
                 },
-                disablePortal:true,
+                disablePortal: true,
                 slotProps: {
                   paper: {
                     elevation: 8,

@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
-import { 
-  Box, 
-  Flex, 
+import {
+  Box,
+  Flex,
   IconButton,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import ShowCard from './show-card';
 import { Show } from '@/services/shows-service';
+import ShowCard from './show-card';
 
 interface ShowsGridProps {
   shows: Show[];
@@ -14,7 +14,7 @@ interface ShowsGridProps {
 
 const ShowsGrid: React.FC<ShowsGridProps> = ({ shows }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
+
   const handleScroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const scrollAmount = 300;
@@ -25,7 +25,7 @@ const ShowsGrid: React.FC<ShowsGridProps> = ({ shows }) => {
       }
     }
   };
-  
+
   return (
     <Box position="relative" width="full">
       <IconButton
@@ -41,7 +41,7 @@ const ShowsGrid: React.FC<ShowsGridProps> = ({ shows }) => {
         size="sm"
         onClick={() => handleScroll('left')}
       />
-      
+
       <Box
         ref={scrollContainerRef}
         overflowX="auto"
@@ -61,7 +61,7 @@ const ShowsGrid: React.FC<ShowsGridProps> = ({ shows }) => {
           ))}
         </Flex>
       </Box>
-      
+
       <IconButton
         variant="ghost"
         aria-label="Scroll right"

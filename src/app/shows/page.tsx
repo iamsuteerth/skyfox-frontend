@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import Shows from "./components/shows";
 import type { Metadata } from 'next';
 import { Box, Center, Spinner } from "@chakra-ui/react";
-import ProtectedRoute from "../components/auth/protected-route";
 import Header from "../components/header";
+import ProtectedRoute from "../components/auth/protected-route";
+import Shows from "./components/shows";
 
 export const metadata: Metadata = {
   title: 'Movie Shows | SkyFox Cinema',

@@ -109,7 +109,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
                 fullWidth
               />
             )}
-            isOptionEqualToValue={(option, value) => 
+            isOptionEqualToValue={(option, value) =>
               option?.id === value?.id
             }
             noOptionsText="No options found"

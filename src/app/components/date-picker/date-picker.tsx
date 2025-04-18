@@ -21,16 +21,21 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
+
 import { Box, IconButton } from '@chakra-ui/react';
+import { CalendarIcon } from '@chakra-ui/icons';
+
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
-import ThemeAdapter from './theme-adapter';
 import { styled } from '@mui/material/styles';
+
 import dayjs from 'dayjs';
-import { CalendarIcon } from '@chakra-ui/icons';
-import { useCustomToast } from '../ui/custom-toast';
+
+import { useCustomToast } from '@/app/components/ui/custom-toast';
 import { isValidDateString } from '@/utils/date-utils';
+
+import ThemeAdapter from './theme-adapter';
 
 const StyledDatePicker = styled(MuiDatePicker)({
   '& .MuiPickersCalendarHeader-label': {
@@ -284,10 +289,10 @@ const DatePicker: React.FC<DatePickerProps> = ({
                   },
                 ],
                 sx: {
-                  zIndex: 1500, 
-                  position: 'fixed', 
+                  zIndex: 1500,
+                  position: 'fixed',
                 },
-                container: document.body, 
+                container: document.body,
               },
             }}
             value={dayjsValue}

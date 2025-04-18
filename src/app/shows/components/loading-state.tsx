@@ -1,5 +1,12 @@
 import React from 'react';
-import { Box, Flex, Skeleton, SkeletonText, VStack, HStack } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Skeleton,
+  SkeletonText,
+  VStack,
+  HStack
+} from '@chakra-ui/react';
 
 interface LoadingStateProps {
   count?: number;
@@ -10,17 +17,17 @@ const LoadingState: React.FC<LoadingStateProps> = ({ count = 4 }) => {
     <Box
       position="relative"
       width="full"
-      overflow="hidden" 
+      overflow="hidden"
     >
-      <Flex 
+      <Flex
         overflowX="auto"
         py={2}
         css={{
           '&::-webkit-scrollbar': {
-            display: 'none', 
+            display: 'none',
           },
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none', 
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
           scrollBehavior: 'smooth',
         }}
       >
@@ -40,7 +47,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({ count = 4 }) => {
           >
             <Box position="relative" h="200px" w="full">
               <Skeleton height="200px" width="100%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
-              
+
               <Flex
                 position="absolute"
                 top={3}
@@ -53,7 +60,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({ count = 4 }) => {
               >
                 <Skeleton height="16px" width="40px" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
               </Flex>
-              
+
               <Flex
                 position="absolute"
                 bottom={3}
@@ -66,28 +73,28 @@ const LoadingState: React.FC<LoadingStateProps> = ({ count = 4 }) => {
                 <Skeleton height="24px" width="60px" startColor="surface.light" endColor="surface.dark" opacity="0.2" borderRadius="md" />
               </Flex>
             </Box>
-            
+
             <VStack align="stretch" spacing={3} p={4} pt={3}>
               <Skeleton height="24px" width="80%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
 
               <HStack spacing={1}>
                 <Skeleton height="16px" width="90%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
               </HStack>
-              
+
               <Box minH="40px">
                 <SkeletonText mt={1} noOfLines={2} spacing={2} skeletonHeight="10px" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
               </Box>
-              
+
               <Flex justify="space-between" align="center" mt={1}>
                 <Skeleton height="16px" width="40%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
                 <Skeleton height="24px" width="25%" startColor="surface.light" endColor="surface.dark" opacity="0.2" />
               </Flex>
-              
-              <Skeleton 
-                height="40px" 
-                width="100%" 
-                startColor="surface.light" 
-                endColor="surface.dark" 
+
+              <Skeleton
+                height="40px"
+                width="100%"
+                startColor="surface.light"
+                endColor="surface.dark"
                 opacity="0.2"
                 borderRadius="md"
                 mt={1}

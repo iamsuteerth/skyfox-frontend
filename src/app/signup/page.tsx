@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Signup from "@/app/signup/components/signup";
+import Signup from "./components/signup";
 
 export const metadata: Metadata = {
   title: 'Signup | SkyFox Cinema',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
 import { fonts } from '@/utils/fonts';
-import './globals.css'; 
+import './globals.css';
 import ChakraColorModeScript from '@/app/components/ui/chakra-color-mode-script'
 
 export const metadata: Metadata = {

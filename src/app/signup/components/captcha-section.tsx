@@ -1,7 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Box, Heading, FormControl, FormLabel, HStack, Text, IconButton } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  FormControl,
+  FormLabel,
+  HStack,
+  Text,
+  IconButton
+} from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
 import FormInput from '@/app/components/form-input';
 
@@ -28,11 +36,11 @@ const CaptchaSection: React.FC<CaptchaSectionProps> = ({
   return (
     <>
       <Heading as="h2" size="md" mt={4} color="text.primary">Verify You're Human</Heading>
-      
+
       <Box>
         <FormControl isInvalid={!!formData.errors.captchaAnswer}>
           <FormLabel fontWeight="medium" color="text.primary">Solve this simple math problem</FormLabel>
-          
+
           <HStack spacing={4} mb={4} align="center">
             <Box bg="background.secondary" p={3} borderRadius="md">
               <Text fontWeight="bold" color="text.primary">{firstNumber}</Text>
@@ -52,7 +60,7 @@ const CaptchaSection: React.FC<CaptchaSectionProps> = ({
               />
             </Box>
           </HStack>
-          
+
           <FormInput
             label=""
             value={formData.captchaAnswer}

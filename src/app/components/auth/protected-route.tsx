@@ -2,25 +2,25 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/auth-context';
-import { APP_ROUTES, ERROR_MESSAGES } from '@/constants';
 import { Box, Spinner, Center } from '@chakra-ui/react';
+import { useAuth } from '@/contexts/auth-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { APP_ROUTES, ERROR_MESSAGES } from '@/constants';
 
 type ProtectedRouteProps = {
   children: ReactNode;
   allowedRoles?: string[];
 };
 
-export default function ProtectedRoute({ 
-  children, 
-  allowedRoles = [] 
+export default function ProtectedRoute({
+  children,
+  allowedRoles = []
 }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const { showToast } = useCustomToast();
   const [isAuthorized, setIsAuthorized] = useState(false);
-  
+
   const bgColor = 'background.primary';
   const spinnerColor = 'primary';
   const spinnerEmptyColor = 'surface.light';
@@ -51,7 +51,7 @@ export default function ProtectedRoute({
     return (
       <Box bg={bgColor} minH="100vh" w="100%">
         <Center h="100vh">
-          <Spinner 
+          <Spinner
             thickness="4px"
             speed="0.65s"
             emptyColor={spinnerEmptyColor}

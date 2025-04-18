@@ -37,7 +37,7 @@ const materialTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: 'Poppins, sans-serif', 
+    fontFamily: 'Poppins, sans-serif',
     fontSize: 14,
     fontWeightLight: 300,
     fontWeightRegular: 400,
@@ -55,7 +55,7 @@ const materialTheme = createTheme({
         root: {
           textTransform: 'none',
           borderRadius: '0.375rem',
-          fontFamily: 'Poppins, sans-serif', 
+          fontFamily: 'Poppins, sans-serif',
         },
       },
     },
@@ -64,14 +64,14 @@ const materialTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: '0.375rem',
-            fontFamily: 'Poppins, sans-serif', 
+            fontFamily: 'Poppins, sans-serif',
           },
           '& .MuiFormHelperText-root.Mui-error': {
             color: '#E53E3E',
             fontSize: '0.75rem',
             marginTop: '0.25rem',
             lineHeight: 1.2,
-            fontFamily: 'Poppins, sans-serif', 
+            fontFamily: 'Poppins, sans-serif',
           },
         },
       },

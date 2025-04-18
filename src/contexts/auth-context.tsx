@@ -1,12 +1,20 @@
 'use client';
 
-import { createContext, useState, useContext, useEffect, ReactNode, useCallback, useRef } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+  useCallback,
+  useRef
+} from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie'
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 import { login as loginService } from '@/services/auth-service';
-import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
 import { getUserFromToken, isTokenExpired } from '@/utils/jwt-utils';
-import Cookies from 'js-cookie'
+import { APP_ROUTES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
 
 const setTokenCookie = (token: string) => {
   Cookies.set('auth-token', token, { expires: 1, sameSite: 'strict' });
@@ -31,7 +39,7 @@ type AuthContextType = {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
-  isLoggingOut: boolean;  
+  isLoggingOut: boolean;
   error: string | null;
 };
 
@@ -52,10 +60,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsLoading(true);
-    
+
     try {
       const storedToken = getTokenFromCookie();
-      
+
       if (storedToken && !isTokenExpired(storedToken)) {
         setToken(storedToken);
       } else {
@@ -88,14 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: 'Success',
         description: SUCCESS_MESSAGES.LOGIN_SUCCESS,
       });
-      
+
       router.push(APP_ROUTES.SHOWS);
     } catch (err: any) {
       console.error('Login error:', err);
-      
+
       if (err.statusCode === 400) {
         setError(ERROR_MESSAGES.INVALID_REQUEST);
-      } 
+      }
       else if (err.statusCode === 401) {
         setError(err.message);
       }
@@ -111,8 +119,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = useCallback(() => {
-    setIsLoggingOut(true); 
-    
+    setIsLoggingOut(true);
+
     setToken(null);
 
     if (logoutTimeoutRef.current) {

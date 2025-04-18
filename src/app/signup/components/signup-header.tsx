@@ -1,8 +1,8 @@
 'use client';
 
+import NextLink from 'next/link';
 import { Box, Flex, Heading, Text, useBreakpointValue } from '@chakra-ui/react';
 import { ArrowLeft } from 'lucide-react';
-import NextLink from 'next/link';
 import { APP_ROUTES } from '@/constants';
 
 export default function SignupHeader() {
