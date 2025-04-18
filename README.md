@@ -86,25 +86,6 @@ The application implements a robust API proxy architecture:
 - **Service Layer**: TypeScript service modules for API communication
 - **Error Handling**: Consistent error processing across all API interactions
 
-```
-Client                    Next.js API Routes                  Backend API
-  │                              │                                │
-  │ GET /api/profile-image       │                                │
-  │ -------------------------->  │                                │
-  │                              │ GET /api/customer/profile-image│
-  │                              │ ------------------------------>│
-  │                              │                                │
-  │                              │ PresignedURL                   │
-  │                              │                                │
-  │                              │                                │
-  │                              │ Image Data                     │
-  │                              │ <------------------------------│
-  │                              │                                │
-  │ Image Data                   │                                │
-  │ <--------------------------- │                                │
-  │                              │                                │
-```
-
 This proxy architecture offers several significant advantages:
 
 1. **Enhanced Security**: Sensitive backend URLs and API keys remain server-side
@@ -113,38 +94,32 @@ This proxy architecture offers several significant advantages:
 4. **Centralized Request Processing**: Common request headers and authentication logic in one place
 5. **Flexible Backend Migration**: Backend API changes only require updates to proxy endpoints
 
-### 🎨 UI Component Integration
+### 🧑‍💼 Profile Management System
 
-While primarily built with Chakra UI, I've selectively integrated Material UI components for specialized functionality:
+The application features a comprehensive profile management system that provides:
 
-#### Custom MUI Components
+- **Role-Based Profile Views**: Different profile information displayed based on user roles (customer, staff, admin)
+- **Skeleton Loading States**: Elegant loading placeholders while fetching profile data
+- **Role-Based Access Control (RBAC)**: Components conditionally rendered based on user roles with proper fallbacks
+- **Secure Profile Updates**: Multi-step verification process with security questions
+- **Profile Image Management**: Ability to update profile images with preview functionality
+- **Change Password Functionality**: Secure password changing with current password verification
 
-I've integrated three key Material UI components with custom theming:
+The profile implementation includes several advanced features:
 
-**1. DatePicker**
-- Used for intuitive date selection in show scheduling
-- Implemented with a theme adapter for visual consistency
-- Integration through `components/date-picker/theme-adapter.tsx`
+- **Multi-Step Dialog Forms**: Two-tab dialog interface (information entry and security verification)
+- **Validation Logic**: Prevents submission without actual changes to profile data
+- **Security Question Verification**: Second-step security verification before sensitive changes
+- **Profile Image Refresh System**: Efficient cache-busting mechanism for updated profile images
+- **Form State Management**: useReducer implementation for complex form state handling
 
-**2. Autocomplete**
-- Provides advanced search functionality for movie selection
-- Custom-styled to match the application's design system
-- Implementation available in `components/autocomplete/`
+This profile system demonstrates sophisticated state management techniques:
 
-**3. Select**
-- Enhanced dropdown selection for time slots
-- Custom styling with proper accessibility support
-- Time-based option disabling for past slots
-- Implementation in `components/select/`
-
-#### Integration Approaches
-
-I've demonstrated two different approaches to integrating third-party components:
-
-1. **Theme Adapter Pattern** (DatePicker): Using a dedicated adapter that maps Chakra theme values to MUI theme
-2. **Direct Styling Approach** (Autocomplete & Select): Manual styling to match our design system
-
-These approaches showcase flexible strategies for maintaining visual consistency while leveraging specialized components from different UI libraries.
+- **Context API Integration**: Profile components leverage auth and dialog contexts
+- **Reducer Pattern**: Complex form state managed with useReducer for better organization
+- **Component Extraction**: Reusable security verification form shared across different dialogs
+- **Memoization**: Event handlers optimized with useCallback
+- **Image Processing**: Efficient image handling with proper cache invalidation
 
 ## Project Structure
 
@@ -217,6 +192,23 @@ app/shows/
 │   ├── shows-header.tsx       # Header with date selection
 │   ├── shows-grid.tsx         # Grid display of shows
 │   └── show-card.tsx          # Individual show display
+└── page.tsx                   # Server component with metadata
+```
+
+**Profile Feature**:
+```
+app/profile/
+├── components/
+│   ├── dialogs/
+│   │   ├── change-password/
+│   │   │   └── change-password-dialog.tsx  # Password change dialog
+│   │   ├── update-profile/
+│   │   │   └── update-profile-dialog.tsx   # Profile update dialog
+│   │   ├── update-profile-image/
+│   │   │   └── update-profile-image-dialog.tsx  # Image update dialog
+│   │   └── shared/
+│   │       └── SecurityVerificationForm.tsx  # Shared security component
+│   └── profile.tsx            # Main profile component
 └── page.tsx                   # Server component with metadata
 ```
 

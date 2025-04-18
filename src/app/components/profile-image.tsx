@@ -73,4 +73,6 @@ const ProfileImage = memo(({
   );
 });
 
+ProfileImage.displayName = 'ProfileImage';
+
 export default ProfileImage;
