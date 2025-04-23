@@ -9,7 +9,8 @@ type ProfileImageProps = Omit<AvatarProps, 'src'> & {
 };
 
 export const profileImageRefresher = (() => {
-  let globalTimestamp = localStorage.getItem('profileImageTimestamp')
+  const isBrowser = typeof window !== 'undefined';
+  let globalTimestamp = isBrowser && localStorage.getItem('profileImageTimestamp')
     ? Number(localStorage.getItem('profileImageTimestamp'))
     : null;
 
@@ -24,7 +25,9 @@ export const profileImageRefresher = (() => {
     },
     refreshProfileImage: () => {
       globalTimestamp = Date.now();
-      localStorage.setItem('profileImageTimestamp', globalTimestamp.toString());
+      if (isBrowser) {
+        localStorage.setItem('profileImageTimestamp', globalTimestamp.toString());
+      }
       listeners.forEach(listener => listener());
     },
     getTimestamp: () => globalTimestamp
