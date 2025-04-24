@@ -31,8 +31,10 @@ interface SecurityInfoSectionProps {
   handleSecurityQuestionChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   showPassword: boolean;
   showConfirmPassword: boolean;
+  showSecurityAnswer: boolean;
   setShowPassword: (show: boolean) => void;
   setShowConfirmPassword: (show: boolean) => void;
+  setShowSecurityAnswer: (show: boolean) => void;
 }
 
 const SecurityInfoSection: React.FC<SecurityInfoSectionProps> = ({
@@ -42,8 +44,10 @@ const SecurityInfoSection: React.FC<SecurityInfoSectionProps> = ({
   handleSecurityQuestionChange,
   showPassword,
   showConfirmPassword,
+  showSecurityAnswer,
   setShowPassword,
   setShowConfirmPassword,
+  setShowSecurityAnswer
 }) => {
   const { onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
 
@@ -128,10 +132,21 @@ const SecurityInfoSection: React.FC<SecurityInfoSectionProps> = ({
 
         <FormInput
           label="Security Answer"
+          type={showSecurityAnswer ? 'text' : 'password'}
           value={formData.securityAnswer}
           onChange={handleInputChange('securityAnswer')}
           placeholder="Enter your answer"
           error={formData.errors.securityAnswer}
+          rightElement={
+            <IconButton
+              aria-label={showSecurityAnswer ? 'Hide answer' : 'Show answer'}
+              icon={showSecurityAnswer ? <ViewOffIcon /> : <ViewIcon />}
+              onClick={() => setShowSecurityAnswer(!showSecurityAnswer)}
+              variant="ghost"
+              size="sm"
+              color="text.tertiary"
+            />
+          }
         />
       </SimpleGrid >
     </>

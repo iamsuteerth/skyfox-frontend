@@ -63,6 +63,7 @@ const SignupForm: React.FC = () => {
   const [securityQuestions, setSecurityQuestions] = useState<SecurityQuestion[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSecurityAnswer, setShowSecurityAnswer] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
@@ -357,6 +358,8 @@ const SignupForm: React.FC = () => {
           showConfirmPassword={showConfirmPassword}
           setShowPassword={setShowPassword}
           setShowConfirmPassword={setShowConfirmPassword}
+          showSecurityAnswer={showSecurityAnswer}
+          setShowSecurityAnswer={setShowSecurityAnswer}
         />
 
         <ProfileImageSection
