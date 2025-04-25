@@ -1,6 +1,8 @@
 import React from 'react';
 import { useDialog } from '@/contexts/dialog-context';
 import ScheduleShowDialog from './schedule-show/schedule-show-dialog';
+import AdminBookingDialog from './booking/admin-booking/admin-booking-dialog';
+import CustomerBookingDialog from './booking/customer-booking/customer-booking-dialog';
 
 // import AdminBookingDialog from './dialogs/admin-booking-dialog';
 // import CustomerBookingDialog from './dialogs/customer-booking-dialog';
@@ -15,10 +17,10 @@ export const DialogManager: React.FC = () => {
     case 'scheduleShow':
       return <ScheduleShowDialog />;
     // Add other cases
-    // case 'adminBooking':
-    //   return <AdminBookingDialog />;
-    // case 'customerBooking':
-    //   return <CustomerBookingDialog />;
+    case 'adminBooking':
+      return <AdminBookingDialog />;
+    case 'customerBooking':
+      return <CustomerBookingDialog />;
     // case 'payment':
     //   return <PaymentDialog />;
     default:

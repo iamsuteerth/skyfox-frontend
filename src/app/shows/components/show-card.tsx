@@ -16,12 +16,19 @@ import { Show } from '@/services/shows-service';
 import { formatDuration } from '@/utils/date-utils';
 import { ROLES } from '@/constants';
 import { RoleBasedElement } from '@/app/components/auth/role-based-element';
+import { useDialog } from '@/contexts/dialog-context';
+import useRoleBasedFunction from '@/app/components/auth/role-based-function';
+import { useCustomToast } from '@/app/components/ui/custom-toast';
 
 interface ShowCardProps {
   show: Show;
 }
 
 const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
+  const { openDialog } = useDialog();
+  const { executeByRole } = useRoleBasedFunction();
+  const { showToast } = useCustomToast();
+
   const formattedCost = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -30,12 +37,36 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
   }).format(show.cost);
 
   const startTime = show.slot.startTime.substring(0, 5);
-
   const formattedDuration = formatDuration(show.movie.duration);
-
   const shortGenre = show.movie.genre.split(', ').slice(0, 2).join(', ');
   const hasMoreGenres = show.movie.genre.split(', ').length > 2;
 
+  const hasStarted = () => {
+    const now = new Date();
+    const [hours, minutes] = show.slot.startTime.split(':').map(Number);
+    const showDate = new Date(show.date);
+    showDate.setHours(hours, minutes);
+    return now > showDate;
+  };
+
+  const isShowStarted = hasStarted();
+  const isAvailable = !isShowStarted && show.availableseats > 0;
+
+  const handleBooking = () => {
+    executeByRole({
+      adminExecute: () => openDialog('adminBooking', { show }),
+      customerExecute: () => openDialog('customerBooking', { show }),
+      staffExecute: () => showToast({
+        type: 'warning',
+        title: 'User role not permitted!'
+      }),
+      execute: () => showToast({
+        type: 'warning',
+        title: 'User role not permitted!'
+      })
+    });
+  };
+  
   return (
     <Box
       w="300px"
@@ -43,19 +74,68 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
       borderWidth="1px"
       borderRadius="xl"
       overflow="hidden"
-      bg="background.primary"
-      borderColor="surface.light"
+      bg={isShowStarted ? "gray.200" : "background.primary"}
+      borderColor={isShowStarted ? "gray.400" : "surface.light"}
       shadow="sm"
       transition="all 0.3s"
       _hover={{
-        shadow: "md",
-        transform: 'translateY(-3px)',
-        borderColor: 'brand.300'
+        shadow: isAvailable ? "md" : "sm",
+        transform: isAvailable ? 'translateY(-3px)' : 'none',
+        borderColor: isAvailable ? 'brand.300' : isShowStarted ? "gray.400" : "surface.light"
       }}
       mr={6}
       pb={1}
+      opacity={isShowStarted ? 0.5 : 1}
+      position="relative"
     >
-      <Box position="relative" h="200px" w="full">
+      {!isAvailable && (
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          zIndex={1}
+          bg="transparent"
+          pointerEvents="none"
+        />
+      )}
+      {isShowStarted && (
+        <Badge
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%) rotate(-30deg)"
+          zIndex={2}
+          colorScheme="prun art"
+          fontSize="lg"
+          py={2}
+          px={4}
+          borderRadius="md"
+          boxShadow="md"
+        >
+          Show Started
+        </Badge>
+      )}
+
+      {!isShowStarted && show.availableseats === 0 && (
+        <Badge
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%) rotate(-30deg)"
+          zIndex={2}
+          colorScheme="red"
+          fontSize="lg"
+          py={2}
+          px={4}
+          borderRadius="md"
+          boxShadow="md"
+        >
+          Sold Out
+        </Badge>
+      )}
+      <Box position="relative" h="200px" w="full" opacity={isShowStarted ? 0.7 : 1}>
         <Image
           src={show.movie.moviePoster}
           alt={show.movie.name}
@@ -107,7 +187,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           justify="space-between"
           align="center"
         >
-          <Badge colorScheme='brand' variant="subtle" px={2} py={1}>
+          <Badge colorScheme={isShowStarted ? 'gray' : 'brand'} variant="subtle" px={2} py={1}>
             {show.slot.name}
           </Badge>
 
@@ -131,7 +211,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
         <Text
           fontSize="lg"
           fontWeight="bold"
-          color="text.primary"
+          color={isShowStarted ? "text.tertiary" : "text.primary"}
           noOfLines={1}
           lineHeight="tight"
         >
@@ -149,7 +229,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
                 bg="background.secondary"
                 color="text.primary"
               >
-                <Text as="span" cursor="pointer" color="brand.400"> +more</Text>
+                <Text as="span" cursor="pointer" color={isShowStarted ? "text.tertiary" : "brand.400"}> +more</Text>
               </Tooltip>
             )}
           </Text>
@@ -166,7 +246,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
           <Text
             noOfLines={2}
             fontSize="sm"
-            color="text.secondary"
+            color={isShowStarted ? "text.tertiary" : "text.secondary"}
             minH="40px"
             cursor="pointer"
           >
@@ -175,42 +255,53 @@ const ShowCard: React.FC<ShowCardProps> = ({ show }) => {
         </Tooltip>
 
         <Flex justify="space-between" align="center" mt={1}>
-          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]} >
+          <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
             <Text fontSize="sm" color="text.tertiary">
-              <Text as="span" fontWeight="semibold" color={show.availableseats > 15 ? "green.500" : "red.500"}>
+              <Text 
+                as="span" 
+                fontWeight="semibold" 
+                color={isShowStarted 
+                  ? "gray.500" 
+                  : show.availableseats > 15 
+                    ? "green.500" 
+                    : show.availableseats === 0 
+                      ? "red.600" 
+                      : "red.500"}
+              >
                 {show.availableseats}
               </Text> seats left
             </Text>
           </RoleBasedElement>
-          <Text fontSize="lg" fontWeight="bold" color="brand.500">
+          <Text 
+            fontSize="lg" 
+            fontWeight="bold" 
+            color={isShowStarted ? "gray.500" : "brand.500"}
+          >
             {formattedCost}
           </Text>
         </Flex>
 
         <RoleBasedElement allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]}>
           <Button
-            bg="brand.500"
+            bg={isAvailable ? "brand.500" : "gray.400"}
             color="white"
             size="md"
             borderRadius="md"
             width="100%"
             mt={1}
             fontWeight="medium"
-            isDisabled={show.availableseats === 0}
+            onClick={handleBooking}
+            cursor={isAvailable ? "pointer" : "not-allowed"}
+            disabled={!isAvailable || isShowStarted}
             _hover={{
-              bg: "brand.600",
+              bg: isAvailable ? "brand.600" : "gray.400",
             }}
             _active={{
-              bg: "brand.700",
-              transform: 'scale(0.98)'
-            }}
-            _disabled={{
-              bg: "gray.300",
-              cursor: "not-allowed",
-              opacity: 0.7
+              bg: isAvailable ? "brand.700" : "gray.400",
+              transform: isAvailable ? 'scale(0.98)' : 'none'
             }}
           >
-            Book Now
+            {isShowStarted ? "Show Started" : show.availableseats === 0 ? "Sold Out" : "Book Now"}
           </Button>
         </RoleBasedElement>
       </VStack>

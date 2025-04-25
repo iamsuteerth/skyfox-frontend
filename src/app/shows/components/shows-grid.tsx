@@ -7,12 +7,15 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';
 import ShowCard from './show-card';
+import { useAuth } from '@/contexts/auth-context';
 
 interface ShowsGridProps {
   shows: Show[];
 }
 
 const ShowsGrid: React.FC<ShowsGridProps> = ({ shows }) => {
+  const { user } = useAuth();
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (direction: 'left' | 'right') => {

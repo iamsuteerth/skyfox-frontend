@@ -22,6 +22,7 @@ import PersonalInfoSection from './personal-info';
 import SecurityInfoSection from './security-info';
 import ProfileImageSection from './profile-image-selection';
 import CaptchaSection from './captcha-section';
+import { APP_ROUTES } from '@/constants';
 
 interface SignupFormState {
   fullName: string;
@@ -329,7 +330,7 @@ const SignupForm: React.FC = () => {
         const response = await signupUser(apiData, showToast);
 
         if (response.success) {
-          router.push('/login');
+          router.push(APP_ROUTES.LOGIN);
         }
       } catch (error: any) {
         console.error('Signup error:', error);

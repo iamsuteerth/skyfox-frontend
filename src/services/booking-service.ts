@@ -1,0 +1,215 @@
+// src/services/booking-service.ts
+import { API_ROUTES, ERROR_MESSAGES } from '@/constants';
+import { handleApiError } from '@/utils/error-utils';
+
+export type SeatType = 'Standard' | 'Deluxe';
+
+export interface Seat {
+  column: string;
+  occupied: boolean;
+  price: number;
+  seat_number: string;
+  type: SeatType;
+}
+
+export interface SeatMap {
+  [row: string]: Seat[];
+}
+
+export interface SeatMapResponse {
+  status: string;
+  message: string;
+  request_id: string;
+  data: {
+    seat_map: SeatMap;
+  };
+}
+
+export interface BookingInitializeRequest {
+  show_id: number;
+  seat_numbers: string[];
+}
+
+export interface BookingInitializeResponse {
+  status: string;
+  message: string;
+  request_id: string;
+  data: {
+    booking_id: number;
+    show_id: number;
+    seat_numbers: string[];
+    amount_due: number;
+    expiration_time: string;
+    time_remaining_ms: number;
+  };
+}
+
+export interface AdminBookingRequest {
+  show_id: number;
+  customer_name: string;
+  phone_number: string;
+  seat_numbers: string[];
+  amount_paid: number;
+}
+
+export interface PaymentRequest {
+  booking_id: number;
+  card_number: string;
+  cvv: string;
+  expiry_month: string;
+  expiry_year: string;
+  cardholder_name: string;
+}
+
+export const getSeatMap = async (showId: number): Promise<SeatMap> => {
+  try {
+    const response = await fetch(API_ROUTES.GET_SEAT_MAP.replace('{show_id}', showId.toString()), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    const data: SeatMapResponse = await response.json();
+    return data.data.seat_map;
+  } catch (error: any) {
+    console.error('Error fetching seat map:', error);
+    throw handleApiError(error);
+  }
+};
+
+export const initializeBooking = async (request: BookingInitializeRequest): Promise<BookingInitializeResponse> => {
+  try {
+    const response = await fetch(API_ROUTES.INITIALIZE_BOOKING, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error initializing booking:', error);
+    throw handleApiError(error);
+  }
+};
+
+export const createAdminBooking = async (request: AdminBookingRequest): Promise<any> => {
+  try {
+    const response = await fetch(API_ROUTES.ADMIN_CREATE_BOOKING, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error creating admin booking:', error);
+    throw handleApiError(error);
+  }
+};
+
+export const processPayment = async (request: PaymentRequest): Promise<any> => {
+  try {
+    const response = await fetch(API_ROUTES.PROCESS_PAYMENT.replace('{id}', request.booking_id.toString()), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error processing payment:', error);
+    throw handleApiError(error);
+  }
+};
+
+export const cancelBooking = async (bookingId: number): Promise<any> => {
+  try {
+    const response = await fetch(API_ROUTES.CANCEL_BOOKING.replace('{id}', bookingId.toString()), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error cancelling booking:', error);
+    throw handleApiError(error);
+  }
+};
+
+export const getQRCode = async (bookingId: number): Promise<string> => {
+  try {
+    const response = await fetch(API_ROUTES.GET_QR_CODE.replace('{id}', bookingId.toString()), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    const data = await response.json();
+    return data.data.qr_code;
+  } catch (error: any) {
+    console.error('Error fetching QR code:', error);
+    throw handleApiError(error);
+  }
+};
+
+export const getPDFTicket = async (bookingId: number): Promise<string> => {
+  try {
+    const response = await fetch(API_ROUTES.GET_PDF_TICKET.replace('{id}', bookingId.toString()), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    const data = await response.json();
+    return data.data.pdf;
+  } catch (error: any) {
+    console.error('Error fetching PDF ticket:', error);
+    throw handleApiError(error);
+  }
+};

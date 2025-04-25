@@ -26,6 +26,7 @@ interface FormInputProps {
   isDisabled?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   minDate?: string;
+  maxLength?: number;
 }
 
 export default function FormInput({
@@ -40,6 +41,7 @@ export default function FormInput({
   isDisabled = false,
   minDate,
   onKeyDown,
+  maxLength,
 }: FormInputProps) {
   const baseStyles: SystemStyleObject = {
     '&:-webkit-autofill': {
@@ -86,6 +88,7 @@ export default function FormInput({
               boxShadow: '0 0 0 1px #E04B00',
             }}
             sx={baseStyles}
+            maxLength={maxLength?? undefined}
           />
           {rightElement && <InputRightElement width="4.5rem">{rightElement}</InputRightElement>}
         </InputGroup>

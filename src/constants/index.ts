@@ -13,6 +13,18 @@ export const API_ROUTES = {
   CHANGE_PASWORD: '/api/change-password',
   UPDATE_CUSTOMER_PROFILE: '/api/customer/update-profile',
   UPDATE_CUSTOMER_PROFILE_IMAGE: '/api/customer/update-profile-image',
+  GET_SEAT_MAP: '/api/shows/{show_id}/seat-map',
+  INITIALIZE_BOOKING: '/api/customer/booking/initialize',
+  PROCESS_PAYMENT: '/api/customer/booking/{id}/payment',
+  CANCEL_BOOKING: '/api/customer/booking/{id}/cancel',
+  ADMIN_CREATE_BOOKING: '/api/admin/create-customer-booking',
+  GET_QR_CODE: '/api/booking/{id}/qr',
+  GET_PDF_TICKET: '/api/booking/{id}/pdf'
+};
+
+export const SEAT_TYPES = {
+  STANDARD: 'Standard',
+  DELUXE: 'Deluxe'
 };
 
 export const APP_ROUTES = {
