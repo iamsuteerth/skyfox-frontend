@@ -1,279 +1,316 @@
-'use client';
-
-import React, { useState, useCallback, memo, useMemo } from 'react';
+import React, { useCallback, memo } from "react";
 import {
   Box,
   Text,
-  Center,
-  HStack,
   VStack,
   Flex,
+  Tooltip,
+  useTheme,
+  HStack,
   Spinner,
-} from '@chakra-ui/react';
-import { RiSofaFill } from 'react-icons/ri';
-import { GiSofa } from 'react-icons/gi';
-import { SeatMap as SeatMapType, Seat } from '@/services/booking-service';
-import { SEAT_TYPES } from '@/constants';
+  Center,
+} from "@chakra-ui/react";
+
+import { RiSofaFill } from "react-icons/ri";
+import { GiSofa } from "react-icons/gi";
+
+import { SeatMap as SeatMapType, Seat } from "@/services/booking-service";
+import { SEAT_TYPES } from "@/constants";
 
 interface SeatMapProps {
-  showId: number;
+  seatMapData?: SeatMapType;
   numberOfSeats: number;
   selectedSeats: string[];
   onSeatSelect: (seats: string[]) => void;
   isLoading?: boolean;
-  seatMapData?: SeatMapType;
 }
 
-const SeatButton = memo(({
-  seat,
-  isSelected,
-  isHovered,
-  onSeatClick,
-  onMouseEnter,
-  onMouseLeave
-}: {
-  seat: Seat;
-  isSelected: boolean;
-  isHovered: boolean;
-  onSeatClick: () => void;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}) => {
-  const getSeatColor = (): string => {
-    if (seat.occupied) return 'tertiary';
-    if (isSelected) return 'primary';
-    if (isHovered) return 'secondary';
-    return seat.type === SEAT_TYPES.STANDARD ? 'surface.light' : 'surface.dark';
-  };
+const SeatButton = memo(
+  ({
+    seat,
+    isSelected,
+    onClick,
+  }: {
+    seat: Seat;
+    isSelected: boolean;
+    onClick: () => void;
+  }) => {
+    const theme = useTheme();
 
-  const SeatIcon = seat.type === SEAT_TYPES.STANDARD ? RiSofaFill : GiSofa;
-
-  return (
-    <Box
-      as="button"
-      disabled={seat.occupied}
-      onClick={onSeatClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      color={getSeatColor()}
-      bg="transparent"
-      borderWidth={isSelected ? 2 : 0}
-      borderColor="primary"
-      borderRadius="md"
-      transition="all 0.2s"
-      p={1}
-      m={1}
-      _hover={{
-        transform: seat.occupied ? 'none' : 'scale(1.1)',
-      }}
-      position="relative"
-      cursor={seat.occupied ? 'not-allowed' : 'pointer'}
-      w="32px"
-      h="32px"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-    >
-      <Box as={SeatIcon} size="24px" />
-    </Box>
-  );
-});
-
-SeatButton.displayName = 'SeatButton';
-
-const SeatRow = memo(({ 
-  row, 
-  seats, 
-  selectedSeats, 
-  hoveredSeat, 
-  onSeatClick,
-  onSeatHover,
-  onSeatLeave
-}: {
-  row: string;
-  seats: Seat[];
-  selectedSeats: string[];
-  hoveredSeat: string | null;
-  onSeatClick: (seat: Seat) => void;
-  onSeatHover: (seatNumber: string) => void;
-  onSeatLeave: () => void;
-}) => {
-  return (
-    <Flex mb={2} align="center" justify="center">
-      <Text fontWeight="bold" width="30px" textAlign="center">{row}</Text>
-      <Flex justify="center" flex={1} wrap="wrap" maxW="700px">
-        {seats.map((seat) => (
-          <SeatButton
-            key={seat.seat_number}
-            seat={seat}
-            isSelected={selectedSeats.includes(seat.seat_number)}
-            isHovered={hoveredSeat === seat.seat_number}
-            onSeatClick={() => onSeatClick(seat)}
-            onMouseEnter={() => onSeatHover(seat.seat_number)}
-            onMouseLeave={onSeatLeave}
-          />
-        ))}
-      </Flex>
-      <Text fontWeight="bold" width="30px" textAlign="center">{row}</Text>
-    </Flex>
-  );
-});
-
-SeatRow.displayName = 'SeatRow';
-
-export const SeatMap: React.FC<SeatMapProps> = ({
-  numberOfSeats,
-  selectedSeats,
-  onSeatSelect,
-  isLoading = false,
-  seatMapData
-}) => {
-  const [hoveredSeat, setHoveredSeat] = useState<string | null>(null);
-
-  const { standardRows, deluxeRows } = useMemo(() => {
-    if (!seatMapData) return { standardRows: [], deluxeRows: [] };
-    
-    return {
-      standardRows: Object.keys(seatMapData)
-        .filter(row => seatMapData[row][0].type === SEAT_TYPES.STANDARD)
-        .sort(),
-      deluxeRows: Object.keys(seatMapData)
-        .filter(row => seatMapData[row][0].type === SEAT_TYPES.DELUXE)
-        .sort()
+    const getColor = () => {
+      if (seat.occupied) return theme.colors.secondary;
+      if (isSelected) return theme.colors["brand"][500];
+      return seat.type === SEAT_TYPES.STANDARD
+        ? theme.colors["surface"]["light"] || "#e0e0e0"
+        : theme.colors["surface"]["dark"] || "#242424";
     };
-  }, [seatMapData]);
 
-  const handleSeatClick = useCallback((seat: Seat) => {
-    if (seat.occupied) return;
+    const Icon =
+      seat.type === SEAT_TYPES.STANDARD ? RiSofaFill : GiSofa;
 
-    const seatNumber = seat.seat_number;
-    let newSelectedSeats: string[];
+    return (
+      <Box
+        as="button"
+        onClick={() => !seat.occupied && onClick()}
+        disabled={seat.occupied}
+        aria-label={seat.seat_number}
+        bg="transparent"
+        color={getColor()}
+        border="none"
+        outline="none"
+        w="36px"
+        h="42px"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        position="relative"
+        mx={0.5}
+        my={1}
+        _active={{
+          outline: "2px solid",
+          outlineColor: theme.colors.brand[500],
+        }}
+        _focus={{
+          outline: "2px solid",
+          outlineColor: theme.colors.brand[500],
+        }}
+        cursor={seat.occupied ? "not-allowed" : "pointer"}
+        style={{
+          transition: "transform 0.1s",
+          borderRadius: 8,
+        }}
+      >
+        <Icon size={28} />
+      </Box>
+    );
+  }
+);
 
-    if (selectedSeats.includes(seatNumber)) {
-      newSelectedSeats = selectedSeats.filter(s => s !== seatNumber);
-    } else {
-      if (selectedSeats.length < numberOfSeats) {
-        newSelectedSeats = [...selectedSeats, seatNumber];
-      } else {
-        newSelectedSeats = [...selectedSeats.slice(1), seatNumber];
-      }
+SeatButton.displayName = "SeatButton";
+
+export const SeatMap: React.FC<SeatMapProps> = memo(
+  ({ seatMapData, numberOfSeats, selectedSeats, onSeatSelect, isLoading }) => {
+
+    const handleSeatClick = useCallback(
+      (seat: Seat) => {
+        if (seat.occupied) return;
+        const seatNumber = seat.seat_number;
+        let next = [...selectedSeats];
+        if (next.includes(seatNumber)) {
+          next = next.filter((s) => s !== seatNumber);
+        } else if (next.length < numberOfSeats) {
+          next = [...next, seatNumber];
+        } else if (next.length > 0) {
+          next = [...next.slice(1), seatNumber];
+        }
+        onSeatSelect(next);
+      },
+      [selectedSeats, numberOfSeats, onSeatSelect]
+    );
+
+    if (isLoading) {
+      return (
+        <Center py={6}>
+          <Spinner size="xl" color="brand.500" thickness="4px" />
+        </Center>
+      );
     }
 
-    onSeatSelect(newSelectedSeats);
-  }, [selectedSeats, numberOfSeats, onSeatSelect]);
+    if (!seatMapData) {
+      return (
+        <Center py={6}>
+          <Text color="text.secondary">No seat data available</Text>
+        </Center>
+      );
+    }
 
-  const handleSeatHover = useCallback((seatNumber: string) => {
-    setHoveredSeat(seatNumber);
-  }, []);
+    const rows = Object.keys(seatMapData).sort();
+    const columns = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
 
-  const handleSeatLeave = useCallback(() => {
-    setHoveredSeat(null);
-  }, []);
+    const leftCols = columns.slice(0, 5);
+    const rightCols = columns.slice(5, 10);
 
-  if (isLoading) {
     return (
-      <Center py={10}>
-        <Spinner size="xl" color="primary" thickness="4px" />
-      </Center>
-    );
-  }
-
-  if (!seatMapData) {
-    return (
-      <Center py={10}>
-        <Text color="text.secondary">No seat data available</Text>
-      </Center>
-    );
-  }
-
-  return (
-    <Box 
-      w="100%" 
-      overflowX="auto"
-      css={{
-        scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(224, 75, 0, 0.4) rgba(0, 0, 0, 0.1)',
-        '&::-webkit-scrollbar': {
-          width: '8px',
-          height: '8px',
-        },
-        '&::-webkit-scrollbar-track': {
-          background: 'rgba(0, 0, 0, 0.1)',
-          borderRadius: '4px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          background: 'rgba(224, 75, 0, 0.4)',
-          borderRadius: '4px',
-        }
-      }}
-    >
-      <VStack spacing={6} align="center" w="100%" pb={4}>
-        <Box 
-          w={{ base: "80%", md: "60%" }}
-          h="20px" 
-          bg="gray.700" 
+      <VStack
+        spacing={1}
+        align="center"
+        w="100%"
+        bg="background.secondary"
+        py={4}
+        px={2}
+        borderRadius="md"
+        minW={{ base: "350px", md: "unset" }}
+        maxW="100vw"
+        overflowX="auto"
+      >
+        <Box
+          w={{ base: "90%", md: "70%" }}
+          h="18px"
+          bg="brand.500"
           borderRadius="md"
-          transform="perspective(200px) rotateX(-10deg)"
-          boxShadow="0 0 10px rgba(255,255,255,0.3)"
-          mb={4}
+          mb={2}
+          boxShadow="0 2px 14px 0 rgba(0,0,0,0.12)"
         />
-        <Text fontSize="sm" color="text.tertiary" mb={2}>All eyes this way</Text>
-        
-        <Box w="100%" maxW="700px">
-          <Text fontWeight="bold" color="text.secondary" mb={2}>Standard Seats</Text>
-          {standardRows.map(row => (
-            <SeatRow
-              key={row}
-              row={row}
-              seats={seatMapData[row]}
-              selectedSeats={selectedSeats}
-              hoveredSeat={hoveredSeat}
-              onSeatClick={handleSeatClick}
-              onSeatHover={handleSeatHover}
-              onSeatLeave={handleSeatLeave}
-            />
-          ))}
+        <Text fontSize="sm" color="text.tertiary" mb={2}>
+          All eyes this way
+        </Text>
+
+        <Box overflowX="auto" w="100%">
+          <VStack
+            as="section"
+            spacing={0.5}
+            align="center"
+            minW="370px"
+            maxW={{ base: "98vw", md: "700px" }}
+          >
+            <Flex
+              w="100%"
+              maxW="615px"
+              px={1}
+              justify="center"
+              align="center"
+            >
+              {[...leftCols, "", ...rightCols].map((col, idx) => (
+                <Box
+                  key={idx}
+                  w="36px"
+                  textAlign="center"
+                  fontWeight="semibold"
+                  color="text.tertiary"
+                  fontSize="13px"
+                  userSelect="none"
+                >
+                  {col}
+                </Box>
+              ))}
+            </Flex>
+            {rows.map((row) => {
+              if (!seatMapData[row] || seatMapData[row].length < 10) {
+                return null;
+              }
+
+              const leftSeats = seatMapData[row].slice(0, 5);
+              const rightSeats = seatMapData[row].slice(5, 10);
+              return (
+                <Flex
+                  key={row}
+                  w="100%"
+                  maxW="615px"
+                  align="center"
+                  justify="center"
+                  py={0.5}
+                  position="relative"
+                >
+                  <Box
+                    w="24px"
+                    mr={1}
+                    textAlign="right"
+                    fontWeight="bold"
+                    color="text.tertiary"
+                    fontSize="13px"
+                    userSelect="none"
+                  >
+                    {row}
+                  </Box>
+                  {leftSeats.map((seat) => {
+                    const button = (
+                      <SeatButton
+                        key={seat.seat_number}
+                        seat={seat}
+                        isSelected={selectedSeats.includes(seat.seat_number)}
+                        onClick={() => handleSeatClick(seat)}
+                      />
+                    );
+                    return <Tooltip
+                      key={seat.seat_number}
+                      label={seat.seat_number}
+                      hasArrow
+                      placement="top"
+                      bg="gray.800"
+                      color="white"
+                      fontSize="sm"
+                      borderRadius="md"
+                      px={2}
+                      py={1}
+                    >
+                      {button}
+                    </Tooltip>
+                  })}
+                  <Box w="20px" />
+                  {rightSeats.map((seat) => {
+                    const button = (
+                      <SeatButton
+                        key={seat.seat_number}
+                        seat={seat}
+                        isSelected={selectedSeats.includes(seat.seat_number)}
+                        onClick={() => handleSeatClick(seat)}
+                      />
+                    );
+                    return (
+                      <Tooltip
+                        key={seat.seat_number}
+                        label={seat.seat_number}
+                        hasArrow
+                        placement="top"
+                        bg="gray.800"
+                        color="white"
+                        fontSize="sm"
+                        borderRadius="md"
+                        px={2}
+                        py={1}
+                      >
+                        {button}
+                      </Tooltip>
+                    );
+                  })}
+                  <Box
+                    w="24px"
+                    ml={1}
+                    textAlign="left"
+                    fontWeight="bold"
+                    color="text.tertiary"
+                    fontSize="13px"
+                    userSelect="none"
+                  >
+                    {row}
+                  </Box>
+                </Flex>
+              );
+            })}
+          </VStack>
         </Box>
 
-        <Box h="40px" />
-
-        <Box w="100%" maxW="700px">
-          <Text fontWeight="bold" color="text.secondary" mb={2}>Deluxe Seats</Text>
-          {deluxeRows.map(row => (
-            <SeatRow
-              key={row}
-              row={row}
-              seats={seatMapData[row]}
-              selectedSeats={selectedSeats}
-              hoveredSeat={hoveredSeat}
-              onSeatClick={handleSeatClick}
-              onSeatHover={handleSeatHover}
-              onSeatLeave={handleSeatLeave}
-            />
-          ))}
-        </Box>
-
-        <HStack spacing={5} mt={4} flexWrap="wrap" justify="center">
+        <Flex
+          mt={4}
+          gap={6}
+          fontSize="sm"
+          color="text.tertiary"
+          align="center"
+          wrap="wrap"
+          justify="center"
+        >
           <HStack>
             <Box as={RiSofaFill} size="20px" color="surface.light" />
-            <Text fontSize="sm" color="text.tertiary">Standard</Text>
+            <Text>Standard</Text>
           </HStack>
           <HStack>
             <Box as={GiSofa} size="20px" color="surface.dark" />
-            <Text fontSize="sm" color="text.tertiary">Deluxe</Text>
+            <Text>Deluxe</Text>
           </HStack>
           <HStack>
-            <Box as={RiSofaFill} size="20px" color="primary" />
-            <Text fontSize="sm" color="text.tertiary">Selected</Text>
+            <Box as={RiSofaFill} size="20px" color="brand.500" />
+            <Text>Selected</Text>
           </HStack>
           <HStack>
-            <Box as={RiSofaFill} size="20px" color="tertiary" />
-            <Text fontSize="sm" color="text.tertiary">Occupied</Text>
+            <Box as={RiSofaFill} size="20px" color="secondary" />
+            <Text>Occupied</Text>
           </HStack>
-        </HStack>
+        </Flex>
       </VStack>
-    </Box>
-  );
-};
+    );
+  }
+);
 
-export default memo(SeatMap);
+SeatMap.displayName = "SeatMap";
+
+export default SeatMap;

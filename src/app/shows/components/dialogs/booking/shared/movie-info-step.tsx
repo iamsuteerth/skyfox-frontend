@@ -26,13 +26,11 @@ export const MovieInfoStep: React.FC<MovieInfoStepProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Allow empty input (will be handled by parent component)
     if (value === '') {
       onNumberOfSeatsChange(0);
       return;
     }
     
-    // Only allow numbers
     if (!/^\d+$/.test(value)) {
       return;
     }

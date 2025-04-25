@@ -47,21 +47,21 @@ export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
   }, [showId, showToast]);
 
   return (
-    <VStack spacing={4} align="stretch">
+    <VStack spacing={4} align="stretch" overflow="hidden" w="100%">
       <Text fontSize="lg" fontWeight="bold" color="text.primary">
         Select {numberOfSeats} {numberOfSeats === 1 ? 'Seat' : 'Seats'}
       </Text>
-      
-      <SeatMap
-        showId={showId}
-        numberOfSeats={numberOfSeats}
-        selectedSeats={selectedSeats}
-        onSeatSelect={onSeatSelect}
-        isLoading={isLoading}
-        seatMapData={seatMap || undefined}
-      />
-      
-      <Box bg="background.secondary" p={3} borderRadius="md">
+      <Box overflowX="auto" pb={2} w="100%">
+        <SeatMap
+          numberOfSeats={numberOfSeats}
+          selectedSeats={selectedSeats}
+          onSeatSelect={onSeatSelect}
+          isLoading={isLoading}
+          seatMapData={seatMap || undefined}
+        />
+      </Box>
+
+      <Box bg="background.secondary" p={3} >
         <Text fontWeight="medium" color="text.secondary">
           Selected Seats: {selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None'}
         </Text>
