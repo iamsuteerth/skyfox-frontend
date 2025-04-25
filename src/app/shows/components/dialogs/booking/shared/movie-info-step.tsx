@@ -1,4 +1,3 @@
-// src/app/components/dialogs/shared/movie-info-step.tsx
 import React from 'react';
 import {
   Box, VStack, HStack, Text, Badge, Heading, Image,
@@ -7,6 +6,7 @@ import {
 import { StarIcon, TimeIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';
 import { formatDuration, formatTimestampToOrdinalDate } from '@/utils/date-utils';
+import { DELUXE_OFFSET } from '@/constants';
 
 interface MovieInfoStepProps {
   show: Show;
@@ -25,24 +25,24 @@ export const MovieInfoStep: React.FC<MovieInfoStepProps> = ({
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
     if (value === '') {
       onNumberOfSeatsChange(0);
       return;
     }
-    
+
     if (!/^\d+$/.test(value)) {
       return;
     }
-    
+
     const numValue = parseInt(value);
     onNumberOfSeatsChange(numValue);
   };
 
   return (
     <VStack spacing={6} align="stretch">
-      <Box 
-        position="relative" 
+      <Box
+        position="relative"
         height={{ base: "200px", md: "300px" }}
         borderRadius="md"
         overflow="hidden"
@@ -55,10 +55,10 @@ export const MovieInfoStep: React.FC<MovieInfoStepProps> = ({
           height="100%"
         />
       </Box>
-      
+
       <VStack align="start" spacing={4}>
         <Heading size="lg" color="text.primary">{show.movie.name}</Heading>
-        
+
         <HStack spacing={2} flexWrap="wrap">
           <Badge bg="brand.500" color="white">
             <TimeIcon mr="1" />
@@ -69,9 +69,9 @@ export const MovieInfoStep: React.FC<MovieInfoStepProps> = ({
             {formatTimestampToOrdinalDate(show.date)}
           </Badge>
         </HStack>
-        
+
         <HStack spacing={3} flexWrap="wrap">
-          <Badge 
+          <Badge
             display="flex"
             alignItems="center"
             bg="rgba(0,0,0,0.7)"
@@ -83,13 +83,13 @@ export const MovieInfoStep: React.FC<MovieInfoStepProps> = ({
           <Text fontSize="sm" color="text.secondary">{formatDuration(show.movie.duration)}</Text>
           <Text fontSize="sm" color="text.secondary">{show.movie.genre}</Text>
         </HStack>
-        
+
         <Text color="text.secondary" fontSize="md">{show.movie.plot}</Text>
-        
+
         <Box w="100%" bg="background.secondary" p={4} borderRadius="md">
           <FormControl isInvalid={!!seatsError}>
             <FormLabel fontWeight="medium" color="text.primary">Number of seats</FormLabel>
-            <Input 
+            <Input
               value={numberOfSeats || ''}
               onChange={handleInputChange}
               placeholder="Enter number of seats"
@@ -101,7 +101,11 @@ export const MovieInfoStep: React.FC<MovieInfoStepProps> = ({
               <FormErrorMessage>{seatsError}</FormErrorMessage>
             )}
           </FormControl>
-          
+
+          <Text fontSize="sm" color="text.tertiary" mt={2}>
+            * Deluxe seats cost an additional ₹{DELUXE_OFFSET} per seat
+          </Text>
+
           <Text fontWeight="bold" mt={4} color="brand.500" fontSize="lg">
             Total: {new Intl.NumberFormat('en-IN', {
               style: 'currency',

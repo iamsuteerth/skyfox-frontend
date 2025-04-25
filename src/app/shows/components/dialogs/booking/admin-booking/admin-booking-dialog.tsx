@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -9,24 +9,22 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  Box,
-  VStack,
-  Heading,
-  Text,
   Center,
   Spinner,
-  Icon,
   Flex,
-  useToast
+  Box
 } from '@chakra-ui/react';
 import { useDialog } from '@/contexts/dialog-context';
-import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';
-import FormInput from '@/app/components/form-input';
+import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { createAdminBooking } from '@/services/booking-service';
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
-import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { formatTimestampToOrdinalDate } from '@/utils/date-utils';
+import CustomerDetailsStep from './components/customer-details-step';
+import BookingSuccessStep from '../shared/booking-success-step';
+import { validateName, validatePhone } from '@/utils/validators';
+import { SeatMap as SeatMapType, Seat } from "@/services/booking-service";
+import { DELUXE_OFFSET, SEAT_TYPES } from '@/constants';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -40,7 +38,6 @@ export default function AdminBookingDialog() {
   const show = dialogData?.show as Show;
   const { showToast } = useCustomToast();
 
-  // Steps state
   const [currentStep, setCurrentStep] = useState<BookingStep>(BookingStep.MOVIE_INFO);
   const [numberOfSeats, setNumberOfSeats] = useState<number>(1);
   const [seatsError, setSeatsError] = useState<string>('');
@@ -51,8 +48,18 @@ export default function AdminBookingDialog() {
   const [phoneError, setPhoneError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
+
+  const [totalPrice, setTotalPrice] = useState(show.cost * numberOfSeats);
+  const [deluxeCount, setDeluxeCount] = useState(0);
+  const DELUXE_OFFSET = 150.0;
 
   if (!show) return null;
+
+  const handlePriceUpdate = useCallback((newTotalPrice: number, newDeluxeCount: number) => {
+    setTotalPrice(newTotalPrice);
+    setDeluxeCount(newDeluxeCount);
+  }, []);
 
   const validateNumberOfSeats = (value: number): boolean => {
     if (!value || value <= 0) {
@@ -77,31 +84,34 @@ export default function AdminBookingDialog() {
   const handleNumberOfSeatsChange = (value: number) => {
     setNumberOfSeats(value);
 
-    // Validate immediately for certain conditions
     if (value > 10 || value < 0) {
       validateNumberOfSeats(value);
     } else {
       setSeatsError('');
     }
 
-    // Reset selected seats if number changes
     if (selectedSeats.length > 0) {
       setSelectedSeats([]);
     }
   };
 
-  const validatePhoneNumber = (phone: string): boolean => {
-    const phoneRegex = /^[6-9]\d{9}$/;
-    const isValid = phoneRegex.test(phone);
-    setPhoneError(isValid ? '' : 'Please enter a valid 10-digit phone number');
-    return isValid;
+  const handleCustomerNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomerName(value);
+    const error = validateName(value);
+    setNameError(error || '');
   };
 
-  const validateName = (name: string): boolean => {
-    const isValid = name.trim().length >= 3;
-    setNameError(isValid ? '' : 'Name should be at least 3 characters');
-    return isValid;
+  const handleCustomerPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomerPhone(value);
+    const error = validatePhone(value);
+    setPhoneError(error || '');
   };
+
+  const handleFormValidChange = useCallback((isValid: boolean) => {
+    setIsCustomerFormValid(isValid);
+  }, []);
 
   const handleNextStep = () => {
     if (currentStep === BookingStep.MOVIE_INFO) {
@@ -125,7 +135,13 @@ export default function AdminBookingDialog() {
         });
       }
     } else if (currentStep === BookingStep.CUSTOMER_DETAILS) {
-      if (validateName(customerName) && validatePhoneNumber(customerPhone)) {
+      const nameValidation = validateName(customerName);
+      const phoneValidation = validatePhone(customerPhone);
+
+      setNameError(nameValidation || '');
+      setPhoneError(phoneValidation || '');
+
+      if (!nameValidation && !phoneValidation) {
         createBooking();
       } else {
         showToast({
@@ -147,14 +163,47 @@ export default function AdminBookingDialog() {
     setSelectedSeats(seats);
   };
 
+  const updateTotalPrice = (seats: string[], seatMapData: SeatMapType) => {
+    const basePrice = show.cost * numberOfSeats;
+    if (!seatMapData || seats.length === 0) {
+      setTotalPrice(basePrice);
+      return basePrice;
+    }
+
+    let deluxeCount = 0;
+    for (const seatNumber of seats) {
+      const row = seatNumber.charAt(0);
+      const seatCol = parseInt(seatNumber.substring(1));
+
+      if (seatMapData[row] &&
+        seatMapData[row].find(seat =>
+          seat.seat_number === seatNumber &&
+          seat.type === SEAT_TYPES.DELUXE)) {
+        deluxeCount++;
+      }
+    }
+
+    const calculatedPrice = basePrice + (deluxeCount * DELUXE_OFFSET);
+    setTotalPrice(calculatedPrice);
+    return calculatedPrice;
+  };
+
   const createBooking = async () => {
     setIsLoading(true);
-    // This will be implemented in the service layer
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setBookingId("MOCK12345");
-      setCurrentStep(BookingStep.SUCCESS);
+      const result = await createAdminBooking(
+        show.id,
+        customerName,
+        customerPhone,
+        selectedSeats,
+        totalPrice, 
+        showToast
+      );
+
+      if (result.success && result.bookingId) {
+        setBookingId(result.bookingId);
+        setCurrentStep(BookingStep.SUCCESS);
+      }
     } catch (error) {
       console.error("Booking failed", error);
       showToast({
@@ -168,7 +217,6 @@ export default function AdminBookingDialog() {
   };
 
   const downloadTicket = () => {
-    // Will implement this later
     console.log("Downloading ticket for booking:", bookingId);
   };
 
@@ -192,104 +240,44 @@ export default function AdminBookingDialog() {
             numberOfSeats={numberOfSeats}
             selectedSeats={selectedSeats}
             onSeatSelect={handleSeatSelect}
+            onPriceUpdate={handlePriceUpdate}
+            baseSeatPrice={show.cost}
+            deluxeOffset={DELUXE_OFFSET}
           />
         );
 
       case BookingStep.CUSTOMER_DETAILS:
         return (
-          <VStack spacing={4} align="stretch">
-            <Heading size="md" color="text.primary">Customer Details</Heading>
-
-            <FormInput
-              label="Customer Name"
-              value={customerName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setCustomerName(e.target.value);
-                if (nameError) validateName(e.target.value);
-              }}
-              error={nameError}
-              placeholder="Enter customer name"
-            />
-
-            <FormInput
-              label="Phone Number"
-              value={customerPhone}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setCustomerPhone(e.target.value);
-                if (phoneError) validatePhoneNumber(e.target.value);
-              }}
-              error={phoneError}
-              placeholder="Enter 10-digit phone number"
-              type="tel"
-            />
-
-            <Box p={4} bg="background.secondary" borderRadius="md" mt={2}>
-              <Text fontWeight="bold" mb={2} color="text.primary">Booking Summary</Text>
-              <Text color="text.secondary">Movie: {show.movie.name}</Text>
-              <Text color="text.secondary">Show: {show.slot.name} at {show.slot.startTime.substring(0, 5)}</Text>
-              <Text color="text.secondary">Date: {formatTimestampToOrdinalDate(show.date)}</Text>
-              <Text color="text.secondary">Seats: {selectedSeats.join(', ')}</Text>
-              <Text fontWeight="bold" mt={2} color="brand.500">
-                Total: {new Intl.NumberFormat('en-IN', {
-                  style: 'currency',
-                  currency: 'INR'
-                }).format(show.cost * numberOfSeats)}
-              </Text>
-            </Box>
-          </VStack>
+          <CustomerDetailsStep
+            show={show}
+            selectedSeats={selectedSeats}
+            numberOfSeats={numberOfSeats}
+            customerName={customerName}
+            customerPhone={customerPhone}
+            nameError={nameError}
+            phoneError={phoneError}
+            onCustomerNameChange={handleCustomerNameChange}
+            onCustomerPhoneChange={handleCustomerPhoneChange}
+            onValidate={handleFormValidChange}
+            totalPrice={totalPrice}
+          />
         );
 
       case BookingStep.SUCCESS:
         return (
-          <VStack spacing={6} align="center" py={4}>
-            <Flex
-              w="80px"
-              h="80px"
-              borderRadius="full"
-              bg="success"
-              color="white"
-              align="center"
-              justify="center"
-            >
-              <Icon as={CheckCircleIcon} boxSize={10} />
-            </Flex>
-
-            <Heading size="lg" color="text.primary">Booking Successful!</Heading>
-
-            <Text fontWeight="medium" textAlign="center" color="text.secondary">
-              The booking has been created for {customerName}.
-            </Text>
-
-            <Box p={4} bg="background.secondary" borderRadius="md" width="100%">
-              <Text fontWeight="bold" color="text.primary">Booking ID: {bookingId}</Text>
-              <Text color="text.secondary">Movie: {show.movie.name}</Text>
-              <Text color="text.secondary">Show: {show.slot.name} at {show.slot.startTime.substring(0, 5)}</Text>
-              <Text color="text.secondary">Date: {formatTimestampToOrdinalDate(show.date)}</Text>
-              <Text color="text.secondary">Seats: {selectedSeats.join(', ')}</Text>
-              <Text fontWeight="bold" mt={2} color="brand.500">
-                Total: {new Intl.NumberFormat('en-IN', {
-                  style: 'currency',
-                  currency: 'INR'
-                }).format(show.cost * numberOfSeats)}
-              </Text>
-            </Box>
-
-            <Button
-              variant="solid"
-              onClick={downloadTicket}
-              leftIcon={<i className="fas fa-download" />}
-              bg="brand.500"
-              color="white"
-              _hover={{ bg: "brand.600" }}
-            >
-              Download Ticket
-            </Button>
-          </VStack>
+          <BookingSuccessStep
+            show={show}
+            selectedSeats={selectedSeats}
+            numberOfSeats={numberOfSeats}
+            bookingId={bookingId || ''}
+            customerName={customerName}
+            onDownloadTicket={downloadTicket}
+            totalPrice={totalPrice}
+          />
         );
     }
   };
 
-  // Step indicator component
   const StepIndicator = () => (
     <Flex justify="center" mb={4}>
       {[0, 1, 2, 3].map((step) => (
@@ -312,6 +300,19 @@ export default function AdminBookingDialog() {
     </Flex>
   );
 
+  const isNextButtonDisabled = () => {
+    if (currentStep === BookingStep.MOVIE_INFO) {
+      return numberOfSeats > 10 || numberOfSeats <= 0 || numberOfSeats > show.availableseats;
+    }
+    if (currentStep === BookingStep.SEAT_SELECTION) {
+      return selectedSeats.length !== numberOfSeats;
+    }
+    if (currentStep === BookingStep.CUSTOMER_DETAILS) {
+      return !isCustomerFormValid;
+    }
+    return false;
+  };
+
   return (
     <Modal
       isOpen={true}
@@ -330,8 +331,8 @@ export default function AdminBookingDialog() {
       >
         <ModalHeader
           color="text.primary"
-          noOfLines={1}
-          title={show.movie.name} // Shows full title on hover
+          noOfLines={2}
+          title={show.movie.name}
         >
           {currentStep === BookingStep.SUCCESS
             ? "Booking Confirmed"
@@ -376,10 +377,7 @@ export default function AdminBookingDialog() {
               color="white"
               _hover={{ bg: "brand.600" }}
               onClick={handleNextStep}
-              isDisabled={
-                (currentStep === BookingStep.MOVIE_INFO && (numberOfSeats > 10 || numberOfSeats <= 0 || numberOfSeats > show.availableseats)) ||
-                (currentStep === BookingStep.SEAT_SELECTION && selectedSeats.length !== numberOfSeats)
-              }
+              isDisabled={isNextButtonDisabled()}
             >
               {currentStep === BookingStep.CUSTOMER_DETAILS ? "Confirm Booking" : "Next"}
             </Button>
@@ -388,7 +386,7 @@ export default function AdminBookingDialog() {
 
         {currentStep === BookingStep.SUCCESS && (
           <ModalFooter>
-            <Button onClick={closeDialog} bg="gray.100">Close</Button>
+            <Button onClick={closeDialog} variant="ghost" colorScheme='primary'>Close</Button>
           </ModalFooter>
         )}
       </ModalContent>

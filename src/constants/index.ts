@@ -27,6 +27,8 @@ export const SEAT_TYPES = {
   DELUXE: 'Deluxe'
 };
 
+export const DELUXE_OFFSET = 150.0;
+
 export const APP_ROUTES = {
   LOGIN: `/login`,
   SHOWS: `/shows`,

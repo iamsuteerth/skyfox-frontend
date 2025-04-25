@@ -34,6 +34,7 @@ export const validatePasswords = (
 
   return isValid;
 };
+
 export const validateName = (name: string): string | null => {
   if (!name) return "Name is required";
   if (name.length < 3 || name.length > 70) 

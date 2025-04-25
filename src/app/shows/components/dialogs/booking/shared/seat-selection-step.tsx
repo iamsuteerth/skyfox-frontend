@@ -1,22 +1,28 @@
-// src/app/components/dialogs/shared/seat-selection-step.tsx
 import React, { useState, useEffect } from 'react';
 import { VStack, Text, Box } from '@chakra-ui/react';
 import SeatMap from './seat-map';
 import { getSeatMap, SeatMap as SeatMapType } from '@/services/booking-service';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { SEAT_TYPES } from '@/constants';
 
 interface SeatSelectionStepProps {
   showId: number;
   numberOfSeats: number;
   selectedSeats: string[];
   onSeatSelect: (seats: string[]) => void;
+  onPriceUpdate?: (totalPrice: number, deluxeCount: number) => void; 
+  baseSeatPrice: number;
+  deluxeOffset: number;
 }
 
 export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
   showId,
   numberOfSeats,
   selectedSeats,
-  onSeatSelect
+  onSeatSelect,
+  onPriceUpdate,
+  baseSeatPrice,
+  deluxeOffset,
 }) => {
   const [seatMap, setSeatMap] = useState<SeatMapType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,13 +44,32 @@ export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
           title: 'Error',
           description: err.message || 'Failed to load seat map',
         });
-      } finally {
+    } finally {
         setIsLoading(false);
       }
     };
 
     fetchSeatMap();
   }, [showId, showToast]);
+
+  useEffect(() => {
+    if (seatMap && onPriceUpdate && selectedSeats.length > 0) {
+      let deluxeCount = 0;
+      for (const seatNumber of selectedSeats) {
+        const row = seatNumber.charAt(0);
+        if (seatMap[row] && seatMap[row].some(seat => 
+          seat.seat_number === seatNumber && seat.type === SEAT_TYPES.DELUXE)) {
+          deluxeCount++;
+        }
+      }
+      
+      const basePrice = baseSeatPrice * numberOfSeats;
+      const deluxePrice = deluxeCount * deluxeOffset;
+      const totalPrice = basePrice + deluxePrice;
+      
+      onPriceUpdate(totalPrice, deluxeCount);
+    }
+  }, [selectedSeats, seatMap, onPriceUpdate, baseSeatPrice, numberOfSeats, deluxeOffset]);
 
   return (
     <VStack spacing={4} align="stretch" overflow="hidden" w="100%">
@@ -58,6 +83,7 @@ export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
           onSeatSelect={onSeatSelect}
           isLoading={isLoading}
           seatMapData={seatMap || undefined}
+          showToast={showToast}
         />
       </Box>
 

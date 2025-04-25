@@ -1,4 +1,3 @@
-// src/services/booking-service.ts
 import { API_ROUTES, ERROR_MESSAGES } from '@/constants';
 import { handleApiError } from '@/utils/error-utils';
 
@@ -83,6 +82,64 @@ export const getSeatMap = async (showId: number): Promise<SeatMap> => {
   }
 };
 
+export const createAdminBooking = async (
+  showId: number,
+  customerName: string,
+  phoneNumber: string,
+  seatNumbers: string[],
+  amountPaid: number,
+  showToast?: Function
+): Promise<{ success: boolean; bookingId?: string; error?: string }> => {
+  try {
+    const response = await fetch(API_ROUTES.ADMIN_CREATE_BOOKING, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        show_id: showId,
+        customer_name: customerName,
+        phone_number: phoneNumber,
+        seat_numbers: seatNumbers,
+        amount_paid: amountPaid
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    }
+
+    const data = await response.json();
+    
+    if (showToast) {
+      showToast({
+        type: 'success',
+        title: 'Booking Successful',
+        description: 'Customer booking has been created'
+      });
+    }
+    
+    return {
+      success: true,
+      bookingId: data.data.booking_id
+    };
+  } catch (error: any) {
+    console.error('Admin booking error:', error);
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Booking Failed',
+        description: error.message || 'Failed to create booking'
+      });
+    }
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
 export const initializeBooking = async (request: BookingInitializeRequest): Promise<BookingInitializeResponse> => {
   try {
     const response = await fetch(API_ROUTES.INITIALIZE_BOOKING, {
@@ -101,28 +158,6 @@ export const initializeBooking = async (request: BookingInitializeRequest): Prom
     return await response.json();
   } catch (error: any) {
     console.error('Error initializing booking:', error);
-    throw handleApiError(error);
-  }
-};
-
-export const createAdminBooking = async (request: AdminBookingRequest): Promise<any> => {
-  try {
-    const response = await fetch(API_ROUTES.ADMIN_CREATE_BOOKING, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(request)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
-    }
-
-    return await response.json();
-  } catch (error: any) {
-    console.error('Error creating admin booking:', error);
     throw handleApiError(error);
   }
 };

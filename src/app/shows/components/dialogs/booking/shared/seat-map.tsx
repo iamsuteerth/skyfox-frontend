@@ -23,6 +23,7 @@ interface SeatMapProps {
   selectedSeats: string[];
   onSeatSelect: (seats: string[]) => void;
   isLoading?: boolean;
+  showToast: Function;
 }
 
 const SeatButton = memo(
@@ -89,23 +90,40 @@ const SeatButton = memo(
 SeatButton.displayName = "SeatButton";
 
 export const SeatMap: React.FC<SeatMapProps> = memo(
-  ({ seatMapData, numberOfSeats, selectedSeats, onSeatSelect, isLoading }) => {
+  ({ seatMapData, numberOfSeats, selectedSeats, onSeatSelect, isLoading, showToast }) => {
 
     const handleSeatClick = useCallback(
       (seat: Seat) => {
         if (seat.occupied) return;
         const seatNumber = seat.seat_number;
         let next = [...selectedSeats];
+        
         if (next.includes(seatNumber)) {
           next = next.filter((s) => s !== seatNumber);
         } else if (next.length < numberOfSeats) {
           next = [...next, seatNumber];
-        } else if (next.length > 0) {
-          next = [...next.slice(1), seatNumber];
+          next.sort((a, b) => {
+            const aRow = a.charAt(0);
+            const bRow = b.charAt(0);
+            
+            if (aRow !== bRow) return aRow.localeCompare(bRow);
+            
+            const aCol = parseInt(a.substring(1));
+            const bCol = parseInt(b.substring(1));
+            return aCol - bCol;
+          });
+        } else {
+          showToast({
+            type: 'warning',
+            title: 'Maximum seats selected',
+            description: `You can only select ${numberOfSeats} seats. Please unselect a seat first.`
+          });
+          return; 
         }
+        
         onSeatSelect(next);
       },
-      [selectedSeats, numberOfSeats, onSeatSelect]
+      [selectedSeats, numberOfSeats, onSeatSelect, showToast]
     );
 
     if (isLoading) {
