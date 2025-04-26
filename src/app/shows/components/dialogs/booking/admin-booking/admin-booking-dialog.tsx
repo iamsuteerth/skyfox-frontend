@@ -47,8 +47,7 @@ export default function AdminBookingDialog() {
   const DELUXE_OFFSET = 150.0;
 
   const show = dialogData?.show as Show;
-  if (!show) return null;
-
+  
   const [currentStep, setCurrentStep] = useState(BookingStep.MOVIE_INFO);
   const [numberOfSeats, setNumberOfSeats] = useState(1);
   const [seatsError, setSeatsError] = useState('');
@@ -292,6 +291,8 @@ export default function AdminBookingDialog() {
     }
     return false;
   };
+
+  if (!show) return null;
 
   return (
     <Modal

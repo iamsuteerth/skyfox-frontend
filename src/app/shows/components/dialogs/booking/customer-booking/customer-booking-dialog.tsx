@@ -53,8 +53,8 @@ export default function CustomerBookingDialog() {
   const { closeDialog, dialogData } = useDialog();
   const { refreshShows } = useShows();
   const { showToast } = useCustomToast();
+
   const show = dialogData?.show as Show;
-  if (!show) return null;
 
   const [currentStep, setCurrentStep] = useState<BookingStep>(BookingStep.MOVIE_INFO);
   const [numberOfSeats, setNumberOfSeats] = useState<number>(1);
@@ -63,7 +63,7 @@ export default function CustomerBookingDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [bookingId, setBookingId] = useState<number | null>(null);
   const [bookingStatus, setBookingStatus] = useState<BookingStatus>(BookingStatus.PENDING);
-  const [timeLeft, setTimeLeft] = useState(295); // 4:55 in seconds
+  const [timeLeft, setTimeLeft] = useState(295); 
   const [paymentInitiated, setPaymentInitiated] = useState(false);
 
   const [deluxeCount, setDeluxeCount] = useState(0);
@@ -346,6 +346,8 @@ export default function CustomerBookingDialog() {
   };
 
   const canCloseModal = currentStep !== BookingStep.PAYMENT || bookingStatus !== BookingStatus.PENDING;
+
+  if (!show) return null;
 
   return (
     <Modal

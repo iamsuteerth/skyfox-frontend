@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const paramsPromise = Promise.resolve(params);
-    const resolvedParams = await paramsPromise;
-    const bookingId = resolvedParams.id;
+    const { id } = await params;
 
     const cookies = request.cookies;
     const tokenCookie = cookies.get('auth-token');
@@ -16,7 +14,7 @@ export async function GET(
     }
 
     const response = await fetch(
-      `${process.env.API_BASE_URL}/booking/${bookingId}/pdf`,
+      `${process.env.API_BASE_URL}/booking/${id}/pdf`,
       {
         method: 'GET',
         headers: {

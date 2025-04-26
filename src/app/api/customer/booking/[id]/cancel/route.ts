@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(request: NextRequest, 
-  { params }: { params: { id: string } }
+export async function DELETE(request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const paramsPromise = Promise.resolve(params);
-    const resolvedParams = await paramsPromise;
-    const showId = resolvedParams.id;
+    const { id } = await params;
+    const showId = id;
 
     const cookies = request.cookies;
     const tokenCookie = cookies.get('auth-token');

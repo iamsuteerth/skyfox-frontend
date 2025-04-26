@@ -79,7 +79,7 @@ export default function FormInput({
   };
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let raw = e.target.value.replace(/\D/g, '').slice(0, 16); 
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 16); 
     const formatted = formatCardNumber(raw);
     onChange({ ...e, target: { ...e.target, value: formatted } });
   };

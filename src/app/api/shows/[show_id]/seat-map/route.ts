@@ -2,24 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { show_id: string } }
+  { params }: { params: Promise<{ show_id: string }> }
 ) {
   try {
-    const paramsPromise = Promise.resolve(params);
-    const resolvedParams = await paramsPromise;
-    const showId = resolvedParams.show_id;
-    
+    const { show_id } = await params;
+
     const cookies = request.cookies;
     const tokenCookie = cookies.get('auth-token');
-    
+
     if (!tokenCookie?.value) {
       return NextResponse.json(
         { status: 'ERROR', message: 'Unauthorized' },
         { status: 401 }
       );
     }
-    
-    const response = await fetch(`${process.env.API_BASE_URL}/shows/${showId}/seat-map`, {
+
+    const response = await fetch(`${process.env.API_BASE_URL}/shows/${show_id}/seat-map`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -27,9 +25,9 @@ export async function GET(
         'X-Api-Key': process.env.API_KEY || ''
       }
     });
-    
+
     const data = await response.json();
-    
+
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     console.error('Seat map API error:', error);

@@ -28,19 +28,23 @@ export const useRoleBasedFunction = () => {
     args
   }: RoleBasedFunctionProps<T>) => {
     if (!user) {
-      unauthorizedExecute ? unauthorizedExecute(args) : execute(args);
+      if (unauthorizedExecute) unauthorizedExecute(args);
+      else execute(args);
       return;
     }
 
     switch (user.role) {
       case ROLES.ADMIN:
-        adminExecute ? adminExecute(args) : execute(args);
+        if (adminExecute) adminExecute(args);
+        else execute(args);
         break;
       case ROLES.CUSTOMER:
-        customerExecute ? customerExecute(args) : execute(args);
+        if (customerExecute) customerExecute(args) 
+        else execute(args);
         break;
       case ROLES.STAFF:
-        staffExecute ? staffExecute(args) : execute(args);
+        if (staffExecute) staffExecute(args) 
+        else execute(args);
         break;
       default:
         execute(args);
