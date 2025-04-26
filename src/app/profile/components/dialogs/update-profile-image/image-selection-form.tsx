@@ -14,7 +14,7 @@ import {
   Center,
   FormLabel,
   FormControl,
-  Button,
+  Button
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 

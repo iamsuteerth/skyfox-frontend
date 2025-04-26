@@ -12,7 +12,7 @@ import {
   InputGroup,
   InputRightElement,
   Icon,
-  Box,
+  Box
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
 import 'react-day-picker/dist/style.css';

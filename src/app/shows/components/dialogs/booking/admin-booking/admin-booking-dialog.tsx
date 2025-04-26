@@ -1,5 +1,7 @@
 'use client';
+
 import React, { useCallback, useState } from 'react';
+
 import {
   Modal,
   ModalOverlay,
@@ -14,16 +16,20 @@ import {
   Flex,
   Box
 } from '@chakra-ui/react';
+
 import { useDialog } from '@/contexts/dialog-context';
-import { Show } from '@/services/shows-service';
+import { useShows } from '@/contexts/shows-contex';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
+
+import { Show } from '@/services/shows-service';
 import { createAdminBooking } from '@/services/booking-service';
+
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
 import CustomerDetailsStep from './components/customer-details-step';
-import { validateName, validatePhone } from '@/utils/validators';
 import { BookingFinalStep } from '../shared/booking-final-step';
-import { useShows } from '@/contexts/shows-contex';
+
+import { validateName, validatePhone } from '@/utils/validators';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -35,12 +41,16 @@ enum BookingStep {
 export default function AdminBookingDialog() {
   const { closeDialog, dialogData } = useDialog();
   const { refreshShows } = useShows();
-  const show = dialogData?.show as Show;
   const { showToast } = useCustomToast();
 
-  const [currentStep, setCurrentStep] = useState<BookingStep>(BookingStep.MOVIE_INFO);
-  const [numberOfSeats, setNumberOfSeats] = useState<number>(1);
-  const [seatsError, setSeatsError] = useState<string>('');
+  const DELUXE_OFFSET = 150.0;
+
+  const show = dialogData?.show as Show;
+  if (!show) return null;
+
+  const [currentStep, setCurrentStep] = useState(BookingStep.MOVIE_INFO);
+  const [numberOfSeats, setNumberOfSeats] = useState(1);
+  const [seatsError, setSeatsError] = useState('');
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -49,12 +59,8 @@ export default function AdminBookingDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [bookingId, setBookingId] = useState<number | null>(null);
   const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
-
   const [totalPrice, setTotalPrice] = useState(show.cost * numberOfSeats);
   const [deluxeCount, setDeluxeCount] = useState(0);
-  const DELUXE_OFFSET = 150.0;
-
-  if (!show) return null;
 
   const handleFinalStepClose = () => {
     refreshShows();
@@ -71,30 +77,25 @@ export default function AdminBookingDialog() {
       setSeatsError('Please enter a valid number');
       return false;
     }
-
     if (value > 10) {
       setSeatsError(`Maximum 10 seats allowed per booking`);
       return false;
     }
-
     if (value > show.availableseats) {
       setSeatsError(`Only ${show.availableseats} seats available`);
       return false;
     }
-
     setSeatsError('');
     return true;
   };
 
   const handleNumberOfSeatsChange = (value: number) => {
     setNumberOfSeats(value);
-
     if (value > 10 || value < 0) {
       validateNumberOfSeats(value);
     } else {
       setSeatsError('');
     }
-
     if (selectedSeats.length > 0) {
       setSelectedSeats([]);
     }
@@ -142,10 +143,8 @@ export default function AdminBookingDialog() {
     } else if (currentStep === BookingStep.CUSTOMER_DETAILS) {
       const nameValidation = validateName(customerName);
       const phoneValidation = validatePhone(customerPhone);
-
       setNameError(nameValidation || '');
       setPhoneError(phoneValidation || '');
-
       if (!nameValidation && !phoneValidation) {
         createBooking();
       } else {
@@ -179,7 +178,6 @@ export default function AdminBookingDialog() {
         totalPrice,
         showToast
       );
-
       if (result.success && result.bookingId) {
         setBookingId(result.bookingId);
         setCurrentStep(BookingStep.SUCCESS);

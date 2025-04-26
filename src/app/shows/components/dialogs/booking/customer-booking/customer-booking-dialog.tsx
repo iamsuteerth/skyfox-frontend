@@ -1,5 +1,7 @@
 'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
+
 import {
   Modal,
   ModalOverlay,
@@ -12,20 +14,25 @@ import {
   Box,
   Flex,
   Center,
-  Spinner,
+  Spinner
 } from '@chakra-ui/react';
+
 import { useDialog } from '@/contexts/dialog-context';
+import { useShows } from '@/contexts/shows-contex';
+import { useCustomToast } from '@/app/components/ui/custom-toast';
+
 import { Show } from '@/services/shows-service';
+import {
+  initializeCustomerBooking,
+  processCustomerPayment,
+  cancelCustomerBooking
+} from '@/services/booking-service';
 
-import { initializeCustomerBooking, processCustomerPayment, cancelCustomerBooking } from '@/services/booking-service';
-import { PaymentStep } from './components/payment-step';
 import { DELUXE_OFFSET } from "@/constants";
-
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
-import { useCustomToast } from '@/app/components/ui/custom-toast';
+import { PaymentStep } from './components/payment-step';
 import { BookingFinalStep } from '../shared/booking-final-step';
-import { useShows } from '@/contexts/shows-contex';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -44,8 +51,9 @@ enum BookingStatus {
 export default function CustomerBookingDialog() {
   const { closeDialog, dialogData } = useDialog();
   const { refreshShows } = useShows();
-  const show = dialogData?.show as Show;
   const { showToast } = useCustomToast();
+  const show = dialogData?.show as Show;
+  if (!show) return null;
 
   const [currentStep, setCurrentStep] = useState<BookingStep>(BookingStep.MOVIE_INFO);
   const [numberOfSeats, setNumberOfSeats] = useState<number>(1);
@@ -60,12 +68,10 @@ export default function CustomerBookingDialog() {
   const [deluxeCount, setDeluxeCount] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
 
-
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [cardholderName, setCardholderName] = useState('');
-
   const [isPaymentFormValid, setIsPaymentFormValid] = useState(false);
 
   const handleFinalStepClose = () => {
@@ -78,58 +84,30 @@ export default function CustomerBookingDialog() {
     setDeluxeCount(deluxe);
   }, []);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-
-    if (currentStep === BookingStep.PAYMENT && timeLeft > 0 && !paymentInitiated) {
-      timer = setInterval(() => {
-        setTimeLeft(prevTime => {
-          if (prevTime <= 1) {
-            clearInterval(timer);
-            handlePaymentTimeout();
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [currentStep, timeLeft, paymentInitiated]);
-
-  if (!show) return null;
-
   const validateNumberOfSeats = (value: number): boolean => {
     if (!value || value <= 0) {
       setSeatsError('Please enter a valid number');
       return false;
     }
-
     if (value > 10) {
       setSeatsError(`Maximum 10 seats allowed per booking`);
       return false;
     }
-
     if (value > show.availableseats) {
       setSeatsError(`Only ${show.availableseats} seats available`);
       return false;
     }
-
     setSeatsError('');
     return true;
   };
 
   const handleNumberOfSeatsChange = (value: number) => {
     setNumberOfSeats(value);
-
     if (value > 10 || value < 0) {
       validateNumberOfSeats(value);
     } else {
       setSeatsError('');
     }
-
     if (selectedSeats.length > 0) {
       setSelectedSeats([]);
     }
@@ -237,6 +215,25 @@ export default function CustomerBookingDialog() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (currentStep === BookingStep.PAYMENT && timeLeft > 0 && !paymentInitiated) {
+      timer = setInterval(() => {
+        setTimeLeft(prevTime => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            handlePaymentTimeout();
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [currentStep, timeLeft, paymentInitiated]);
 
   useEffect(() => {
     const handleBeforeUnload = async (e: BeforeUnloadEvent) => {

@@ -1,6 +1,11 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
+
 import { VStack, Text, Box } from '@chakra-ui/react';
+
 import SeatMap from './seat-map';
+
 import { getSeatMap, SeatMap as SeatMapType } from '@/services/booking-service';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 import { SEAT_TYPES } from '@/constants';
@@ -10,7 +15,7 @@ interface SeatSelectionStepProps {
   numberOfSeats: number;
   selectedSeats: string[];
   onSeatSelect: (seats: string[]) => void;
-  onPriceUpdate?: (totalPrice: number, deluxeCount: number) => void; 
+  onPriceUpdate?: (totalPrice: number, deluxeCount: number) => void;
   baseSeatPrice: number;
   deluxeOffset: number;
 }
@@ -27,6 +32,7 @@ export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
   const [seatMap, setSeatMap] = useState<SeatMapType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const { showToast } = useCustomToast();
 
   useEffect(() => {
@@ -44,11 +50,10 @@ export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
           title: 'Error',
           description: err.message || 'Failed to load seat map',
         });
-    } finally {
+      } finally {
         setIsLoading(false);
       }
     };
-
     fetchSeatMap();
   }, [showId, showToast]);
 
@@ -57,16 +62,14 @@ export const SeatSelectionStep: React.FC<SeatSelectionStepProps> = ({
       let deluxeCount = 0;
       for (const seatNumber of selectedSeats) {
         const row = seatNumber.charAt(0);
-        if (seatMap[row] && seatMap[row].some(seat => 
+        if (seatMap[row] && seatMap[row].some(seat =>
           seat.seat_number === seatNumber && seat.type === SEAT_TYPES.DELUXE)) {
           deluxeCount++;
         }
       }
-      
       const basePrice = baseSeatPrice * numberOfSeats;
       const deluxePrice = deluxeCount * deluxeOffset;
       const totalPrice = basePrice + deluxePrice;
-      
       onPriceUpdate(totalPrice, deluxeCount);
     }
   }, [selectedSeats, seatMap, onPriceUpdate, baseSeatPrice, numberOfSeats, deluxeOffset]);

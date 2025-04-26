@@ -17,7 +17,7 @@ import {
   useBreakpointValue,
   Skeleton,
   FlexProps,
-  Avatar,
+  Avatar
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 

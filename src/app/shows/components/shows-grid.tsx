@@ -1,9 +1,5 @@
 import React, { useRef } from 'react';
-import {
-  Box,
-  Flex,
-  IconButton,
-} from '@chakra-ui/react';
+import { Box, Flex, IconButton } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';
 import ShowCard from './show-card';

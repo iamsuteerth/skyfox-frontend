@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useCallback, memo } from "react";
+
 import {
   Box,
   Text,
@@ -8,7 +11,7 @@ import {
   useTheme,
   HStack,
   Spinner,
-  Center,
+  Center
 } from "@chakra-ui/react";
 
 import { RiSofaFill } from "react-icons/ri";
@@ -97,7 +100,7 @@ export const SeatMap: React.FC<SeatMapProps> = memo(
         if (seat.occupied) return;
         const seatNumber = seat.seat_number;
         let next = [...selectedSeats];
-        
+
         if (next.includes(seatNumber)) {
           next = next.filter((s) => s !== seatNumber);
         } else if (next.length < numberOfSeats) {
@@ -105,9 +108,9 @@ export const SeatMap: React.FC<SeatMapProps> = memo(
           next.sort((a, b) => {
             const aRow = a.charAt(0);
             const bRow = b.charAt(0);
-            
+
             if (aRow !== bRow) return aRow.localeCompare(bRow);
-            
+
             const aCol = parseInt(a.substring(1));
             const bCol = parseInt(b.substring(1));
             return aCol - bCol;
@@ -118,9 +121,8 @@ export const SeatMap: React.FC<SeatMapProps> = memo(
             title: 'Maximum seats selected',
             description: `You can only select ${numberOfSeats} seats. Please unselect a seat first.`
           });
-          return; 
+          return;
         }
-        
         onSeatSelect(next);
       },
       [selectedSeats, numberOfSeats, onSeatSelect, showToast]

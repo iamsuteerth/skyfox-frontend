@@ -13,7 +13,7 @@ import {
   VStack,
   Divider,
   useBreakpointValue,
-  IconButton,
+  IconButton
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 

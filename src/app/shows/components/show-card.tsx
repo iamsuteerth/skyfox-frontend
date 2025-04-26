@@ -9,7 +9,7 @@ import {
   Tooltip,
   HStack,
   VStack,
-  Icon,
+  Icon
 } from '@chakra-ui/react';
 import { StarIcon, TimeIcon } from '@chakra-ui/icons';
 import { Show } from '@/services/shows-service';

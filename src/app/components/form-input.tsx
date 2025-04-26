@@ -8,7 +8,7 @@ import {
   FormErrorMessage,
   InputGroup,
   InputRightElement,
-  SystemStyleObject,
+  SystemStyleObject
 } from '@chakra-ui/react';
 import CustomDatePicker from '@/app/shows/components/dialogs/schedule-show/custom-date-picker';
 

@@ -1,11 +1,28 @@
+'use client';
+
 import React, { useEffect, useState } from "react";
+
 import {
-  VStack, Box, Heading, Text, CircularProgress, CircularProgressLabel, Center, Flex,
+  VStack,
+  Box,
+  Heading,
+  Text,
+  CircularProgress,
+  CircularProgressLabel,
+  Center,
+  Flex
 } from "@chakra-ui/react";
+
 import FormInput from "@/app/components/form-input";
+
 import { Show } from "@/services/shows-service";
 import { formatTimestampToOrdinalDate } from "@/utils/date-utils";
-import { validateCardName, validateCardNumber, validateCVV, validateExpiry } from "@/utils/validators";
+import {
+  validateCardName,
+  validateCardNumber,
+  validateCVV,
+  validateExpiry
+} from "@/utils/validators";
 
 interface PaymentStepProps {
   show: Show;
@@ -24,7 +41,6 @@ interface PaymentStepProps {
   setCardholderName: (x: string) => void;
   onFormValidChange: (valid: boolean) => void;
 }
-
 
 export const PaymentStep: React.FC<PaymentStepProps> = ({
   show,
@@ -78,71 +94,72 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
     onFormValidChange(paymentFormValid);
   }, [paymentFormValid]);
 
-  return (<VStack spacing={6} align="stretch">
-    <Center>
-      <CircularProgress
-        value={(timeLeft / 295) * 100}
-        color="brand.500"
-        size="80px"
-        thickness="8px"
-      >
-        <CircularProgressLabel color="text.primary">
-          {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
-        </CircularProgressLabel>
-      </CircularProgress>
-    </Center>
-    <Text textAlign="center" color="text.tertiary">Time left to complete payment</Text>
-    <Box p={4} bg="background.secondary" borderRadius="md">
-      <Heading size="sm" mb={2} color="text.primary">Booking Summary</Heading>
-      <Text color="text.secondary">Movie: {show.movie.name}</Text>
-      <Text color="text.secondary">Show: {show.slot.name} at {show.slot.startTime.substring(0, 5)}</Text>
-      <Text color="text.secondary">Date: {formatTimestampToOrdinalDate(show.date)}</Text>
-      <Text color="text.secondary">Seats: {selectedSeats.join(", ")}</Text>
-      <Text color="text.secondary">Deluxe Seats: {deluxeCount}</Text>
-      <Text fontWeight="bold" mt={2} color="brand.500">Total: {new Intl.NumberFormat("en-IN", {
-        style: "currency", currency: "INR",
-      }).format(totalPrice)}</Text>
-    </Box>
-    <Box p={6} border="1px solid" borderColor="surface.light" borderRadius="md" bg="white">
-      <Heading size="md" mb={4} color="text.primary">Payment Details</Heading>
-      <VStack spacing={4} align="stretch">
-        <FormInput
-          label="Card Number"
-          value={cardNumber}
-          onChange={handleCardNumberChange}
-          error={cardNumberError ?? undefined}
-          placeholder="1234 5678 9012 3456"
-          maxLength={19}
-          isCardNumber
-        />
-        <Flex direction={{ base: "column", sm: "row" }} gap={4}>
+  return (
+    <VStack spacing={6} align="stretch">
+      <Center>
+        <CircularProgress
+          value={(timeLeft / 295) * 100}
+          color="brand.500"
+          size="80px"
+          thickness="8px"
+        >
+          <CircularProgressLabel color="text.primary">
+            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+          </CircularProgressLabel>
+        </CircularProgress>
+      </Center>
+      <Text textAlign="center" color="text.tertiary">Time left to complete payment</Text>
+      <Box p={4} bg="background.secondary" borderRadius="md">
+        <Heading size="sm" mb={2} color="text.primary">Booking Summary</Heading>
+        <Text color="text.secondary">Movie: {show.movie.name}</Text>
+        <Text color="text.secondary">Show: {show.slot.name} at {show.slot.startTime.substring(0, 5)}</Text>
+        <Text color="text.secondary">Date: {formatTimestampToOrdinalDate(show.date)}</Text>
+        <Text color="text.secondary">Seats: {selectedSeats.join(", ")}</Text>
+        <Text color="text.secondary">Deluxe Seats: {deluxeCount}</Text>
+        <Text fontWeight="bold" mt={2} color="brand.500">Total: {new Intl.NumberFormat("en-IN", {
+          style: "currency", currency: "INR",
+        }).format(totalPrice)}</Text>
+      </Box>
+      <Box p={6} border="1px solid" borderColor="surface.light" borderRadius="md" bg="white">
+        <Heading size="md" mb={4} color="text.primary">Payment Details</Heading>
+        <VStack spacing={4} align="stretch">
           <FormInput
-            label="Expiry Date"
-            value={expiryDate}
-            onChange={handleExpiryChange}
-            error={expiryError ?? undefined}
-            placeholder="MM/YY"
-            maxLength={5}
+            label="Card Number"
+            value={cardNumber}
+            onChange={handleCardNumberChange}
+            error={cardNumberError ?? undefined}
+            placeholder="1234 5678 9012 3456"
+            maxLength={19}
+            isCardNumber
           />
+          <Flex direction={{ base: "column", sm: "row" }} gap={4}>
+            <FormInput
+              label="Expiry Date"
+              value={expiryDate}
+              onChange={handleExpiryChange}
+              error={expiryError ?? undefined}
+              placeholder="MM/YY"
+              maxLength={5}
+            />
+            <FormInput
+              label="CVV"
+              value={cvv}
+              onChange={handleCVVChange}
+              error={cvvError ?? undefined}
+              placeholder="123"
+              type="password"
+              maxLength={3}
+            />
+          </Flex>
           <FormInput
-            label="CVV"
-            value={cvv}
-            onChange={handleCVVChange}
-            error={cvvError ?? undefined}
-            placeholder="123"
-            type="password"
-            maxLength={3}
+            label="Cardholder Name"
+            value={cardholderName}
+            onChange={handleCardholderNameChange}
+            error={cardholderNameError ?? undefined}
+            placeholder="Name as on card"
           />
-        </Flex>
-        <FormInput
-          label="Cardholder Name"
-          value={cardholderName}
-          onChange={handleCardholderNameChange}
-          error={cardholderNameError ?? undefined}
-          placeholder="Name as on card"
-        />
-      </VStack>
-    </Box>
-  </VStack>
+        </VStack>
+      </Box>
+    </VStack>
   );
 }

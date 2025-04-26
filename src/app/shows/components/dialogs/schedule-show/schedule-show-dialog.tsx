@@ -12,7 +12,7 @@ import {
   Divider,
   useBreakpointValue,
   FormControl,
-  FormErrorMessage,
+  FormErrorMessage
 } from '@chakra-ui/react';
 import { useDialog } from '@/contexts/dialog-context';
 import { useCustomToast } from '@/app/components/ui/custom-toast';

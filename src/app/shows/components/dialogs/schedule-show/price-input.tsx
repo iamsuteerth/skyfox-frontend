@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormHelperText
-} from '@chakra-ui/react';
+import { FormControl, FormLabel, Input, FormHelperText } from '@chakra-ui/react';
 
 interface PriceInputProps {
   value: string;

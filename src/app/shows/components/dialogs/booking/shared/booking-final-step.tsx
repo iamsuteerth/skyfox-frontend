@@ -1,6 +1,18 @@
+'use client';
+
 import React from "react";
-import { VStack, Heading, Text, Button, Flex, Icon, Box } from "@chakra-ui/react";
+
+import {
+  VStack,
+  Heading,
+  Text,
+  Button,
+  Flex,
+  Icon,
+  Box
+} from "@chakra-ui/react";
 import { CheckCircleIcon, CloseIcon } from "@chakra-ui/icons";
+
 import { Show } from "@/services/shows-service";
 import { formatTimestampToOrdinalDate } from "@/utils/date-utils";
 

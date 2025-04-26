@@ -1,9 +1,23 @@
+'use client';
+
 import React from 'react';
+
 import {
-  Box, VStack, HStack, Text, Badge, Heading, Image,
-  FormControl, FormLabel, Input, FormErrorMessage
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Badge,
+  Heading,
+  Image,
+  FormControl,
+  FormLabel,
+  Input,
+  FormErrorMessage
 } from '@chakra-ui/react';
+
 import { StarIcon, TimeIcon } from '@chakra-ui/icons';
+
 import { Show } from '@/services/shows-service';
 import { formatDuration, formatTimestampToOrdinalDate } from '@/utils/date-utils';
 import { DELUXE_OFFSET } from '@/constants';

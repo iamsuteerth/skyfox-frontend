@@ -18,7 +18,7 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  Text,
+  Text
 } from '@chakra-ui/react';
 
 import { useDialog } from '@/contexts/dialog-context';

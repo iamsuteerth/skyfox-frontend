@@ -9,7 +9,7 @@ import {
   Text,
   Flex,
   Link,
-  IconButton,
+  IconButton
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
