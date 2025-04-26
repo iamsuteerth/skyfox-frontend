@@ -21,10 +21,8 @@ import { createAdminBooking } from '@/services/booking-service';
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
 import CustomerDetailsStep from './components/customer-details-step';
-import BookingSuccessStep from '../shared/booking-success-step';
+import BookingSuccessStep from './components/booking-success-step';
 import { validateName, validatePhone } from '@/utils/validators';
-import { SeatMap as SeatMapType, Seat } from "@/services/booking-service";
-import { DELUXE_OFFSET, SEAT_TYPES } from '@/constants';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -163,31 +161,6 @@ export default function AdminBookingDialog() {
     setSelectedSeats(seats);
   };
 
-  const updateTotalPrice = (seats: string[], seatMapData: SeatMapType) => {
-    const basePrice = show.cost * numberOfSeats;
-    if (!seatMapData || seats.length === 0) {
-      setTotalPrice(basePrice);
-      return basePrice;
-    }
-
-    let deluxeCount = 0;
-    for (const seatNumber of seats) {
-      const row = seatNumber.charAt(0);
-      const seatCol = parseInt(seatNumber.substring(1));
-
-      if (seatMapData[row] &&
-        seatMapData[row].find(seat =>
-          seat.seat_number === seatNumber &&
-          seat.type === SEAT_TYPES.DELUXE)) {
-        deluxeCount++;
-      }
-    }
-
-    const calculatedPrice = basePrice + (deluxeCount * DELUXE_OFFSET);
-    setTotalPrice(calculatedPrice);
-    return calculatedPrice;
-  };
-
   const createBooking = async () => {
     setIsLoading(true);
     try {
@@ -196,7 +169,7 @@ export default function AdminBookingDialog() {
         customerName,
         customerPhone,
         selectedSeats,
-        totalPrice, 
+        totalPrice,
         showToast
       );
 
@@ -381,12 +354,6 @@ export default function AdminBookingDialog() {
             >
               {currentStep === BookingStep.CUSTOMER_DETAILS ? "Confirm Booking" : "Next"}
             </Button>
-          </ModalFooter>
-        )}
-
-        {currentStep === BookingStep.SUCCESS && (
-          <ModalFooter>
-            <Button onClick={closeDialog} variant="ghost" colorScheme='primary'>Close</Button>
           </ModalFooter>
         )}
       </ModalContent>

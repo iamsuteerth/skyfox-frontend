@@ -140,65 +140,114 @@ export const createAdminBooking = async (
   }
 };
 
-export const initializeBooking = async (request: BookingInitializeRequest): Promise<BookingInitializeResponse> => {
+export const initializeCustomerBooking = async (
+  showId: number,
+  seatNumbers: string[],
+  amount: number,
+  showToast?: Function
+): Promise<any> => {
   try {
     const response = await fetch(API_ROUTES.INITIALIZE_BOOKING, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(request)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ show_id: showId, seat_numbers: seatNumbers, amount })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    const data = await response.json();
+    if (!response.ok || data.status === 'ERROR') {
+      if (showToast) {
+        showToast({
+          type: 'error',
+          title: 'Booking Error',
+          description: data.message || ERROR_MESSAGES.GENERIC_ERROR,
+        });
+      }
+      throw new Error(data.message || ERROR_MESSAGES.GENERIC_ERROR);
     }
-
-    return await response.json();
+    return data.data;
   } catch (error: any) {
     console.error('Error initializing booking:', error);
     throw handleApiError(error);
   }
 };
 
-export const processPayment = async (request: PaymentRequest): Promise<any> => {
+export const processCustomerPayment = async (
+  bookingId: number,
+  paymentDetails: {
+    card_number: string;
+    cvv: string;
+    expiry_month: string;
+    expiry_year: string;
+    cardholder_name: string;
+  },
+  showToast?: Function
+): Promise<any> => {
   try {
-    const response = await fetch(API_ROUTES.PROCESS_PAYMENT.replace('{id}', request.booking_id.toString()), {
+    const response = await fetch(API_ROUTES.PROCESS_PAYMENT.replace('{id}', bookingId.toString()), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(request)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ booking_id: bookingId, ...paymentDetails })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    const data = await response.json();
+    if (!response.ok || data.status === 'ERROR') {
+      if (showToast) {
+        showToast({
+          type: 'error',
+          title: 'Payment Error',
+          description: data.message || ERROR_MESSAGES.GENERIC_ERROR,
+        });
+      }
+      throw new Error(data.message || ERROR_MESSAGES.GENERIC_ERROR);
     }
-
-    return await response.json();
+    if (showToast) {
+      showToast({
+        type: 'success',
+        title: 'Payment Successful',
+        description: 'Your booking is now confirmed.',
+      });
+    }
+    return data.data;
   } catch (error: any) {
     console.error('Error processing payment:', error);
     throw handleApiError(error);
   }
 };
 
-export const cancelBooking = async (bookingId: number): Promise<any> => {
+export const cancelCustomerBooking = async (
+  bookingId: number,
+  showToast?: Function
+): Promise<void> => {
   try {
     const response = await fetch(API_ROUTES.CANCEL_BOOKING.replace('{id}', bookingId.toString()), {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' }
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_ERROR);
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {}
+    if (!response.ok || (data && (data as any).status === 'ERROR')) {
+      const msg = data && (data as any).message
+        ? (data as any).message
+        : ERROR_MESSAGES.GENERIC_ERROR;
+      if (showToast) {
+        showToast({
+          type: 'error',
+          title: 'Booking Cancel Failed',
+          description: msg,
+        });
+      }
+      throw new Error(msg);
     }
-
-    return await response.json();
+    if (showToast) {
+      showToast({
+        type: 'warning',
+        title: 'Booking Cancelled',
+        description: 'Your booking has been released.',
+      });
+    }
+    return;
   } catch (error: any) {
     console.error('Error cancelling booking:', error);
     throw handleApiError(error);

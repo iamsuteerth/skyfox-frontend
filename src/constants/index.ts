@@ -15,7 +15,7 @@ export const API_ROUTES = {
   UPDATE_CUSTOMER_PROFILE_IMAGE: '/api/customer/update-profile-image',
   GET_SEAT_MAP: '/api/shows/{show_id}/seat-map',
   INITIALIZE_BOOKING: '/api/customer/booking/initialize',
-  PROCESS_PAYMENT: '/api/customer/booking/{id}/payment',
+  PROCESS_PAYMENT: '/api/customer/booking/payment',
   CANCEL_BOOKING: '/api/customer/booking/{id}/cancel',
   ADMIN_CREATE_BOOKING: '/api/admin/create-customer-booking',
   GET_QR_CODE: '/api/booking/{id}/qr',

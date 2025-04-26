@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { show_id: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
-    const paramsPromise = Promise.resolve(params);
-    const resolvedParams = await paramsPromise;
-    const showId = resolvedParams.show_id;
-    
     const cookies = request.cookies;
     const tokenCookie = cookies.get('auth-token');
-    
+
     if (!tokenCookie?.value) {
       return NextResponse.json(
         { status: 'ERROR', message: 'Unauthorized' },
@@ -19,20 +12,23 @@ export async function GET(
       );
     }
     
-    const response = await fetch(`${process.env.API_BASE_URL}/shows/${showId}/seat-map`, {
-      method: 'GET',
+    const bookingData = await request.json();
+
+    const response = await fetch(`${process.env.API_BASE_URL}/customer/booking/initialize`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${tokenCookie.value}`,
         'X-Api-Key': process.env.API_KEY || ''
-      }
+      },
+      body: JSON.stringify(bookingData)
     });
-    
+
     const data = await response.json();
-    
+
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error('Seat map API error:', error);
+    console.error('Initialize customer booking API error:', error);
     return NextResponse.json(
       { status: 'ERROR', message: 'Internal server error' },
       { status: 500 }
