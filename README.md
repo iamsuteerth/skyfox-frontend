@@ -19,6 +19,37 @@ The platform features a comprehensive show management system that allows adminis
 - Set ticket prices
 - View real-time updates of the show schedule
 
+### 🎟️ Booking Management Sytem
+
+#### 🪑 Modular & Real-Time Booking
+
+- **Multi-step Booking Dialogs:** Stepwise, interactive booking for both admin and customer flows-including movie info, seat selection, customer/payment details, and unified confirmations.
+- **Interactive Seat Map:** Real-time seat map with clear Standard/Deluxe indicators and seat type-aware pricing.
+- **Deluxe Seat Pricing:** Deluxe seats automatically add a configurable price offset, reflected live in all booking flows and summaries.
+- **Booking Initialization & Seat Locking:** Seat locks are performed automatically when seats are selected; locks are released on failure, cancellation, close, or timeout.
+- **Concurrent Booking Handling:** Backend and UI logic ensure seat locks and booking states are always accurate, even under high-traffic conditions.
+
+#### 💳 Payment Flow & User Experience
+
+- **Robust Payment Forms:** Custom credit card validation for number, expiry, CVV, and name-with clean, error-under-the-field UI.
+- **Retry and Timeout Support:** Users can retry a failed payment if time permits; booking will time out gracefully if payment is not completed.
+- **Strict Cancel Semantics:** Bookings are canceled only on explicit cancel actions or browser/tab close. The backend manages timeouts automatically.
+
+#### 🧾 Downloadable PDF Tickets
+
+- **Post-Booking Ticket Download:** Users can download their ticket instantly after a successful booking. The ticket is generated as a base64-encoded PDF and served directly through a secure proxy route.
+- **Cross-browser Compatibility:** Download logic is robust and works on all modern browsers.
+
+#### 🔁 Live Data Refresh
+
+- **Auto-Refresh on Booking:** After a successful booking (admin or customer), closing the dialog automatically refreshes seat availability and show lists across the app-no reload necessary.
+
+#### 🎨 Unified, Role-aware UI
+
+- **Shared Booking Confirmation:** Both admin and customer flows use the same confirmation layout, automatically adjusting message and details for context.
+- **Role-aware Logic:** All booking, management, and dialog flows adapt to the user’s role for seamless admin/staff/customer experiences.
+
+
 ### 🎭 Component Architecture
 
 The application follows a modular, component-based architecture:
