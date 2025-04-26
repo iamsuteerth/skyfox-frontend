@@ -278,12 +278,13 @@ export const getQRCode = async (bookingId: number): Promise<string> => {
 
 export const getPDFTicket = async (bookingId: number): Promise<string> => {
   try {
-    const response = await fetch(API_ROUTES.GET_PDF_TICKET.replace('{id}', bookingId.toString()), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
+    const response = await fetch(
+      API_ROUTES.GET_PDF_TICKET.replace('{id}', bookingId.toString()),
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       }
-    });
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -291,9 +292,13 @@ export const getPDFTicket = async (bookingId: number): Promise<string> => {
     }
 
     const data = await response.json();
-    return data.data.pdf;
+    if (data.data && data.data.pdf) {
+      return data.data.pdf; 
+    }
+    throw new Error('No ticket PDF found');
   } catch (error: any) {
     console.error('Error fetching PDF ticket:', error);
     throw handleApiError(error);
   }
 };
+

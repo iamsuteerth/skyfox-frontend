@@ -23,6 +23,7 @@ import { useCustomToast } from '@/app/components/ui/custom-toast';
 
 import { Show } from '@/services/shows-service';
 import { createAdminBooking } from '@/services/booking-service';
+import { downloadTicket } from '@/services/ticket-service';
 
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
@@ -167,6 +168,10 @@ export default function AdminBookingDialog() {
     setSelectedSeats(seats);
   };
 
+  const handleDownloadTicket = () => {
+    downloadTicket(bookingId!, showToast)
+  };
+
   const createBooking = async () => {
     setIsLoading(true);
     try {
@@ -192,10 +197,6 @@ export default function AdminBookingDialog() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const downloadTicket = () => {
-    console.log("Downloading ticket for booking:", bookingId);
   };
 
   const renderStepContent = () => {
@@ -249,7 +250,7 @@ export default function AdminBookingDialog() {
             bookingId={bookingId!}
             bookingStatus="SUCCESS"
             totalPrice={totalPrice}
-            onDownloadTicket={downloadTicket}
+            onDownloadTicket={handleDownloadTicket}
             isAdmin={true}
             customerName={customerName}
           />

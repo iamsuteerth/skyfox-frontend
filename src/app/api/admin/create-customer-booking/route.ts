@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
     
     
     const bookingData = await request.json();
-    console.log(bookingData)
     
     const response = await fetch(`${process.env.API_BASE_URL}/admin/create-customer-booking`, {
       method: 'POST',

@@ -27,6 +27,7 @@ import {
   processCustomerPayment,
   cancelCustomerBooking
 } from '@/services/booking-service';
+import { downloadTicket } from '@/services/ticket-service';
 
 import { DELUXE_OFFSET } from "@/constants";
 import { MovieInfoStep } from '../shared/movie-info-step';
@@ -251,8 +252,8 @@ export default function CustomerBookingDialog() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [currentStep, bookingStatus, bookingId]);
 
-  const downloadTicket = () => {
-    console.log("Downloading ticket for booking:", bookingId);
+  const handleDownloadTicket = () => {
+    downloadTicket(bookingId!, showToast)
   };
 
   const StepIndicator = () => (
@@ -338,7 +339,7 @@ export default function CustomerBookingDialog() {
                   : "FAILED"
             }
             totalPrice={totalPrice}
-            onDownloadTicket={downloadTicket}
+            onDownloadTicket={handleDownloadTicket}
           />
         );
     }
