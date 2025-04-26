@@ -21,8 +21,8 @@ import { createAdminBooking } from '@/services/booking-service';
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
 import CustomerDetailsStep from './components/customer-details-step';
-import BookingSuccessStep from './components/booking-success-step';
 import { validateName, validatePhone } from '@/utils/validators';
+import { BookingFinalStep } from '../shared/booking-final-step';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -45,7 +45,7 @@ export default function AdminBookingDialog() {
   const [nameError, setNameError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<number | null>(null);
   const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
 
   const [totalPrice, setTotalPrice] = useState(show.cost * numberOfSeats);
@@ -238,14 +238,16 @@ export default function AdminBookingDialog() {
 
       case BookingStep.SUCCESS:
         return (
-          <BookingSuccessStep
+          <BookingFinalStep
             show={show}
             selectedSeats={selectedSeats}
-            numberOfSeats={numberOfSeats}
-            bookingId={bookingId || ''}
-            customerName={customerName}
-            onDownloadTicket={downloadTicket}
+            bookingId={bookingId!}
+            bookingStatus="SUCCESS"
             totalPrice={totalPrice}
+            onDownloadTicket={downloadTicket}
+            onClose={closeDialog}
+            isAdmin={true}
+            customerName={customerName}
           />
         );
     }

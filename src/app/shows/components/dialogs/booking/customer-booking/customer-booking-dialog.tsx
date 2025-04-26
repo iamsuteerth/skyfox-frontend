@@ -24,7 +24,7 @@ import { DELUXE_OFFSET } from "@/constants";
 import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-import { BookingFinalStep } from './components/booking-final-step';
+import { BookingFinalStep } from '../shared/booking-final-step';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -199,6 +199,9 @@ export default function CustomerBookingDialog() {
       setBookingStatus(BookingStatus.SUCCESS);
       setCurrentStep(BookingStep.CONFIRMATION);
     } catch (error) {
+      try {
+        await cancelCustomerBooking(bookingId!);
+      } catch (cancelErr) { }
       setBookingStatus(BookingStatus.FAILED);
       setCurrentStep(BookingStep.CONFIRMATION);
     } finally {
@@ -322,8 +325,7 @@ export default function CustomerBookingDialog() {
           <BookingFinalStep
             show={show}
             selectedSeats={selectedSeats}
-            numberOfSeats={numberOfSeats}
-            bookingId={bookingId || 0}
+            bookingId={bookingId!}
             bookingStatus={
               bookingStatus === BookingStatus.SUCCESS
                 ? "SUCCESS"

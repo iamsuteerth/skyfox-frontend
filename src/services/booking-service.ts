@@ -89,7 +89,7 @@ export const createAdminBooking = async (
   seatNumbers: string[],
   amountPaid: number,
   showToast?: Function
-): Promise<{ success: boolean; bookingId?: string; error?: string }> => {
+): Promise<{ success: boolean; bookingId?: number; error?: string }> => {
   try {
     const response = await fetch(API_ROUTES.ADMIN_CREATE_BOOKING, {
       method: 'POST',
