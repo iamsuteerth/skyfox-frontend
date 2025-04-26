@@ -11,7 +11,6 @@ interface BookingFinalStepProps {
   bookingStatus: "SUCCESS" | "TIMEOUT" | "FAILED";
   totalPrice: number;
   onDownloadTicket?: () => void;
-  onClose: () => void;
   isAdmin?: boolean;
   customerName?: string;
 }
@@ -23,7 +22,6 @@ export const BookingFinalStep: React.FC<BookingFinalStepProps> = ({
   bookingStatus,
   totalPrice,
   onDownloadTicket,
-  onClose,
   isAdmin = false,
   customerName,
 }) => (

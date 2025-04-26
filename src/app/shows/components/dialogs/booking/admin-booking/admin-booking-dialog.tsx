@@ -23,6 +23,7 @@ import { SeatSelectionStep } from '../shared/seat-selection-step';
 import CustomerDetailsStep from './components/customer-details-step';
 import { validateName, validatePhone } from '@/utils/validators';
 import { BookingFinalStep } from '../shared/booking-final-step';
+import { useShows } from '@/contexts/shows-contex';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -33,6 +34,7 @@ enum BookingStep {
 
 export default function AdminBookingDialog() {
   const { closeDialog, dialogData } = useDialog();
+  const { refreshShows } = useShows();
   const show = dialogData?.show as Show;
   const { showToast } = useCustomToast();
 
@@ -53,6 +55,11 @@ export default function AdminBookingDialog() {
   const DELUXE_OFFSET = 150.0;
 
   if (!show) return null;
+
+  const handleFinalStepClose = () => {
+    refreshShows();
+    closeDialog();
+  };
 
   const handlePriceUpdate = useCallback((newTotalPrice: number, newDeluxeCount: number) => {
     setTotalPrice(newTotalPrice);
@@ -245,7 +252,6 @@ export default function AdminBookingDialog() {
             bookingStatus="SUCCESS"
             totalPrice={totalPrice}
             onDownloadTicket={downloadTicket}
-            onClose={closeDialog}
             isAdmin={true}
             customerName={customerName}
           />
@@ -291,7 +297,7 @@ export default function AdminBookingDialog() {
   return (
     <Modal
       isOpen={true}
-      onClose={closeDialog}
+      onClose={currentStep === BookingStep.SUCCESS ? handleFinalStepClose : closeDialog}
       size="xl"
       scrollBehavior="inside"
       isCentered

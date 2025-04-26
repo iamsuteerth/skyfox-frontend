@@ -25,6 +25,7 @@ import { MovieInfoStep } from '../shared/movie-info-step';
 import { SeatSelectionStep } from '../shared/seat-selection-step';
 import { useCustomToast } from '@/app/components/ui/custom-toast';
 import { BookingFinalStep } from '../shared/booking-final-step';
+import { useShows } from '@/contexts/shows-contex';
 
 enum BookingStep {
   MOVIE_INFO = 0,
@@ -42,6 +43,7 @@ enum BookingStatus {
 
 export default function CustomerBookingDialog() {
   const { closeDialog, dialogData } = useDialog();
+  const { refreshShows } = useShows();
   const show = dialogData?.show as Show;
   const { showToast } = useCustomToast();
 
@@ -65,6 +67,11 @@ export default function CustomerBookingDialog() {
   const [cardholderName, setCardholderName] = useState('');
 
   const [isPaymentFormValid, setIsPaymentFormValid] = useState(false);
+
+  const handleFinalStepClose = () => {
+    refreshShows();
+    closeDialog();
+  };
 
   const handlePriceUpdate = useCallback((price: number, deluxe: number) => {
     setTotalPrice(price);
@@ -335,7 +342,6 @@ export default function CustomerBookingDialog() {
             }
             totalPrice={totalPrice}
             onDownloadTicket={downloadTicket}
-            onClose={closeDialog}
           />
         );
     }
@@ -346,7 +352,7 @@ export default function CustomerBookingDialog() {
   return (
     <Modal
       isOpen={true}
-      onClose={canCloseModal ? closeDialog : () => { }}
+      onClose={canCloseModal ? bookingStatus === BookingStatus.SUCCESS ? handleFinalStepClose : closeDialog : () => { }}
       closeOnOverlayClick={canCloseModal}
       closeOnEsc={canCloseModal}
       size="xl"
