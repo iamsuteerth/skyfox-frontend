@@ -7,6 +7,7 @@ export const API_ROUTES = {
   FORGOT_PASSWORD: '/api/forgot-password',
   PROFILE_IMAGE: '/api/customer/profile-image',
   SHOWS: '/api/shows',
+  SHOW: '/api/show',
   MOVIES: '/api/shows/movies',
   SLOTS: '/api/slot',
   PROFILE: '/api/profile',
@@ -34,7 +35,10 @@ export const APP_ROUTES = {
   SHOWS: `/shows`,
   SIGNUP: `/signup`,
   FORGOT_PASSWORD: `/forgot-password`,
-  PROFILE: `/profile`
+  PROFILE: `/profile`,
+  DASHBOARD: `/dashboard`,
+  CHECK_IN: `/check-in`,
+  MY_BOOKINGS: `/my-bookings`,
 };
 
 export const ERROR_MESSAGES = {

@@ -32,6 +32,7 @@ import { ROLES } from '@/constants';
 
 import ProfileImage from '@/app/components/profile-image';
 import { RoleBasedElement } from '@/app/components/auth/role-based-element';
+import LatestBookingCard from './latest-booking-card';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -244,39 +245,8 @@ const Profile: React.FC = () => {
                 </VStack>
               </CardBody>
             </Card>
-
             <RoleBasedElement allowedRoles={[ROLES.CUSTOMER]}>
-              <Card bg="background.primary" borderColor="surface.light" borderWidth="1px">
-                <CardBody>
-                  <VStack spacing={4} align="stretch">
-                    <Flex justify="space-between" align="center">
-                      <Heading size="md" color="text.primary">My Bookings</Heading>
-                    </Flex>
-
-                    <Divider borderColor="surface.light" />
-
-                    <Box
-                      p={6}
-                      textAlign="center"
-                      borderWidth="1px"
-                      borderStyle="dashed"
-                      borderColor="surface.medium"
-                      borderRadius="md"
-                    >
-                      <Text color="text.tertiary" mb={3}>
-                        Your latest bookings!
-                      </Text>
-                      <Button
-                        colorScheme="primary"
-                        variant="outline"
-                        isDisabled={true}
-                      >
-                        (Coming Soon)
-                      </Button>
-                    </Box>
-                  </VStack>
-                </CardBody>
-              </Card>
+              <LatestBookingCard/>
             </RoleBasedElement>
           </VStack>
         </Box>

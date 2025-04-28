@@ -60,6 +60,49 @@ export interface PaymentRequest {
   cardholder_name: string;
 }
 
+export interface Booking {
+  booking_id: number;
+  show_id: number;
+  show_date: string;
+  show_time: string;
+  seat_numbers: string[];
+  amount_paid: number;
+  payment_type: string;
+  booking_time: string;
+  status: string;
+  movie_name?: string;
+  poster_url?: string;
+}
+
+export interface BookingsResponse {
+  message: string;
+  request_id: string;
+  status: string;
+  data: Booking[];
+}
+
+export const getCustomerBookings = async (): Promise<Booking[]> => {
+  try {
+    const res = await fetch('/api/customer/bookings');
+    const data = await res.json();
+    if (data.status !== "SUCCESS") throw data;
+    return data.data;
+  } catch (err) {
+    throw new Error(handleApiError(err));
+  }
+};
+
+export const getLatestCustomerBooking = async (): Promise<Booking | null> => {
+  try {
+    const res = await fetch('/api/customer/bookings/latest');
+    const data = await res.json();
+    if (data.status !== "SUCCESS") throw data;
+    return data.data ?? null;
+  } catch (err) {
+    throw new Error(handleApiError(err));
+  }
+};
+
 export const getSeatMap = async (showId: number): Promise<SeatMap> => {
   try {
     const response = await fetch(API_ROUTES.GET_SEAT_MAP.replace('{show_id}', showId.toString()), {
@@ -111,7 +154,7 @@ export const createAdminBooking = async (
     }
 
     const data = await response.json();
-    
+
     if (showToast) {
       showToast({
         type: 'success',
@@ -119,7 +162,7 @@ export const createAdminBooking = async (
         description: 'Customer booking has been created'
       });
     }
-    
+
     return {
       success: true,
       bookingId: data.data.booking_id
@@ -226,7 +269,7 @@ export const cancelCustomerBooking = async (
     let data = {};
     try {
       data = await response.json();
-    } catch {}
+    } catch { }
     if (!response.ok || (data && (data as any).status === 'ERROR')) {
       const msg = data && (data as any).message
         ? (data as any).message
@@ -293,7 +336,7 @@ export const getPDFTicket = async (bookingId: number): Promise<string> => {
 
     const data = await response.json();
     if (data.data && data.data.pdf) {
-      return data.data.pdf; 
+      return data.data.pdf;
     }
     throw new Error('No ticket PDF found');
   } catch (error: any) {

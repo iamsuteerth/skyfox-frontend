@@ -1,7 +1,6 @@
 'use client';
 
 import NextLink from 'next/link';
-import router from 'next/router';
 import { usePathname } from 'next/navigation';
 
 import {
@@ -27,6 +26,7 @@ import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { useAuth } from '@/contexts/auth-context';
 import { APP_ROUTES, ROLES } from '@/constants';
 import ProfileImage from '@/app/components/profile-image';
+import { RoleBasedElement } from './auth/role-based-element';
 
 const formatRole = (role?: string) => {
   if (!role) return '';
@@ -43,11 +43,9 @@ export default function Header() {
 
   const validRoutes = {
     shows: APP_ROUTES.SHOWS,
-  };
-
-  const handleShowsClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    router.push('/shows');
+    my_bookings: APP_ROUTES.MY_BOOKINGS,
+    checkin: APP_ROUTES.CHECK_IN,
+    dashboard: APP_ROUTES.DASHBOARD,
   };
 
   const isActive = (route: string) => pathname === route;
@@ -89,6 +87,33 @@ export default function Header() {
             >
               Shows
             </Button>
+            <RoleBasedElement allowedRoles={[ROLES.CUSTOMER]}>
+              <Button
+                as={NextLink}
+                href={APP_ROUTES.MY_BOOKINGS}
+                variant={isActive(validRoutes.my_bookings) ? "solid" : "ghost"}
+              >
+                My Bookings
+              </Button>
+            </RoleBasedElement>
+            {/* <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
+              <Button
+                as={NextLink}
+                href={APP_ROUTES.DASHBOARD}
+                variant={isActive(validRoutes.dashboard) ? "solid" : "ghost"}
+              >
+                Dashboard
+              </Button>
+            </RoleBasedElement>
+            <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
+              <Button
+                as={NextLink}
+                href={APP_ROUTES.CHECK_IN}
+                variant={isActive(validRoutes.checkin) ? "solid" : "ghost"}
+              >
+                Check In
+              </Button>
+            </RoleBasedElement> */}
           </HStack>
         </HStack>
         <Flex alignItems={'center'}>
@@ -132,10 +157,40 @@ export default function Header() {
               as={NextLink}
               href={APP_ROUTES.SHOWS}
               w="full"
-              variant="ghost"
+              variant={isActive(validRoutes.shows) ? "solid" : "ghost"}
             >
               Shows
             </Button>
+            <RoleBasedElement allowedRoles={[ROLES.CUSTOMER]}>
+              <Button
+                as={NextLink}
+                href={APP_ROUTES.MY_BOOKINGS}
+                 w="full"
+                variant={isActive(validRoutes.my_bookings) ? "solid" : "ghost"}
+              >
+                My Bookings
+              </Button>
+            </RoleBasedElement>
+            {/* <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
+              <Button
+                as={NextLink}
+                href={APP_ROUTES.DASHBOARD}
+                 w="full"
+                variant={isActive(validRoutes.dashboard) ? "solid" : "ghost"}
+              >
+                Dashboard
+              </Button>
+            </RoleBasedElement>
+            <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
+              <Button
+                as={NextLink}
+                href={APP_ROUTES.CHECK_IN}
+                 w="full"
+                variant={isActive(validRoutes.checkin) ? "solid" : "ghost"}
+              >
+                Check In
+              </Button>
+            </RoleBasedElement> */}
           </Stack>
         </Box>
       )}

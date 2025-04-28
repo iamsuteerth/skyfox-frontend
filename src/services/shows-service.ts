@@ -32,7 +32,13 @@ interface FetchShowsResult {
   success: boolean;
   data?: Show[];
   error?: string;
-  resetToToday?:boolean;
+  resetToToday?: boolean;
+}
+
+interface FetchShowResult {
+  success: boolean;
+  data?: Show;
+  error?: string;
 }
 
 interface FetchMoviesResult {
@@ -66,9 +72,9 @@ export const fetchShows = async (
 ): Promise<FetchShowsResult> => {
   try {
     const formattedDate = date ? formatDateForAPI(date) : formatDateForAPI(new Date());
-    
+
     const url = `${API_ROUTES.SHOWS}?date=${formattedDate}`;
-    
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -93,7 +99,7 @@ export const fetchShows = async (
             title: 'Date Error',
             description: data.message || 'Customers can only view shows from today to the next 6 days',
           });
-        } 
+        }
         const today = new Date();
         const todayFormatted = formatDateForAPI(today);
         const currentUrl = new URL(window.location.href);
@@ -105,7 +111,7 @@ export const fetchShows = async (
           resetToToday: true,
         };
       }
-      
+
       throw new Error(data.message || 'An error occurred while fetching shows');
     }
 
@@ -113,7 +119,7 @@ export const fetchShows = async (
 
   } catch (error: any) {
     console.error('Error fetching shows:', error);
-    
+
     if (showToast) {
       showToast({
         type: 'error',
@@ -121,7 +127,54 @@ export const fetchShows = async (
         description: error.message || handleApiError(error),
       });
     }
-    
+
+    return {
+      success: false,
+      error: error.message || handleApiError(error)
+    };
+  }
+};
+
+export const fetchShowById = async (
+  id: number,
+  showToast?: Function
+): Promise<FetchShowResult> => {
+  try {
+    const url = `${API_ROUTES.SHOW}?id=${id}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'SUCCESS') {
+      return {
+        success: true,
+        data: data.data
+      };
+    }
+
+    if (data.status === 'ERROR') {
+      throw new Error(data.message || 'An error occurred while fetching show');
+    }
+
+    throw new Error('Unexpected response from server');
+
+  } catch (error: any) {
+    console.error('Error fetching shows:', error);
+
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Failed to Load Show',
+        description: error.message || handleApiError(error),
+      });
+    }
+
     return {
       success: false,
       error: error.message || handleApiError(error)
@@ -132,12 +185,12 @@ export const fetchShows = async (
 export const isDateWithinAllowedRange = (date: Date): boolean => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const maxDate = new Date(today);
   maxDate.setDate(today.getDate() + 6);
-  
-  date.setHours(0, 0, 0, 0); 
-  
+
+  date.setHours(0, 0, 0, 0);
+
   return date >= today && date <= maxDate;
 };
 
@@ -163,7 +216,7 @@ export const fetchMovies = async (showToast?: Function): Promise<FetchMoviesResu
 
   } catch (error: any) {
     console.error('Error fetching movies:', error);
-    
+
     if (showToast) {
       showToast({
         type: 'error',
@@ -171,7 +224,7 @@ export const fetchMovies = async (showToast?: Function): Promise<FetchMoviesResu
         description: error.message || handleApiError(error),
       });
     }
-    
+
     return {
       success: false,
       error: error.message || handleApiError(error)
@@ -183,7 +236,7 @@ export const fetchSlots = async (date: Date, showToast?: Function): Promise<Fetc
   try {
     const formattedDate = formatDateForAPI(date);
     const url = `${API_ROUTES.SLOTS}?date=${formattedDate}`;
-    
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -204,7 +257,7 @@ export const fetchSlots = async (date: Date, showToast?: Function): Promise<Fetc
 
   } catch (error: any) {
     console.error('Error fetching slots:', error);
-    
+
     if (showToast) {
       showToast({
         type: 'error',
@@ -212,7 +265,7 @@ export const fetchSlots = async (date: Date, showToast?: Function): Promise<Fetc
         description: error.message || handleApiError(error),
       });
     }
-    
+
     return {
       success: false,
       error: error.message || handleApiError(error)
@@ -250,7 +303,7 @@ export const createShow = async (showData: CreateShowData, showToast?: Function)
 
   } catch (error: any) {
     console.error('Error creating show:', error);
-    
+
     if (showToast) {
       showToast({
         type: 'error',
@@ -258,7 +311,7 @@ export const createShow = async (showData: CreateShowData, showToast?: Function)
         description: error.message || handleApiError(error),
       });
     }
-    
+
     return {
       success: false,
       error: error.message || handleApiError(error)

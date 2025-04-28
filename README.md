@@ -19,35 +19,42 @@ The platform features a comprehensive show management system that allows adminis
 - Set ticket prices
 - View real-time updates of the show schedule
 
-### 🎟️ Booking Management Sytem
+### 🎟️ Booking Management System
 
 #### 🪑 Modular & Real-Time Booking
 
-- **Multi-step Booking Dialogs:** Stepwise, interactive booking for both admin and customer flows-including movie info, seat selection, customer/payment details, and unified confirmations.
-- **Interactive Seat Map:** Real-time seat map with clear Standard/Deluxe indicators and seat type-aware pricing.
-- **Deluxe Seat Pricing:** Deluxe seats automatically add a configurable price offset, reflected live in all booking flows and summaries.
-- **Booking Initialization & Seat Locking:** Seat locks are performed automatically when seats are selected; locks are released on failure, cancellation, close, or timeout.
-- **Concurrent Booking Handling:** Backend and UI logic ensure seat locks and booking states are always accurate, even under high-traffic conditions.
+- **Multi-Step Dialogs:** Intuitive, interactive stepwise dialogs for both admin and customer booking flows-including movie info, seat selection, customer/payment details, and unified confirmation screens.
+- **Live Seat Map & Pricing:** Instantly updated, interactive seat maps with clear Standard/Deluxe indicators and live, seat-type-aware pricing.
+- **Deluxe Seat Handling:** Deluxe seats automatically add a configurable price premium, reflected in all calculations and summaries.
+- **Automatic Seat Locking:** Seats are locked in real time upon selection and released promptly on cancellation, timeout, or booking failure.
+- **Concurrent Booking Safe:** Advanced backend and frontend logic ensure reliable seat locks and booking states even under concurrent, high-traffic conditions.
 
-#### 💳 Payment Flow & User Experience
+### 🗂️ My Bookings & Latest Booking
+- **Full Booking History:** Customers can view all their bookings-upcoming and completed-on a single, filterable page.
+- **Profile Card:** Latest booking is always highlighted in the profile for quick access and convenience.
+- **Details, QR, and Download:** Instantly access booking details, QR codes, and PDF tickets from both the "My Bookings" page and your profile.
+- **Smart, User-Friendly Filtering:** Tabs filter bookings based on real movie times for a truly helpful experience.
+- **Elegant Fallbacks:** Clean fallback UI for users with no bookings yet.
 
-- **Robust Payment Forms:** Custom credit card validation for number, expiry, CVV, and name-with clean, error-under-the-field UI.
-- **Retry and Timeout Support:** Users can retry a failed payment if time permits; booking will time out gracefully if payment is not completed.
-- **Strict Cancel Semantics:** Bookings are canceled only on explicit cancel actions or browser/tab close. The backend manages timeouts automatically.
+#### 💳 Seamless & Robust Payment Flow
+
+- **Validated Payment Forms:** Clean, custom credit card forms with inline validation for number, expiry, CVV, and name-error messages appear directly under inputs.
+- **Graceful Retry & Timeout:** Payment failures let users retry if time remains; timeouts are handled gracefully without messy UI errors.
+- **Clear Cancel Handling:** Bookings are canceled only on explicit user action or browser/tab close; backend handles all timeout logic.
 
 #### 🧾 Downloadable PDF Tickets
 
-- **Post-Booking Ticket Download:** Users can download their ticket instantly after a successful booking. The ticket is generated as a base64-encoded PDF and served directly through a secure proxy route.
-- **Cross-browser Compatibility:** Download logic is robust and works on all modern browsers.
+- **Instant Post-Booking Tickets:** Customers and admins can download tickets as PDF immediately after booking, served securely via proxy.
+- **Cross-Browser Download:** Ticket downloads are robust and work perfectly on all modern browsers.
 
 #### 🔁 Live Data Refresh
 
-- **Auto-Refresh on Booking:** After a successful booking (admin or customer), closing the dialog automatically refreshes seat availability and show lists across the app-no reload necessary.
+- **Automatic UI Updates:** After any booking, all relevant seat maps and show lists refresh instantly throughout the app-no reloads or manual refresh required.
 
-#### 🎨 Unified, Role-aware UI
+#### 🎨 Unified, Role-Aware Experience
 
-- **Shared Booking Confirmation:** Both admin and customer flows use the same confirmation layout, automatically adjusting message and details for context.
-- **Role-aware Logic:** All booking, management, and dialog flows adapt to the user’s role for seamless admin/staff/customer experiences.
+- **Consistent Confirmation:** Both admin and customer flows use a single, unified confirmation component that automatically adapts text and details for the user’s role.
+- **Role-Based Logic Everywhere:** Booking, management, and dialog flows automatically adapt to admin, staff, or customer context for a smooth, personalized experience.
 
 
 ### 🎭 Component Architecture
