@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
+    console.error('Customer latest booking API error: ', error);
     return NextResponse.json(
       { status: 'ERROR', message: 'Internal server error' },
       { status: 500 }

@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
 
-interface CustomToastOptions extends Omit<UseToastOptions, 'status' | 'render'> {
+export interface CustomToastOptions extends Omit<UseToastOptions, 'status' | 'render'> {
   type: ToastType;
   title?: string;
   description?: string;

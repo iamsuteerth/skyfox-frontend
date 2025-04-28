@@ -18,11 +18,13 @@ import {
 
 import { Booking, getQRCode } from '@/services/booking-service';
 
+import type { CustomToastOptions } from '@/app/components/ui/custom-toast';
+
 interface Props {
   booking: Booking | null;
   isOpen: boolean;
   onClose: () => void;
-  showToast?: Function;
+  showToast?: (args: CustomToastOptions) => void;
 }
 
 export default function QRModal({ booking, isOpen, onClose, showToast }: Props) {
@@ -37,11 +39,13 @@ export default function QRModal({ booking, isOpen, onClose, showToast }: Props) 
         .then(setBase64QR)
         .catch(err => {
           setQRError(typeof err === 'string' ? err : (err.message || "Failed to load QR code"));
-          showToast && showToast({
-            type: 'error',
-            title: 'QR Error',
-            description: typeof err === 'string' ? err : (err.message || "Failed to load QR code")
-          });
+          if(showToast){
+            showToast({
+              type: 'error',
+              title: 'QR Error',
+              description: typeof err === 'string' ? err : (err.message || "Failed to load QR code")
+            });
+          }
         })
         .finally(() => setLoading(false));
     } else {

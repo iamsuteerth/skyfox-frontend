@@ -2,20 +2,35 @@
 
 import { useEffect, useState } from "react";
 import {
-  Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody,
-  VStack, Box, Text, Spinner, Badge, Image, HStack, Card, CardBody,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  VStack,
+  Box, 
+  Text, 
+  Spinner, 
+  Badge, 
+  Image, 
+  HStack, 
+  Card, 
+  CardBody,
   Center
 } from "@chakra-ui/react";
+
 import { Booking } from '@/services/booking-service';
 import { fetchShowById, Show } from "@/services/shows-service";
 import { formatTimestampToOrdinalDate, formatTimeForDisplay, formatDuration } from '@/utils/date-utils';
 import { getBookingDerivedStatus } from '@/utils/booking-utils';
+import type { CustomToastOptions } from '@/app/components/ui/custom-toast';
 
 interface Props {
   booking: Booking | null;
   isOpen: boolean;
   onClose: () => void;
-  showToast?: Function;
+  showToast?: (args: CustomToastOptions) => void;
 }
 
 export default function BookingDetailsModal({ booking, isOpen, onClose, showToast }: Props) {
@@ -45,7 +60,7 @@ export default function BookingDetailsModal({ booking, isOpen, onClose, showToas
 
   if (!booking) return null;
 
-  const status = getBookingDerivedStatus(booking); 
+  const status = getBookingDerivedStatus(booking);
   const statusColor = status === 'UPCOMING' ? 'secondary' : 'success';
 
   return (
