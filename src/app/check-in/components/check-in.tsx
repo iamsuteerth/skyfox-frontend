@@ -1,173 +1,119 @@
 'use client';
 
 import { useState } from "react";
-import { 
-  Box, 
-  Heading, 
-  Tabs, 
-  TabList, 
-  TabPanels, 
-  Tab, 
-  TabPanel,
-  Input,
-  Button,
+
+import {
+  Box,
+  Card,
+  CardBody,
   VStack,
-  HStack,
-  Text,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  Flex,
-  Badge
+  Heading,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  useBreakpointValue,
+  Divider
 } from "@chakra-ui/react";
-import { SearchIcon, CheckIcon } from "@chakra-ui/icons";
+
+import ManualCheckInTab from "./manual-check-in-tab";
+import ScanQRTab from "./scan-qr-tab";
 
 export default function CheckIn() {
-  const [ticketId, setTicketId] = useState("");
-  const [scanning, setScanning] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  
-  const handleManualCheck = () => {
-    // Implementation for manual check-in
-    console.log("Checking in ticket:", ticketId);
-    onOpen();
-  };
-  
-  const startScanning = () => {
-    setScanning(true);
-    // Implementation for QR scanning would go here
-    // After scanning is complete:
-    // setScanning(false);
-    // onOpen(); // Open the modal with ticket info
-  };
-  
-  const completeCheckIn = () => {
-    onClose();
-    setTicketId("");
-  };
-  
+  const tabFontSize = useBreakpointValue({ base: "sm", md: "md" });
+  const cardPx = useBreakpointValue({ base: 1, sm: 3, md: 6 });
+  const cardPy = useBreakpointValue({ base: 2, sm: 4, md: 8 });
+  const maxW = useBreakpointValue({ base: "100%", md: "1000px", xl: "1240px" });
+
+  const [tabIndex, setTabIndex] = useState(0);
+
   return (
-    <Box>
-      <Heading as="h1" size="xl" color="text.primary" mb={8}>Ticket Check-In</Heading>
-      
-      <Tabs colorScheme="teal">
-        <TabList>
-          <Tab>Manual Check-In</Tab>
-          <Tab>Scan QR Code</Tab>
-        </TabList>
-        
-        <TabPanels>
-          <TabPanel>
-            <VStack spacing={4} align="flex-start">
-              <Text color="text.primary">Enter ticket ID or booking reference:</Text>
-              <HStack w="full">
-                <Input 
-                  placeholder="Ticket ID or reference number" 
-                  value={ticketId} 
-                  onChange={(e) => setTicketId(e.target.value)}
-                  bg="surface.input"
-                  color="text.primary"
-                  flex="1"
-                />
-                <Button 
-                  leftIcon={<SearchIcon />} 
-                  colorScheme="teal" 
-                  onClick={handleManualCheck}
-                  isDisabled={!ticketId.trim()}
-                >
-                  Verify
-                </Button>
-              </HStack>
-            </VStack>
-          </TabPanel>
-          
-          <TabPanel>
-            <Box textAlign="center" py={8}>
-              {!scanning ? (
-                <VStack spacing={6}>
-                  <Text color="text.primary">Click below to activate camera and scan ticket QR code</Text>
-                  <Button 
-                    colorScheme="teal" 
-                    size="lg" 
-                    onClick={startScanning}
-                  >
-                    Start Scanning
-                  </Button>
-                </VStack>
-              ) : (
-                <VStack spacing={6}>
-                  <Box 
-                    border="2px dashed" 
-                    borderColor="teal.500" 
-                    w="300px" 
-                    h="300px" 
-                    display="flex" 
-                    alignItems="center" 
-                    justifyContent="center"
-                  >
-                    <Text color="text.primary">Camera feed will appear here</Text>
-                  </Box>
-                  <Button colorScheme="red" onClick={() => setScanning(false)}>
-                    Cancel Scanning
-                  </Button>
-                </VStack>
-              )}
-            </Box>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-      
-      {/* Ticket Verification Modal */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent bg="surface.primary">
-          <ModalHeader color="text.primary">Ticket Verification</ModalHeader>
-          <ModalCloseButton color="text.primary" />
-          <ModalBody>
-            <VStack spacing={4} align="stretch">
-              <Box bg="surface.secondary" p={4} borderRadius="md">
-                <Flex justify="space-between" mb={2}>
-                  <Text color="text.secondary" fontWeight="bold">Movie:</Text>
-                  <Text color="text.primary">Avengers: Endgame</Text>
-                </Flex>
-                <Flex justify="space-between" mb={2}>
-                  <Text color="text.secondary" fontWeight="bold">Date & Time:</Text>
-                  <Text color="text.primary">27 Apr, 2025 - 7:30 PM</Text>
-                </Flex>
-                <Flex justify="space-between" mb={2}>
-                  <Text color="text.secondary" fontWeight="bold">Seats:</Text>
-                  <Text color="text.primary">C4, C5</Text>
-                </Flex>
-                <Flex justify="space-between">
-                  <Text color="text.secondary" fontWeight="bold">Status:</Text>
-                  <Badge colorScheme="green">Valid</Badge>
-                </Flex>
-              </Box>
-              
-              <Text color="text.primary" fontWeight="bold" textAlign="center">
-                Ticket is valid and ready for check-in
-              </Text>
-            </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button 
-              colorScheme="teal" 
-              leftIcon={<CheckIcon />} 
-              onClick={completeCheckIn}
+    <Box
+      bg="background.primary"
+      minH="100vh"
+      py={{ base: 2, md: 8 }}
+      px={{ base: 0, md: 4 }}
+      transition="background 0.3s"
+    >
+      <Card
+        bg="background.primary"
+        borderRadius="xl"
+        boxShadow="sm"
+        maxW={maxW}
+        mx="auto"
+        my={2}
+        borderWidth="1px"
+        borderColor="surface.light"
+      >
+        <CardBody px={cardPx} py={cardPy}>
+          <VStack align="stretch" spacing={6}>
+            <Heading
+              size="lg"
+              color="text.primary"
+              fontWeight={600}
+              lineHeight={1.2}
             >
-              Complete Check-In
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+              Manage Booking Check-In
+            </Heading>
+            <Divider borderColor="surface.light" />
+            <Tabs
+              isFitted
+              variant="unstyled"
+              w="100%"
+              index={tabIndex}
+              onChange={setTabIndex}
+              isLazy
+            >
+              <TabList
+                mb={2}
+                borderBottomWidth="1px"
+                borderColor="surface.light"
+                bg="transparent"
+              >
+                <Tab
+                  fontSize={tabFontSize}
+                  color="text.secondary"
+                  _selected={{
+                    color: "primary",
+                    borderBottom: "2px solid",
+                    borderColor: "primary",
+                    bg: "transparent",
+                    fontWeight: "semibold",
+                  }}
+                  _focus={{ boxShadow: "none" }}
+                  bg="transparent"
+                >
+                  Manual Check-In
+                </Tab>
+                <Tab
+                  fontSize={tabFontSize}
+                  color="text.secondary"
+                  _selected={{
+                    color: "primary",
+                    borderBottom: "2px solid",
+                    borderColor: "primary",
+                    bg: "transparent",
+                    fontWeight: "semibold",
+                  }}
+                  _focus={{ boxShadow: "none" }}
+                  bg="transparent"
+                >
+                  Scan QR
+                </Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel px={0} py={{ base: 2, md: 4 }} >
+                  <ManualCheckInTab />
+                </TabPanel>
+                <TabPanel px={0} py={{ base: 2, md: 4 }}>
+                  <ScanQRTab isActive={tabIndex === 1} />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </VStack>
+        </CardBody>
+      </Card>
     </Box>
   );
 }

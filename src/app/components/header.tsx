@@ -104,7 +104,7 @@ export default function Header() {
               >
                 Dashboard
               </Button>
-            </RoleBasedElement>
+            </RoleBasedElement> */}
             <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
               <Button
                 as={NextLink}
@@ -113,7 +113,7 @@ export default function Header() {
               >
                 Check In
               </Button>
-            </RoleBasedElement> */}
+            </RoleBasedElement>
           </HStack>
         </HStack>
         <Flex alignItems={'center'}>
@@ -180,7 +180,7 @@ export default function Header() {
               >
                 Dashboard
               </Button>
-            </RoleBasedElement>
+            </RoleBasedElement> */}
             <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
               <Button
                 as={NextLink}
@@ -190,7 +190,7 @@ export default function Header() {
               >
                 Check In
               </Button>
-            </RoleBasedElement> */}
+            </RoleBasedElement>
           </Stack>
         </Box>
       )}

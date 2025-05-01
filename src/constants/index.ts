@@ -20,7 +20,9 @@ export const API_ROUTES = {
   CANCEL_BOOKING: '/api/customer/booking/{id}/cancel',
   ADMIN_CREATE_BOOKING: '/api/admin/create-customer-booking',
   GET_QR_CODE: '/api/booking/{id}/qr',
-  GET_PDF_TICKET: '/api/booking/{id}/pdf'
+  GET_PDF_TICKET: '/api/booking/{id}/pdf',
+  CHECKIN_BOOKINGS: '/api/check-in/bookings',
+  CHECKIN_SINGLE: '/api/check-in/booking',
 };
 
 export const SEAT_TYPES = {

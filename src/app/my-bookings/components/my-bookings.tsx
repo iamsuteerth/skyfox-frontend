@@ -109,9 +109,47 @@ export default function MyBookings() {
       </Heading>
       <Tabs colorScheme="primary" isFitted variant="enclosed">
         <TabList>
-          <Tab fontWeight="semibold">All Bookings</Tab>
-          <Tab fontWeight="semibold">Upcoming</Tab>
-          <Tab fontWeight="semibold">Completed</Tab>
+          <Tab
+            fontWeight="semibold"
+            color="text.secondary"
+            _selected={{
+              color: "primary",
+              borderBottom: "2px solid",
+              bg: "transparent",
+              fontWeight: "semibold",
+            }}
+            _focus={{ boxShadow: "none" }}
+            bg="transparent">
+            All Bookings
+          </Tab>
+          <Tab
+            fontWeight="semibold"
+            color="text.secondary"
+            _selected={{
+              color: "primary",
+              borderBottom: "2px solid",
+              bg: "transparent",
+              fontWeight: "semibold",
+            }}
+            _focus={{ boxShadow: "none" }}
+            bg="transparent"
+          >
+            Upcoming
+          </Tab>
+          <Tab
+            fontWeight="semibold"
+            color="text.secondary"
+            _selected={{
+              color: "primary",
+              borderBottom: "2px solid",
+              bg: "transparent",
+              fontWeight: "semibold",
+            }}
+            _focus={{ boxShadow: "none" }}
+            bg="transparent"
+          >
+            Completed
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel px={0} py={6}>{renderBookingGrid("ALL")}</TabPanel>
