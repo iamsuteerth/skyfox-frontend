@@ -275,7 +275,7 @@ export const fetchSlots = async (date: Date, showToast?: Function): Promise<Fetc
 
 export const createShow = async (showData: CreateShowData, showToast?: Function): Promise<CreateShowResult> => {
   try {
-    const response = await fetch(API_ROUTES.SHOWS, {
+    const response = await fetch(API_ROUTES.SHOW, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

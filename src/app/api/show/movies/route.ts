@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const url = `${process.env.API_BASE_URL}/shows/movies`;
+    const url = `${process.env.API_BASE_URL}/show/movies`;
     
     const cookies = request.cookies;
     const tokenCookie = cookies.get('auth-token');

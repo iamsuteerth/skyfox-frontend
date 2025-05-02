@@ -8,7 +8,7 @@ export const API_ROUTES = {
   PROFILE_IMAGE: '/api/customer/profile-image',
   SHOWS: '/api/shows',
   SHOW: '/api/show',
-  MOVIES: '/api/shows/movies',
+  MOVIES: '/api/show/movies',
   SLOTS: '/api/slot',
   PROFILE: '/api/profile',
   CHANGE_PASWORD: '/api/change-password',
