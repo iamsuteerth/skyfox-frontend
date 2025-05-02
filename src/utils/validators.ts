@@ -113,7 +113,7 @@ export function validateCardNumber(cardNumber: string): string | null {
     sum += digit;
     shouldDouble = !shouldDouble;
   }
-  if (sum % 10 !== 0) return 'Card number failed Luhn check';
+  if (sum % 10 !== 0) return 'Invalid card number!';
   return null;
 }
 
