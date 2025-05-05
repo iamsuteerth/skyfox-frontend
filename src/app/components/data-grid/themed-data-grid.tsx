@@ -41,7 +41,6 @@ const ThemedDataGrid = ({
     '& .MuiDataGrid-checkboxInput:not(.Mui-disabled)': {
       color: colors.primary,
     },
-    // ⬇️ Minimal, clean scrollbar
     '& .MuiDataGrid-virtualScroller': {
       scrollbarWidth: 'thin',
       scrollbarColor: `${colors.surface?.light} ${colors.background?.primary}`,
