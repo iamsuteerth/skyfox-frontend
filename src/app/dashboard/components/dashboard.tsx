@@ -23,7 +23,6 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState("weekly");
   
   const downloadCSV = () => {
-    // Implementation for CSV download
     console.log("Downloading CSV report...");
   };
   
