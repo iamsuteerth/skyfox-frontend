@@ -107,7 +107,7 @@ export default function MyBookings() {
       <Heading as="h1" size="xl" color="text.primary" mb={8}>
         My Bookings
       </Heading>
-      <Tabs colorScheme="primary" isFitted variant="enclosed">
+      <Tabs colorScheme="primary" isFitted variant="unstyled">
         <TabList>
           <Tab
             fontWeight="semibold"
