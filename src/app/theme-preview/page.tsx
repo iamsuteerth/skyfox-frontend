@@ -105,6 +105,9 @@ export default function ThemePreview() {
                   <Box p={3} bg="info" borderRadius="md" flex="1">
                     <Text color="white">Info</Text>
                   </Box>
+                  <Box p={3} bg="primary" borderRadius="md" flex="1">
+                    <Text color="white">Warning</Text>
+                  </Box>
                 </HStack>
               </Stack>
             </CardBody>

@@ -75,7 +75,7 @@ export const singleCheckIn = async (
       body: JSON.stringify({ booking_id: bookingId })
     });
 
-    if (!response.ok) throw new Error('Bulk check-in failed');
+    if (!response.ok) throw new Error('Single check-in failed');
     const data = await response.json();
     if (data.status === 'SUCCESS') return { success: true, data: data.data };
     throw new Error(data.message);
