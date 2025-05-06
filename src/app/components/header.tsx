@@ -96,7 +96,7 @@ export default function Header() {
                 My Bookings
               </Button>
             </RoleBasedElement>
-            {/* <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
+            <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
               <Button
                 as={NextLink}
                 href={APP_ROUTES.DASHBOARD}
@@ -104,7 +104,7 @@ export default function Header() {
               >
                 Dashboard
               </Button>
-            </RoleBasedElement> */}
+            </RoleBasedElement>
             <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
               <Button
                 as={NextLink}
@@ -171,7 +171,7 @@ export default function Header() {
                 My Bookings
               </Button>
             </RoleBasedElement>
-            {/* <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
+            <RoleBasedElement allowedRoles={[ROLES.ADMIN]}>
               <Button
                 as={NextLink}
                 href={APP_ROUTES.DASHBOARD}
@@ -180,7 +180,7 @@ export default function Header() {
               >
                 Dashboard
               </Button>
-            </RoleBasedElement> */}
+            </RoleBasedElement>
             <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
               <Button
                 as={NextLink}

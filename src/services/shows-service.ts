@@ -273,6 +273,46 @@ export const fetchSlots = async (date: Date, showToast?: Function): Promise<Fetc
   }
 };
 
+export const fetchAllSlots = async (showToast?: Function): Promise<FetchSlotsResult> => {
+  try {
+    const url = `${API_ROUTES.ALL_SLOTS}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'SUCCESS') {
+      return {
+        success: true,
+        data: data.data
+      };
+    }
+
+    throw new Error(data.message || 'An error occurred while fetching slots');
+
+  } catch (error: any) {
+    console.error('Error fetching slots:', error);
+
+    if (showToast) {
+      showToast({
+        type: 'error',
+        title: 'Failed to Load Slots',
+        description: error.message || handleApiError(error),
+      });
+    }
+
+    return {
+      success: false,
+      error: error.message || handleApiError(error)
+    };
+  }
+};
+
 export const createShow = async (showData: CreateShowData, showToast?: Function): Promise<CreateShowResult> => {
   try {
     const response = await fetch(API_ROUTES.SHOW, {
