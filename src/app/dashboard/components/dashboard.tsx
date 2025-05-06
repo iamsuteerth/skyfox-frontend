@@ -1,91 +1,84 @@
 'use client';
 
-import { useState } from "react";
-import { 
-  Box, 
-  Heading, 
-  SimpleGrid, 
-  Stat, 
-  StatLabel, 
-  StatNumber, 
-  StatHelpText, 
-  Tabs, 
-  TabList, 
-  TabPanels, 
-  Tab, 
-  TabPanel,
-  Button,
-  Flex
-} from "@chakra-ui/react";
-import { DownloadIcon } from "@chakra-ui/icons";
+import React, { useState, useEffect } from 'react';
 
-export default function Dashboard() {
-  const [timeRange, setTimeRange] = useState("weekly");
-  
-  const downloadCSV = () => {
-    console.log("Downloading CSV report...");
-  };
-  
+import {
+  VStack,
+  Grid,
+  GridItem,
+  useBreakpointValue,
+  Box,
+  Heading
+} from '@chakra-ui/react';
+
+import { useCustomToast } from '@/app/components/ui/custom-toast';
+
+import { fetchRevenueSummary } from '@/services/revenue-service';
+import { RevenueSummary } from '@/services/revenue-service';
+
+import HeaderStats from './header-stats';
+import CsvReportArea from './csv-report-area';
+import StatsVisualization from './stats-visualization';
+
+const Dashboard = () => {
+  const { showToast } = useCustomToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [summaryData, setSummaryData] = useState<RevenueSummary | null>(null);
+
+  useEffect(() => {
+    const loadSummaryData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchRevenueSummary(showToast);
+        setSummaryData(data);
+      } catch (error) {
+        console.error('Failed to load summary data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSummaryData();
+  }, [showToast]);
+
+  const layout = useBreakpointValue({
+    base: 'mobile',
+    md: 'desktop'   
+  });
+
+  const containerBg = useBreakpointValue({
+    base: 'transparent',
+    md: 'background.primary'
+  });
+
   return (
-    <Box>
-      <Flex justify="space-between" align="center" mb={8}>
-        <Heading as="h1" size="xl" color="text.primary">Dashboard</Heading>
-        <Button 
-          leftIcon={<DownloadIcon />} 
-          colorScheme="teal" 
-          onClick={downloadCSV}
+    <Box py={4} px={{ base: 2, md: 6 }}>
+      <VStack w="full" spacing={6} align="flex-start">
+        <Heading size="lg" color="text.primary" mb={2}>
+          Admin Dashboard
+        </Heading>
+
+        <HeaderStats
+          isLoading={isLoading}
+          summaryData={summaryData}
+        />
+
+        <Grid
+          templateColumns={layout === 'desktop' ? 'repeat(3, 1fr)' : 'repeat(1, 1fr)'}
+          gap={6}
+          w="full"
         >
-          Download Report
-        </Button>
-      </Flex>
-      
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} mb={8}>
-        <Stat bg="surface.primary" p={5} borderRadius="md" boxShadow="md">
-          <StatLabel color="text.secondary">Total Revenue</StatLabel>
-          <StatNumber color="text.primary">₹243,500</StatNumber>
-          <StatHelpText color="green.500">+14.3% from last week</StatHelpText>
-        </Stat>
-        
-        <Stat bg="surface.primary" p={5} borderRadius="md" boxShadow="md">
-          <StatLabel color="text.secondary">Tickets Sold</StatLabel>
-          <StatNumber color="text.primary">1,245</StatNumber>
-          <StatHelpText color="green.500">+7.5% from last week</StatHelpText>
-        </Stat>
-        
-        <Stat bg="surface.primary" p={5} borderRadius="md" boxShadow="md">
-          <StatLabel color="text.secondary">Occupancy Rate</StatLabel>
-          <StatNumber color="text.primary">74.3%</StatNumber>
-          <StatHelpText color="red.500">-2.1% from last week</StatHelpText>
-        </Stat>
-      </SimpleGrid>
-      
-      <Box bg="surface.primary" p={5} borderRadius="md" boxShadow="md">
-        <Tabs colorScheme="teal" onChange={(index) => setTimeRange(["daily", "weekly", "monthly"][index])}>
-          <TabList>
-            <Tab>Daily</Tab>
-            <Tab>Weekly</Tab>
-            <Tab>Monthly</Tab>
-          </TabList>
-          
-          <TabPanels>
-            <TabPanel>
-              <Box h="400px" display="flex" alignItems="center" justifyContent="center" color="text.primary">
-                Revenue chart for daily view will appear here
-              </Box>
-            </TabPanel>
-            <TabPanel>
-              <Box h="400px" display="flex" alignItems="center" justifyContent="center" color="text.primary">
-                Revenue chart for weekly view will appear here
-              </Box>
-            </TabPanel>
-            <TabPanel>
-              <Box h="400px" display="flex" alignItems="center" justifyContent="center" color="text.primary">
-                Revenue chart for monthly view will appear here
-              </Box>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Box>
+          <GridItem colSpan={layout === 'desktop' ? 1 : 'auto'}>
+            <CsvReportArea />
+          </GridItem>
+
+          <GridItem colSpan={layout === 'desktop' ? 2 : 'auto'}>
+            <StatsVisualization />
+          </GridItem>
+        </Grid>
+      </VStack>
     </Box>
   );
-}
+};
+
+export default Dashboard;

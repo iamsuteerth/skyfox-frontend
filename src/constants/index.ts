@@ -10,6 +10,7 @@ export const API_ROUTES = {
   SHOW: '/api/show',
   MOVIES: '/api/show/movies',
   SLOTS: '/api/slot',
+  ALL_SLOTS: '/api/slot-all',
   PROFILE: '/api/profile',
   CHANGE_PASWORD: '/api/change-password',
   UPDATE_CUSTOMER_PROFILE: '/api/customer/update-profile',
