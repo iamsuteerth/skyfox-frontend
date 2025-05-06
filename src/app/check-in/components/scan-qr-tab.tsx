@@ -57,7 +57,7 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
         scannerControlsRef.current.stop();
         scannerControlsRef.current = null;
       }
-      
+
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         const tracks = stream.getTracks();
@@ -73,7 +73,7 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
 
   useEffect(() => {
     isMountedRef.current = true;
-    
+
     async function checkDevices() {
       const timeoutId = setTimeout(() => {
         if (isMountedRef.current && hasCamera === null) {
@@ -81,27 +81,27 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
           setHasCamera(false);
         }
       }, 5000);
-      
+
       if (!navigator.mediaDevices?.getUserMedia) {
         clearTimeout(timeoutId);
         setHasCamera(false);
         return;
       }
-      
+
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const hasVideo = devices.some(d => d.kind === 'videoinput');
-        
+
         if (!isMountedRef.current) return;
-        
+
         clearTimeout(timeoutId);
         setHasCamera(hasVideo);
-        
+
         if (hasVideo && navigator.permissions) {
           try {
             const permissionStatus = await navigator.permissions.query({ name: 'camera' as PermissionName });
             if (isMountedRef.current) setPermissionState(permissionStatus.state);
-            
+
             permissionStatus.onchange = () => {
               if (isMountedRef.current) {
                 setPermissionState(permissionStatus.state);
@@ -117,9 +117,9 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
         if (isMountedRef.current) setHasCamera(false);
       }
     }
-    
+
     checkDevices();
-    
+
     return () => {
       isMountedRef.current = false;
     };
@@ -256,14 +256,14 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
     const bookingId = Number(scannedId);
     const res = await singleCheckIn(bookingId, showToast);
     setCheckingIn(false);
-  
+
     if (res.success) {
       const description = (res.data?.checked_in.length || 0) > 0
         ? `Checked in booking ${res.data?.checked_in[0]}`
         : (res.data?.already_done.length || 0) > 0
           ? `Booking ${res.data?.already_done[0]} already checked in`
           : `Invalid Booking: ${res.data?.invalid[0]}`;
-  
+
       showToast({
         type: 'success',
         title: 'Check-in Complete',
@@ -276,20 +276,14 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
         description: res.error || "Unknown error occurred."
       });
     }
-  
+
     setScannedId(null);
     setFullQr(null);
     setError(null);
     modal.onClose();
-    
+
     stopScanner();
     attemptedInitRef.current = false;
-    
-    setTimeout(() => {
-      if (isMountedRef.current && isActive) {
-        setScanning(true);
-      }
-    }, 500);
   }
 
   const qrBoxSize = useBreakpointValue({ base: '90vw', md: '360px' });
@@ -302,17 +296,27 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
 
       {hasCamera === null && (
         <Center py={10}>
-          <Spinner color="primary" size="lg" />
+          <Spinner color="primary" size="lg" thickness="4px" speed="0.65s" emptyColor="surface.light" />
           <Text ml={3} color="text.secondary">Checking for camera...</Text>
         </Center>
       )}
 
-      {hasCamera === false && (
-        <Alert status="error" variant="solid" borderRadius="lg">
-          <AlertIcon />
-          <Text color="white">No camera found. Please connect a camera and refresh.</Text>
-        </Alert>
-      )}
+      {hasCamera === false &&
+        (<>
+          <Alert status="error" variant="solid" borderRadius="lg" bg="error" width="-moz-fit-content">
+            <AlertIcon color="background.primary" />
+            <Text color="white">No camera found. Please connect a camera and refresh.</Text>
+          </Alert>
+          <Button
+            onClick={() => window.location.reload()}
+            colorScheme="primary"
+            variant="outline"
+            size="md"
+          >
+            Refresh
+          </Button>
+        </>
+        )}
 
       {hasCamera === true && (
         <Box
@@ -332,7 +336,7 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
             <Box as="video" ref={videoRef} width="100%" height="100%" objectFit="cover" />
           )}
 
-          {!scanning && !error && hasCamera && (
+          {!scanning && !error && hasCamera && !checkingIn && (
             <Center height="100%">
               <VStack spacing={4}>
                 <Text color="text.tertiary">Camera is off</Text>
