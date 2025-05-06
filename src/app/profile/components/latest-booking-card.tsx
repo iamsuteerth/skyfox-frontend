@@ -12,7 +12,8 @@ import {
   Text,
   Divider,
   Box,
-  useDisclosure
+  useDisclosure,
+  useBreakpointValue
 } from '@chakra-ui/react';
 
 import { useCustomToast } from '@/app/components/ui/custom-toast';
@@ -32,6 +33,12 @@ export default function LatestBookingCard() {
   const detailsModal = useDisclosure();
   const qrModal = useDisclosure();
   const { showToast } = useCustomToast();
+  
+  const cardPadding = useBreakpointValue({ base: 2, xs: 3, sm: 4, md: 6 });
+  const headingSize = useBreakpointValue({ base: "xs", xs: "sm", md: "md" });
+  const emptyBoxPadding = useBreakpointValue({ base: 3, xs: 4, md: 6 });
+  const fontSize = useBreakpointValue({ base: "xs", xs: "sm", md: "md" });
+  const dividerMargin = useBreakpointValue({ base: 1, xs: 2, md: 3 });
 
   useEffect(() => {
     let mounted = true;
@@ -56,17 +63,30 @@ export default function LatestBookingCard() {
 
   return (
     <>
-      <Card bg="background.primary" borderColor="surface.light" borderWidth="1px" >
-        <CardBody>
-          <VStack spacing={4} align="stretch">
+      <Card 
+        bg="background.primary" 
+        borderColor="surface.light" 
+        borderWidth="1px"
+        boxShadow="sm"
+        borderRadius="lg"
+        overflow="hidden"
+        width="100%"
+        maxW="100%"
+      >
+        <CardBody p={cardPadding}>
+          <VStack spacing={{ base: 2, sm: 3 }} align="stretch">
             <Flex justify="space-between" align="center">
-              <Heading size="md" color="text.primary">Latest Booking</Heading>
+              <Heading size={headingSize} color="text.primary">Latest Booking</Heading>
             </Flex>
-            <Divider borderColor="surface.light" />
+            <Divider borderColor="surface.light" my={dividerMargin} />
 
             <Skeleton isLoaded={!isLoading} borderRadius="lg">
               {booking ? (
-                <Box mx="auto" w="100%">
+                <Box 
+                  mx="auto" 
+                  w="100%" 
+                  maxW="100%"
+                >
                   <BookingCard
                     booking={booking}
                     onDetails={() => handleDetails(booking)}
@@ -76,7 +96,7 @@ export default function LatestBookingCard() {
                 </Box>
               ) : (
                 <Box
-                  p={6}
+                  p={emptyBoxPadding}
                   textAlign="center"
                   borderWidth="1px"
                   borderStyle="dashed"
@@ -84,7 +104,7 @@ export default function LatestBookingCard() {
                   borderRadius="md"
                   bg="background.secondary"
                 >
-                  <Text color="text.tertiary" fontSize="md">
+                  <Text color="text.tertiary" fontSize={fontSize}>
                     You have no bookings yet.
                   </Text>
                 </Box>
