@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import {
   Box,
@@ -13,9 +13,6 @@ import {
   FormLabel,
   Text,
   Heading,
-  Skeleton,
-  Alert,
-  AlertIcon,
   Button,
   Icon,
   Divider,
@@ -33,34 +30,7 @@ import { fetchMovies, fetchAllSlots, Movie, Slot } from '@/services/shows-servic
 import Select from '@/app/components/select';
 import Autocomplete from '@/app/components/autocomplete';
 import { RevenueInputForm } from './revenue-input';
-
-const ChartPlaceholder = ({ data, isLoading }: { data: RevenueData[], isLoading: boolean }) => {
-  const cardBg = 'white';
-  const textColor = 'text.primary';
-
-  if (isLoading) {
-    return <Skeleton height="300px" w="full" startColor="gray.100" endColor="gray.300" borderRadius="md" />;
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <Alert status="info" borderRadius="md" variant="subtle" bg="gray.50">
-        <AlertIcon />
-        No data available with the selected filters.
-      </Alert>
-    );
-  }
-
-  return (
-    <Box borderWidth="1px" borderRadius="lg" p={4} height="300px" w="full" bg={cardBg}>
-      <Text color={textColor} fontWeight="medium">Chart will be implemented with MUI v7 Charts</Text>
-      <Text fontSize="sm" color="text.secondary" mt={2}>Data available: {data.length} records</Text>
-      <Text fontSize="sm" color="text.secondary">
-        First record: {data[0]?.label} - Revenue: ₹{data[0]?.total_revenue}
-      </Text>
-    </Box>
-  );
-};
+import { RevenueCharts } from './revenue-charts';
 
 const StatsVisualization: React.FC = () => {
   const { showToast } = useCustomToast();
@@ -111,7 +81,6 @@ const StatsVisualization: React.FC = () => {
         setIsMoviesLoading(false);
       }
 
-      // Load slots
       setIsSlotsLoading(true);
       try {
         const result = await fetchAllSlots(showToast);
@@ -144,16 +113,22 @@ const StatsVisualization: React.FC = () => {
     }
   }, [viewType]);
 
-  const movieOptions = movies.map(movie => ({
-    id: movie.movieId,
-    label: movie.name
-  }));
-
-  const slotOptions = slots.map(slot => ({
-    value: slot.id.toString(),
-    label: slot.name,
-    secondary_label: slot.startTime
-  }));
+  const movieOptions = useMemo(() => 
+    movies.map(movie => ({
+      id: movie.movieId,
+      label: movie.name
+    })),
+    [movies]
+  );
+  
+  const slotOptions = useMemo(() => 
+    slots.map(slot => ({
+      value: slot.id.toString(),
+      label: slot.name,
+      secondary_label: slot.startTime
+    })),
+    [slots]
+  );
 
   const monthOptions = [
     { value: 1, label: 'January' },
@@ -175,7 +150,7 @@ const StatsVisualization: React.FC = () => {
     setError(null);
 
     try {
-      let params: RevenueParams = {};
+      const params: RevenueParams = {};
 
       if (viewType === 'timeframe') {
         params.timeframe = timeframe;
@@ -188,7 +163,6 @@ const StatsVisualization: React.FC = () => {
       if (slotId) params.slot_id = slotId;
       if (genre) params.genre = genre;
 
-      console.log('Fetching with params:', params);
       const data = await fetchRevenue(params, showToast);
       setChartData(data);
     } catch (error: any) {
@@ -216,7 +190,7 @@ const StatsVisualization: React.FC = () => {
       setYear(parseInt(e.target.value, 10));
     }
   };
-  
+
   const setDefaultDate = () => {
     const now = new Date().getFullYear();
     setYear(now);
@@ -354,7 +328,7 @@ const StatsVisualization: React.FC = () => {
             <FormControl>
               <FormLabel color={textColor}>Slot</FormLabel>
               <Select
-                placeholder={isSlotsLoading ? "Loading slots..." : (viewType === 'specific' ? "Select Slot" : "All Slots")}
+                placeholder={isSlotsLoading ? "Loading slots..." : "Select Slot"}
                 options={slotOptions}
                 onChange={handleSlotChange}
                 value={slotId}
@@ -387,7 +361,12 @@ const StatsVisualization: React.FC = () => {
         </Box>
 
         <Box w="full" mt={4}>
-          <ChartPlaceholder data={chartData} isLoading={isLoading} />
+          <RevenueCharts
+            data={chartData}
+            isLoading={isLoading}
+            viewType={viewType}
+            timeframe={viewType === 'timeframe' ? timeframe : undefined}
+          />
         </Box>
       </VStack>
     </Box>

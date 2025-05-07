@@ -1,4 +1,3 @@
-import { handleApiError } from '@/utils/error-utils';
 import { ERROR_MESSAGES } from '@/constants';
 
 export interface RevenueParams {
@@ -14,8 +13,9 @@ export interface RevenueData {
   label: string;
   total_revenue: number;
   mean_revenue: number;
+  median_revenue: number;
   total_bookings: number;
-  mean_seats_booked: number;
+  total_seats_booked: number;
 }
 
 export interface RevenueSummary {
