@@ -65,7 +65,7 @@ export default function QRModal({ booking, isOpen, onClose, showToast }: Props) 
         <ModalBody marginBottom={4}>
           <Center>
             {loading ? (
-              <Spinner color="primary" size="lg" />
+             <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="lg" />
             ) : qrError ? (
               <Text color="error" textAlign="center">{qrError}</Text>
             ) : base64QR ? (

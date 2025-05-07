@@ -47,7 +47,7 @@ export default function AdminBookingDialog() {
   const DELUXE_OFFSET = 150.0;
 
   const show = dialogData?.show as Show;
-  
+
   const [currentStep, setCurrentStep] = useState(BookingStep.MOVIE_INFO);
   const [numberOfSeats, setNumberOfSeats] = useState(1);
   const [seatsError, setSeatsError] = useState('');
@@ -335,7 +335,7 @@ export default function AdminBookingDialog() {
         >
           {isLoading ? (
             <Center p={10}>
-              <Spinner size="xl" color="brand.500" thickness="4px" />
+              <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
             </Center>
           ) : (
             renderStepContent()
