@@ -43,18 +43,13 @@ const Dashboard = () => {
 
   const layout = useBreakpointValue({
     base: 'mobile',
-    md: 'desktop'   
-  });
-
-  const containerBg = useBreakpointValue({
-    base: 'transparent',
-    md: 'background.primary'
+    md: 'desktop'
   });
 
   return (
     <Box py={4} px={{ base: 2, md: 6 }}>
       <VStack w="full" spacing={6} align="flex-start">
-        <Heading size="lg" color="text.primary" mb={2}>
+        <Heading size="lg" color="text.primary">
           Admin Dashboard
         </Heading>
 
@@ -64,7 +59,7 @@ const Dashboard = () => {
         />
 
         <Grid
-          templateColumns={layout === 'desktop' ? 'repeat(3, 1fr)' : 'repeat(1, 1fr)'}
+          templateColumns={layout === 'desktop' ? 'repeat(6, 1fr)' : 'repeat(1, 1fr)'}
           gap={6}
           w="full"
         >
@@ -72,7 +67,7 @@ const Dashboard = () => {
             <CsvReportArea />
           </GridItem>
 
-          <GridItem colSpan={layout === 'desktop' ? 2 : 'auto'}>
+          <GridItem colSpan={layout === 'desktop' ? 5 : 'auto'}>
             <StatsVisualization />
           </GridItem>
         </Grid>

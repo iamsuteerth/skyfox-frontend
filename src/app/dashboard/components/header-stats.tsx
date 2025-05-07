@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import {
   SimpleGrid,
@@ -18,15 +18,24 @@ interface HeaderStatsProps {
   summaryData: RevenueSummary | null;
 }
 
-const HeaderStats: React.FC<HeaderStatsProps> = ({ isLoading, summaryData }) => {
+const COLORS = {
+  positiveColor: '#228B22',
+  negativeColor: '#D42158'
+};
+
+const HeaderStats: React.FC<HeaderStatsProps> = memo(({ isLoading, summaryData }) => {
   const cardBg = 'background.primary';
   const cardBorder = 'gray.200';
   const statTextColor = 'text.primary';
   const labelColor = 'text.secondary';
 
-  const positiveColor = '#228B22'; 
-  const negativeColor = '#D42158'; 
+  const formatCurrency = (value?: number) => {
+    return (value ?? 0).toLocaleString();
+  };
 
+  const isCurrentRevenuePositive = summaryData?.percentageDifference && summaryData.percentageDifference >= 0;
+  const isSeatsPositive = summaryData?.seatsPercentageDifference && summaryData.seatsPercentageDifference >= 0;
+  
   return (
     <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6} w="full">
       <Stat 
@@ -45,7 +54,7 @@ const HeaderStats: React.FC<HeaderStatsProps> = ({ isLoading, summaryData }) => 
           left="0" 
           h="4px" 
           w="full" 
-          bg={summaryData?.percentageDifference && summaryData.percentageDifference >= 0 ? positiveColor : negativeColor}
+          bg={isCurrentRevenuePositive ? COLORS.positiveColor : COLORS.negativeColor}
         />
         <StatLabel fontSize="md" color={labelColor} fontWeight="medium">This Month's Revenue</StatLabel>
         {isLoading ? (
@@ -53,15 +62,15 @@ const HeaderStats: React.FC<HeaderStatsProps> = ({ isLoading, summaryData }) => 
         ) : (
           <>
             <StatNumber color={statTextColor} fontSize="2xl" fontWeight="bold" mt={1}>
-              ₹{summaryData?.currentMonthRevenue?.toLocaleString() || 0}
+              ₹{formatCurrency(summaryData?.currentMonthRevenue)}
             </StatNumber>
             <StatHelpText 
-              color={summaryData?.percentageDifference && summaryData.percentageDifference >= 0 ? positiveColor : negativeColor}
+              color={isCurrentRevenuePositive ? COLORS.positiveColor : COLORS.negativeColor}
               fontSize="sm"
               mt={0}
             >
               <StatArrow 
-                type={summaryData?.percentageDifference && summaryData.percentageDifference >= 0 ? 'increase' : 'decrease'} 
+                type={isCurrentRevenuePositive ? 'increase' : 'decrease'} 
               />
               {Math.abs(Math.round(summaryData?.percentageDifference || 0))}% from last month
             </StatHelpText>
@@ -85,7 +94,7 @@ const HeaderStats: React.FC<HeaderStatsProps> = ({ isLoading, summaryData }) => 
           left="0" 
           h="4px" 
           w="full" 
-          bg={summaryData?.seatsPercentageDifference && summaryData.seatsPercentageDifference >= 0 ? positiveColor : negativeColor}
+          bg={isSeatsPositive ? COLORS.positiveColor : COLORS.negativeColor}
         />
         <StatLabel fontSize="md" color={labelColor} fontWeight="medium">Seats Booked</StatLabel>
         {isLoading ? (
@@ -93,15 +102,15 @@ const HeaderStats: React.FC<HeaderStatsProps> = ({ isLoading, summaryData }) => 
         ) : (
           <>
             <StatNumber color={statTextColor} fontSize="2xl" fontWeight="bold" mt={1}>
-              {summaryData?.seatsBooked?.toLocaleString() || 0}
+              {formatCurrency(summaryData?.seatsBooked)}
             </StatNumber>
             <StatHelpText 
-              color={summaryData?.seatsPercentageDifference && summaryData.seatsPercentageDifference >= 0 ? positiveColor : negativeColor}
+              color={isSeatsPositive ? COLORS.positiveColor : COLORS.negativeColor}
               fontSize="sm"
               mt={0}
             >
               <StatArrow 
-                type={summaryData?.seatsPercentageDifference && summaryData.seatsPercentageDifference >= 0 ? 'increase' : 'decrease'} 
+                type={isSeatsPositive ? 'increase' : 'decrease'} 
               />
               {Math.abs(Math.round(summaryData?.seatsPercentageDifference || 0))}% from last month
             </StatHelpText>
@@ -122,12 +131,14 @@ const HeaderStats: React.FC<HeaderStatsProps> = ({ isLoading, summaryData }) => 
           <Skeleton height="40px" my={2} startColor="gray.100" endColor="gray.300" />
         ) : (
           <StatNumber color={statTextColor} fontSize="2xl" fontWeight="bold" mt={1}>
-            ₹{summaryData?.totalRevenue?.toLocaleString() || 0}
+            ₹{formatCurrency(summaryData?.totalRevenue)}
           </StatNumber>
         )}
       </Stat>
     </SimpleGrid>
   );
-};
+});
+
+HeaderStats.displayName = 'HeaderStats';
 
 export default HeaderStats;
