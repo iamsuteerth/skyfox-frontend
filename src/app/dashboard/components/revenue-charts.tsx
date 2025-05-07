@@ -89,7 +89,7 @@ export const RevenueCharts: React.FC<RevenueChartsProps> = ({
           dy={16}
           textAnchor="end"
           fill={colors.text}
-          fontSize={12}
+          fontSize={isMobile ? 8 : 12}
           transform="rotate(-45)"
         >
           {payload.value}
