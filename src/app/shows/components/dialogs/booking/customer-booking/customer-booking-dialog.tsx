@@ -63,7 +63,7 @@ export default function CustomerBookingDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [bookingId, setBookingId] = useState<number | null>(null);
   const [bookingStatus, setBookingStatus] = useState<BookingStatus>(BookingStatus.PENDING);
-  const [timeLeft, setTimeLeft] = useState(295); 
+  const [timeLeft, setTimeLeft] = useState(295);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
 
   const [deluxeCount, setDeluxeCount] = useState(0);
@@ -369,11 +369,13 @@ export default function CustomerBookingDialog() {
       >
         <ModalHeader
           color="text.primary"
-          noOfLines={1}
+          noOfLines={2}
           title={show.movie.name}
         >
           {currentStep === BookingStep.CONFIRMATION
-            ? (bookingStatus === BookingStatus.SUCCESS ? "Booking Confirmed" : "Booking Failed")
+            ? (bookingStatus === BookingStatus.SUCCESS
+              ? "Booking Confirmed"
+              : "Booking Failed")
             : `Book Tickets - ${show.movie.name}`}
         </ModalHeader>
         {canCloseModal && <ModalCloseButton />}
@@ -392,7 +394,7 @@ export default function CustomerBookingDialog() {
         >
           {isLoading ? (
             <Center p={10}>
-              <Spinner size="xl" color="brand.500" thickness="4px" />
+              <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
             </Center>
           ) : (
             renderStepContent()

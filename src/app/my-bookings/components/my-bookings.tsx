@@ -97,7 +97,7 @@ export default function MyBookings() {
   if (loading) {
     return (
       <Center h="300px">
-        <Spinner size="xl" color="primary" thickness="4px" speed="0.65s" />
+        <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
       </Center>
     );
   }

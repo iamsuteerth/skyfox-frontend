@@ -10,9 +10,6 @@ export default function Home() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
 
-  const bgColor = 'background.primary'
-  const spinnerColor = 'primary'
-
   useEffect(() => {
     if (!isLoading) {
       if (user) {
@@ -24,16 +21,9 @@ export default function Home() {
   }, [isLoading, user, router]);
 
   return (
-    <Box bg={bgColor} minH="100vh" w="100%">
+    <Box bg="background.primary" minH="100vh" w="100%">
       <Center h="100vh">
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          color={spinnerColor}
-          emptyColor="surface.light"
-          size="xl"
-        />
-
+        <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
       </Center>
     </Box>
   );

@@ -131,7 +131,7 @@ export const SeatMap: React.FC<SeatMapProps> = memo(
     if (isLoading) {
       return (
         <Center py={6}>
-          <Spinner size="xl" color="brand.500" thickness="4px" />
+          <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
         </Center>
       );
     }

@@ -27,13 +27,9 @@ export default function ProtectedRoute({
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  const bgColor = 'background.primary';
-  const spinnerColor = 'primary';
-  const spinnerEmptyColor = 'surface.light';
-
   useEffect(() => {
     let isMounted = true;
-    
+
     const checkAuthorization = async () => {
       if (isLoading) return;
 
@@ -65,7 +61,7 @@ export default function ProtectedRoute({
     };
 
     checkAuthorization();
-    
+
     return () => {
       isMounted = false;
     };
@@ -73,15 +69,9 @@ export default function ProtectedRoute({
 
   if (isLoading || isCheckingAuth) {
     return (
-      <Box bg={bgColor} minH="100vh" w="100%">
+      <Box bg="background.primary" minH="100vh" w="100%">
         <Center h="100vh">
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor={spinnerEmptyColor}
-            color={spinnerColor}
-            size="xl"
-          />
+          <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
         </Center>
       </Box>
     );

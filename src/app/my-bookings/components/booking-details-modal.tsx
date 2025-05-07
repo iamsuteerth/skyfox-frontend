@@ -71,7 +71,7 @@ export default function BookingDetailsModal({ booking, isOpen, onClose, showToas
         <ModalCloseButton color="text.primary" />
         <ModalBody px={{ base: 2, md: 6 }} paddingBottom={6}>
           {loading ? (
-            <Center py={8}><Spinner color="primary" size="lg" /></Center>
+            <Center py={8}><Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="lg" /></Center>
           ) : apiError ? (
             <Box py={6}><Text color="error" textAlign="center">{apiError}</Text></Box>
           ) : show ? (

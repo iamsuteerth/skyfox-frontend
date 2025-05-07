@@ -17,7 +17,7 @@ export default function ShowsPage() {
         <Header />
         <Suspense fallback={
           <Center py={10}>
-            <Spinner size="xl" color="primary" thickness="4px" speed="0.65s" />
+            <Spinner thickness="4px" speed="0.65s" color="primary" emptyColor="surface.light" size="xl" />
           </Center>
         }>
           <Shows />
