@@ -256,7 +256,7 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
     const bookingId = Number(scannedId);
     const res = await singleCheckIn(bookingId, showToast);
     setCheckingIn(false);
-  
+
     if (res.success) {
       const description = (res.data?.checked_in.length || 0) > 0
         ? `Checked in booking ${res.data?.checked_in[0]}`
@@ -276,7 +276,7 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
         description: res.error || "Unknown error occurred."
       });
     }
-  
+
     setScannedId(null);
     setFullQr(null);
     setError(null);
