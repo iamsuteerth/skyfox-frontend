@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+
 import {
   Box,
   Text,
@@ -19,10 +20,9 @@ import {
   useDisclosure,
   useBreakpointValue
 } from '@chakra-ui/react';
-import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
+import { Html5Qrcode } from 'html5-qrcode';
 
 import { useCustomToast } from '@/app/components/ui/custom-toast';
-
 import { singleCheckIn } from "@/services/check-in-service";
 
 type ScanQRTabProps = {
@@ -44,25 +44,17 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
   const [checkingIn, setCheckingIn] = useState(false);
 
   const { showToast } = useCustomToast();
-
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const scannerControlsRef = useRef<IScannerControls | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerContainerRef = useRef<HTMLDivElement | null>(null);
   const modal = useDisclosure();
   const attemptedInitRef = useRef(false);
   const isMountedRef = useRef(true);
 
   function stopScanner() {
     try {
-      if (scannerControlsRef.current) {
-        scannerControlsRef.current.stop();
-        scannerControlsRef.current = null;
-      }
-
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        const tracks = stream.getTracks();
-        tracks.forEach(track => track.stop());
-        videoRef.current.srcObject = null;
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(console.error);
+        scannerRef.current = null;
       }
     } catch (e) {
       console.error("Error stopping scanner:", e);
@@ -77,7 +69,6 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
     async function checkDevices() {
       const timeoutId = setTimeout(() => {
         if (isMountedRef.current && hasCamera === null) {
-          console.log("Camera detection timed out, assuming no camera");
           setHasCamera(false);
         }
       }, 5000);
@@ -122,168 +113,153 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
 
     return () => {
       isMountedRef.current = false;
+      stopScanner();
     };
   }, []);
 
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive || !scanning) {
       stopScanner();
-      attemptedInitRef.current = false;
       return;
     }
 
-    if (isActive && hasCamera === true && videoRef.current && !scannedId && !attemptedInitRef.current) {
-      attemptedInitRef.current = true;
-      setError(null);
-      setScanning(true);
+    if (!hasCamera || scannedId || !scannerContainerRef.current) {
+      return;
+    }
 
-      const qrReader = new BrowserQRCodeReader();
-
-      qrReader
-        .decodeFromVideoDevice(
-          undefined,
-          videoRef.current,
-          (result, err, controls) => {
-            if (controls && !scannerControlsRef.current) {
-              scannerControlsRef.current = controls;
-            }
-
-            if (!result) {
-              if (
-                err &&
-                err.name !== 'NotFoundException' &&
-                err.name !== 'ChecksumException' &&
-                err.name !== 'FormatException'
-              ) {
-                setError('Failed to scan QR.');
-              }
-              return;
-            }
-
-            const rawText = result.getText();
-            const bookingId = extractBookingIdFromQr(rawText);
-
+    const containerId = `qr-scanner-${Date.now()}`;
+    const tempDiv = document.createElement('div');
+    tempDiv.id = containerId;
+    tempDiv.style.width = '100%';
+    tempDiv.style.height = '100%';
+    
+    if (scannerContainerRef.current) {
+      scannerContainerRef.current.innerHTML = '';
+      scannerContainerRef.current.appendChild(tempDiv);
+    
+      try {
+        const html5QrCode = new Html5Qrcode(containerId);
+        scannerRef.current = html5QrCode;
+        
+        html5QrCode.start(
+          { facingMode: "environment" },
+          {
+            fps: 24,
+            aspectRatio: 1
+          },
+          (decodedText) => {
+            const bookingId = extractBookingIdFromQr(decodedText);
+            
             if (!isMountedRef.current) return;
-
+            
             stopScanner();
+            
             if (!bookingId) {
               setError('Invalid QR Code! Please scan a valid ticket.');
               setTimeout(() => {
                 if (isMountedRef.current) {
                   setError(null);
                   setScanning(false);
-                  attemptedInitRef.current = false;
                 }
               }, 2000);
               return;
             }
-
+            
             setScannedId(bookingId);
-            setFullQr(rawText);
+            setFullQr(decodedText);
             modal.onOpen();
-          }
-        )
-        .then(() => {
-          if (!isMountedRef.current) return;
-
-          if (videoRef.current) {
-            const playPromise = videoRef.current.play();
-            if (playPromise !== undefined) {
-              playPromise.catch((e) => {
-                console.error("Play promise error (handled):", e);
-              });
+          },
+          (errorMessage) => {
+            if (errorMessage.includes("No QR code found")) {
+              return;
             }
           }
-        })
-        .catch((err) => {
-          console.error("Camera initialization error:", err);
-          if (!isMountedRef.current) return;
-
-          stopScanner();
+        ).catch(error => {
+          console.error("QR Scanner initialization error:", error);
+          setError("Failed to start camera: " + (error.message || "Unknown error"));
           setScanning(false);
-          attemptedInitRef.current = false;
-
-          if (err.name === 'NotAllowedError') {
+          
+          if (error.name === 'NotAllowedError') {
             setPermissionState('denied');
-            setError('Camera permission denied. Please allow camera access and try again.');
-          } else {
-            setError('Camera initialization failed: ' + (err.message || 'Unknown error'));
           }
         });
+      } catch (error) {
+        console.error("QR Scanner error:", error);
+        setError("Failed to initialize scanner");
+        setScanning(false);
+      }
     }
 
     return () => {
       stopScanner();
     };
-  }, [isActive, hasCamera, scannedId, modal, permissionState]);
+  }, [isActive, scanning, hasCamera, scannedId]);
 
   useEffect(() => {
     function handleVisibilityChange() {
       if (document.visibilityState === 'hidden') {
         stopScanner();
-        attemptedInitRef.current = false;
-      } else if (document.visibilityState === 'visible' && isActive && !scannedId) {
-        attemptedInitRef.current = false;
       }
     }
 
-    function handleBeforeUnload() {
-      stopScanner();
-    }
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
+    
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      stopScanner();
     };
-  }, [isActive, scannedId]);
+  }, []);
+
+  function handleStartScanning() {
+    setError(null);
+    setScanning(true);
+  }
 
   function handleModalClose() {
     setScannedId(null);
     setFullQr(null);
     setError(null);
-    setScanning(false);
-    attemptedInitRef.current = false;
     modal.onClose();
   }
 
   async function handleModalConfirm() {
     if (!scannedId) return;
     setCheckingIn(true);
-    const bookingId = Number(scannedId);
-    const res = await singleCheckIn(bookingId, showToast);
-    setCheckingIn(false);
+    try {
+      const bookingId = Number(scannedId);
+      const res = await singleCheckIn(bookingId, showToast);
 
-    if (res.success) {
-      const description = (res.data?.checked_in.length || 0) > 0
-        ? `Checked in booking ${res.data?.checked_in[0]}`
-        : (res.data?.already_done.length || 0) > 0
-          ? `Booking ${res.data?.already_done[0]} already checked in`
-          : `Invalid Booking: ${res.data?.invalid[0]}`;
+      if (res.success) {
+        const description = (res.data?.checked_in.length || 0) > 0
+          ? `Checked in booking ${res.data?.checked_in[0]}`
+          : (res.data?.already_done.length || 0) > 0
+            ? `Booking ${res.data?.already_done[0]} already checked in`
+            : `Invalid Booking: ${res.data?.invalid[0]}`;
 
-      showToast({
-        type: 'success',
-        title: 'Check-in Complete',
-        description
-      });
-    } else {
+        showToast({
+          type: 'success',
+          title: 'Check-in Complete',
+          description
+        });
+      } else {
+        showToast({
+          type: "error",
+          title: "Check-in Failed",
+          description: res.error || "Unknown error occurred."
+        });
+      }
+    } catch (error) {
+      console.error("Check-in error:", error);
       showToast({
         type: "error",
         title: "Check-in Failed",
-        description: res.error || "Unknown error occurred."
+        description: "An unexpected error occurred"
       });
+    } finally {
+      setCheckingIn(false);
+      setScannedId(null);
+      setFullQr(null);
+      modal.onClose();
     }
-
-    setScannedId(null);
-    setFullQr(null);
-    setError(null);
-    modal.onClose();
-
-    stopScanner();
-    attemptedInitRef.current = false;
   }
 
   const qrBoxSize = useBreakpointValue({ base: '90vw', md: '360px' });
@@ -332,19 +308,19 @@ export default function ScanQRTab({ isActive }: ScanQRTabProps) {
           overflow="hidden"
           position="relative"
         >
-          {scanning && (
-            <Box as="video" ref={videoRef} width="100%" height="100%" objectFit="cover" />
-          )}
+          <Box 
+            ref={scannerContainerRef} 
+            width="100%" 
+            height="100%" 
+            display={scanning ? "block" : "none"}
+          />
 
-          {!scanning && !error && hasCamera && !checkingIn && (
+          {!scanning && !error && !checkingIn && (
             <Center height="100%">
               <VStack spacing={4}>
                 <Text color="text.tertiary">Camera is off</Text>
                 <Button
-                  onClick={() => {
-                    attemptedInitRef.current = false;
-                    setScanning(true);
-                  }}
+                  onClick={handleStartScanning}
                   colorScheme="primary"
                 >
                   Start Scanning

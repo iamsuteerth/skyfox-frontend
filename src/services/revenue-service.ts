@@ -66,8 +66,6 @@ export const fetchRevenue = async (
         }
       });
       
-      console.log('Fetching revenue with params:', Object.fromEntries(queryParams.entries()));
-      
       const response = await fetch(`/api/revenue?${queryParams.toString()}`);
       
       if (!response.ok) {
