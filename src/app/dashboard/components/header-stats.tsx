@@ -34,10 +34,11 @@ const HeaderStats: React.FC<HeaderStatsProps> = memo(({ isLoading, summaryData }
   };
 
   const isCurrentRevenuePositive = summaryData?.percentageDifference && summaryData.percentageDifference >= 0;
+  const isBookingPositive = summaryData?.bookingPercentageDifference && summaryData.bookingPercentageDifference >= 0;
   const isSeatsPositive = summaryData?.seatsPercentageDifference && summaryData.seatsPercentageDifference >= 0;
   
   return (
-    <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6} w="full">
+    <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={6} w="full">
       <Stat 
         p={5} 
         bg={cardBg} 
@@ -73,6 +74,46 @@ const HeaderStats: React.FC<HeaderStatsProps> = memo(({ isLoading, summaryData }
                 type={isCurrentRevenuePositive ? 'increase' : 'decrease'} 
               />
               {Math.abs(Math.round(summaryData?.percentageDifference || 0))}% from last month
+            </StatHelpText>
+          </>
+        )}
+      </Stat>
+
+      <Stat 
+        p={5} 
+        bg={cardBg} 
+        borderRadius="lg" 
+        borderWidth="1px" 
+        borderColor={cardBorder}
+        boxShadow="sm"
+        position="relative"
+        overflow="hidden"
+      >
+        <Box 
+          position="absolute" 
+          top="0" 
+          left="0" 
+          h="4px" 
+          w="full" 
+          bg={isBookingPositive ? COLORS.positiveColor : COLORS.negativeColor}
+        />
+        <StatLabel fontSize="md" color={labelColor} fontWeight="medium">Bookings Made</StatLabel>
+        {isLoading ? (
+          <Skeleton height="40px" my={2} startColor="gray.100" endColor="gray.300" />
+        ) : (
+          <>
+            <StatNumber color={statTextColor} fontSize="2xl" fontWeight="bold" mt={1}>
+              {formatCurrency(summaryData?.bookings)}
+            </StatNumber>
+            <StatHelpText 
+              color={isBookingPositive ? COLORS.positiveColor : COLORS.negativeColor}
+              fontSize="sm"
+              mt={0}
+            >
+              <StatArrow 
+                type={isBookingPositive ? 'increase' : 'decrease'} 
+              />
+              {Math.abs(Math.round(summaryData?.bookingPercentageDifference || 0))}% from last month
             </StatHelpText>
           </>
         )}

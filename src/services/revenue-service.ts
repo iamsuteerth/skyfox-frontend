@@ -22,6 +22,9 @@ export interface RevenueSummary {
   currentMonthRevenue: number;
   previousMonthRevenue: number;
   percentageDifference: number;
+  bookings: number;
+  previousMonthBookings: number;
+  bookingPercentageDifference: number;
   seatsBooked: number;
   previousMonthSeatsBooked: number;
   seatsPercentageDifference: number;
@@ -148,15 +151,22 @@ export const fetchRevenueSummary = async (
     
     const currentMonthRevenue = currentMonthData.reduce((sum, item) => sum + item.total_revenue, 0);
     const previousMonthRevenue = previousMonthData.reduce((sum, item) => sum + item.total_revenue, 0);
+
+    const currentMonthBookings = currentMonthData.reduce((sum, item) => sum + item.total_bookings, 0);
+    const previousMonthBookings = previousMonthData.reduce((sum, item) => sum + item.total_bookings, 0);
     
-    const currentMonthSeats = currentMonthData.reduce((sum, item) => sum + item.total_bookings, 0);
-    const previousMonthSeats = previousMonthData.reduce((sum, item) => sum + item.total_bookings, 0);
+    const currentMonthSeats = currentMonthData.reduce((sum, item) => sum + item.total_seats_booked, 0);
+    const previousMonthSeats = previousMonthData.reduce((sum, item) => sum + item.total_seats_booked, 0);
     
     const totalRevenue = allTimeData.reduce((sum, item) => sum + item.total_revenue, 0);
     
     const percentageDifference = previousMonthRevenue === 0 
       ? (currentMonthRevenue > 0 ? 100 : 0)
       : ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
+
+    const bookingPercentageDifference = previousMonthBookings === 0 
+      ? (currentMonthBookings > 0 ? 100 : 0)
+      : ((currentMonthBookings - previousMonthBookings) / previousMonthBookings) * 100;
     
     const seatsPercentageDifference = previousMonthSeats === 0 
       ? (currentMonthSeats > 0 ? 100 : 0)
@@ -166,6 +176,9 @@ export const fetchRevenueSummary = async (
       currentMonthRevenue,
       previousMonthRevenue,
       percentageDifference,
+      bookings: currentMonthBookings,
+      previousMonthBookings: previousMonthBookings,
+      bookingPercentageDifference,
       seatsBooked: currentMonthSeats,
       previousMonthSeatsBooked: previousMonthSeats,
       seatsPercentageDifference,
@@ -184,6 +197,9 @@ export const fetchRevenueSummary = async (
       currentMonthRevenue: 0,
       previousMonthRevenue: 0,
       percentageDifference: 0,
+      bookings: 0,
+      previousMonthBookings: 0,
+      bookingPercentageDifference: 0,
       seatsBooked: 0,
       previousMonthSeatsBooked: 0,
       seatsPercentageDifference: 0,
