@@ -141,6 +141,11 @@ export default function Header() {
               <MenuItem as={NextLink} href={APP_ROUTES.PROFILE} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Profile
               </MenuItem>
+              <RoleBasedElement allowedRoles={[ROLES.CUSTOMER]}>
+                <MenuItem as={NextLink} href={APP_ROUTES.MY_WALLET} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
+                  My Wallet
+                </MenuItem>
+              </RoleBasedElement>
               <MenuDivider borderColor="surface.light" />
               <MenuItem onClick={logout} bg="background.primary" _hover={{ bg: 'background.secondary' }}>
                 Sign Out
@@ -165,7 +170,7 @@ export default function Header() {
               <Button
                 as={NextLink}
                 href={APP_ROUTES.MY_BOOKINGS}
-                 w="full"
+                w="full"
                 variant={isActive(validRoutes.my_bookings) ? "solid" : "ghost"}
               >
                 My Bookings
@@ -175,7 +180,7 @@ export default function Header() {
               <Button
                 as={NextLink}
                 href={APP_ROUTES.DASHBOARD}
-                 w="full"
+                w="full"
                 variant={isActive(validRoutes.dashboard) ? "solid" : "ghost"}
               >
                 Dashboard
@@ -185,7 +190,7 @@ export default function Header() {
               <Button
                 as={NextLink}
                 href={APP_ROUTES.CHECK_IN}
-                 w="full"
+                w="full"
                 variant={isActive(validRoutes.checkin) ? "solid" : "ghost"}
               >
                 Check In

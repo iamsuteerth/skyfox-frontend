@@ -35,7 +35,6 @@ export default function LatestBookingCard() {
   const { showToast } = useCustomToast();
   
   const cardPadding = useBreakpointValue({ base: 2, xs: 3, sm: 4, md: 6 });
-  const headingSize = useBreakpointValue({ base: "xs", xs: "sm", md: "md" });
   const emptyBoxPadding = useBreakpointValue({ base: 3, xs: 4, md: 6 });
   const fontSize = useBreakpointValue({ base: "xs", xs: "sm", md: "md" });
   const dividerMargin = useBreakpointValue({ base: 1, xs: 2, md: 3 });
@@ -76,10 +75,9 @@ export default function LatestBookingCard() {
         <CardBody p={cardPadding}>
           <VStack spacing={{ base: 2, sm: 3 }} align="stretch">
             <Flex justify="space-between" align="center">
-              <Heading size={headingSize} color="text.primary">Latest Booking</Heading>
+              <Heading size="md" color="text.primary">Latest Booking</Heading>
             </Flex>
             <Divider borderColor="surface.light" my={dividerMargin} />
-
             <Skeleton isLoaded={!isLoading} borderRadius="lg">
               {booking ? (
                 <Box 

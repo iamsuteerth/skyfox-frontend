@@ -66,7 +66,7 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     fetchProfileData();
-  }, [showToast]);
+  }, [showToast, fetchProfileData]);
 
   const handleChangePassword = () => {
     openDialog('changePassword');
@@ -189,31 +189,31 @@ const Profile: React.FC = () => {
                   <RoleBasedElement allowedRoles={[ROLES.CUSTOMER]}>
                     <VStack spacing={3} align="stretch">
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Full Name</Text>
-                          <Text color="text.primary">{customerData?.name || '-'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Full Name</Text>
+                          <Text color="text.primary" textAlign="right">{customerData?.name || '-'}</Text>
+                        </Flex>
                       </Skeleton>
 
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Email</Text>
-                          <Text color="text.primary">{customerData?.email || '-'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Email</Text>
+                          <Text color="text.primary" textAlign="right" wordBreak="break-word">{customerData?.email || '-'}</Text>
+                        </Flex>
                       </Skeleton>
 
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Phone Number</Text>
-                          <Text color="text.primary">{customerData?.phone_number || '-'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Phone Number</Text>
+                          <Text color="text.primary" textAlign="right">{customerData?.phone_number || '-'}</Text>
+                        </Flex>
                       </Skeleton>
 
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Security Question</Text>
-                          <Text color="text.primary">{customerData?.security_question_exists ? '●●●●●●●' : 'Not set up'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Security Question</Text>
+                          <Text color="text.primary" textAlign="right">{customerData?.security_question_exists ? '●●●●●●●' : 'Not set up'}</Text>
+                        </Flex>
                       </Skeleton>
                     </VStack>
                   </RoleBasedElement>
@@ -221,24 +221,24 @@ const Profile: React.FC = () => {
                   <RoleBasedElement allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
                     <VStack spacing={3} align="stretch">
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Full Name</Text>
-                          <Text color="text.primary">{adminStaffData?.name || '-'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Full Name</Text>
+                          <Text color="text.primary" textAlign="right">{adminStaffData?.name || '-'}</Text>
+                        </Flex>
                       </Skeleton>
 
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Username</Text>
-                          <Text color="text.primary">{user?.username || '-'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Username</Text>
+                          <Text color="text.primary" textAlign="right">{user?.username || '-'}</Text>
+                        </Flex>
                       </Skeleton>
 
                       <Skeleton isLoaded={!isLoading}>
-                        <HStack justify="space-between">
-                          <Text color="text.secondary" fontWeight="medium">Counter No.</Text>
-                          <Text color="text.primary">{adminStaffData?.counter_no?.toString() || '-'}</Text>
-                        </HStack>
+                        <Flex justify="space-between" align="center">
+                          <Text color="text.secondary" fontWeight="medium" flexShrink={0} mr={2}>Counter No.</Text>
+                          <Text color="text.primary" textAlign="right">{adminStaffData?.counter_no?.toString() || '-'}</Text>
+                        </Flex>
                       </Skeleton>
                     </VStack>
                   </RoleBasedElement>
@@ -246,7 +246,7 @@ const Profile: React.FC = () => {
               </CardBody>
             </Card>
             <RoleBasedElement allowedRoles={[ROLES.CUSTOMER]}>
-              <LatestBookingCard/>
+              <LatestBookingCard />
             </RoleBasedElement>
           </VStack>
         </Box>

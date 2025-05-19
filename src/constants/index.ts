@@ -24,6 +24,9 @@ export const API_ROUTES = {
   GET_PDF_TICKET: '/api/booking/{id}/pdf',
   CHECKIN_BOOKINGS: '/api/check-in/bookings',
   CHECKIN_SINGLE: '/api/check-in/booking',
+  GET_WALLET: '/api/customer/wallet',
+  ADD_FUNDS: '/api/customer/wallet/add-funds',
+  WALLET_TRANSACTIONS: '/api/customer/wallet/transactions',
 };
 
 export const SEAT_TYPES = {
@@ -42,6 +45,7 @@ export const APP_ROUTES = {
   DASHBOARD: `/dashboard`,
   CHECK_IN: `/check-in`,
   MY_BOOKINGS: `/my-bookings`,
+  MY_WALLET: `/my-wallet`
 };
 
 export const ERROR_MESSAGES = {
