@@ -66,7 +66,7 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     fetchProfileData();
-  }, [showToast, fetchProfileData]);
+  }, [showToast]);
 
   const handleChangePassword = () => {
     openDialog('changePassword');

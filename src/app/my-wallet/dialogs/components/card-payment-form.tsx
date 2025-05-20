@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Flex, VStack, Text, Box } from "@chakra-ui/react";
+import { Flex, VStack } from "@chakra-ui/react";
 
 import {
   validateCardName,
@@ -115,8 +115,6 @@ export default function CardPaymentForm({
     }
     return null;
   };
-
-  const cardType = getCardType();
 
   return (
     <VStack spacing={4} align="stretch">

@@ -53,12 +53,14 @@ export interface AdminBookingRequest {
 
 export interface PaymentRequest {
   booking_id: number;
-  card_number: string;
-  cvv: string;
-  expiry_month: string;
-  expiry_year: string;
-  cardholder_name: string;
+  payment_method: 'Card' | 'Wallet';
+  card_number?: string;
+  cvv?: string;
+  expiry_month?: string;
+  expiry_year?: string;
+  cardholder_name?: string;
 }
+
 
 export interface Booking {
   booking_id: number;
@@ -215,21 +217,16 @@ export const initializeCustomerBooking = async (
 };
 
 export const processCustomerPayment = async (
-  bookingId: number,
-  paymentDetails: {
-    card_number: string;
-    cvv: string;
-    expiry_month: string;
-    expiry_year: string;
-    cardholder_name: string;
-  },
+  paymentDetails: PaymentRequest,
   showToast?: Function
 ): Promise<any> => {
   try {
-    const response = await fetch(API_ROUTES.PROCESS_PAYMENT.replace('{id}', bookingId.toString()), {
+    const response = await fetch(API_ROUTES.PROCESS_PAYMENT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ booking_id: bookingId, ...paymentDetails })
+      body: JSON.stringify({ 
+        ...paymentDetails 
+      })
     });
 
     const data = await response.json();
@@ -243,6 +240,7 @@ export const processCustomerPayment = async (
       }
       throw new Error(data.message || ERROR_MESSAGES.GENERIC_ERROR);
     }
+
     if (showToast) {
       showToast({
         type: 'success',

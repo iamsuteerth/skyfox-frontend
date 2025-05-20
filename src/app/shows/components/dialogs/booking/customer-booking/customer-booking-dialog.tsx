@@ -23,6 +23,7 @@ import { useCustomToast } from '@/app/components/ui/custom-toast';
 
 import { Show } from '@/services/shows-service';
 import {
+  PaymentRequest,
   initializeCustomerBooking,
   processCustomerPayment,
   cancelCustomerBooking
@@ -65,6 +66,8 @@ export default function CustomerBookingDialog() {
   const [bookingStatus, setBookingStatus] = useState<BookingStatus>(BookingStatus.PENDING);
   const [timeLeft, setTimeLeft] = useState(295);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [isWalletSelected, setIsWalletSelected] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   const [deluxeCount, setDeluxeCount] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -169,25 +172,37 @@ export default function CustomerBookingDialog() {
     setPaymentInitiated(true);
     setIsLoading(true);
     try {
-      const sanitizedCardNumber = cardNumber.replace(/\s+/g, '');
-      const [expiryMonth, expiryYear] = expiryDate.split('/');
-      await processCustomerPayment(
-        bookingId!,
-        {
+      let paymentPayload: PaymentRequest = {
+        booking_id: bookingId!,
+        payment_method: isWalletSelected ? "Wallet" : "Card"
+      };
+
+      if (!isWalletSelected || (isWalletSelected && walletBalance < totalPrice)) {
+        const sanitizedCardNumber = cardNumber.replace(/\s+/g, '');
+        const [expiryMonth, expiryYear] = expiryDate.split('/');
+
+        paymentPayload = {
+          ...paymentPayload,
           card_number: sanitizedCardNumber,
           cvv,
           expiry_month: expiryMonth,
           expiry_year: expiryYear,
           cardholder_name: cardholderName,
-        },
+        };
+      }
+
+      await processCustomerPayment(
+        paymentPayload,
         showToast
       );
+
       setBookingStatus(BookingStatus.SUCCESS);
       setCurrentStep(BookingStep.CONFIRMATION);
     } catch (error) {
       try {
         await cancelCustomerBooking(bookingId!);
       } catch (cancelErr) { }
+
       setBookingStatus(BookingStatus.FAILED);
       setCurrentStep(BookingStep.CONFIRMATION);
     } finally {
@@ -322,6 +337,10 @@ export default function CustomerBookingDialog() {
             cardholderName={cardholderName}
             setCardholderName={setCardholderName}
             onFormValidChange={setIsPaymentFormValid}
+            isWalletSelected={isWalletSelected}
+            setIsWalletSelected={setIsWalletSelected}
+            walletBalance={walletBalance}
+            setWalletBalance={setWalletBalance}
           />
         );
 
