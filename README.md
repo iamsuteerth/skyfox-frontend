@@ -18,6 +18,17 @@ The platform features a comprehensive show management system that allows adminis
 - Choose available time slots for screenings
 - Set ticket prices
 - View real-time updates of the show schedule
+- Intuitive previous/next day navigation buttons for browsing shows across different dates with URL parameter synchronization.
+
+### 💰 Digital Wallet Integration
+
+- **Smart Wallet Payments:** Customers can pay for bookings directly using their SkyFox wallet balance with one-click payment.
+- **Partial Wallet Payments:** When wallet balance is insufficient, the system intelligently handles partial payments - using available wallet funds and collecting the remaining amount via card.
+- **Real-time Balance Display:** Wallet balance is prominently displayed with color-coded indicators (green for sufficient funds, red for insufficient).
+- **Automatic Top-up:** Card payment details can be used to top up wallet during the booking process when balance is low.
+- **Payment Method Toggle:** Intuitive toggle switch between wallet and card payment methods with dynamic UI updates.
+- **Comprehensive Transaction History:** Customers can view their complete wallet transaction history with color-coded indicators for deposits and withdrawals.
+- **Consistent Payment Experience:** The wallet experience maintains the same high-quality validation and error handling as the card payment system.
 
 ### 🎟️ Booking Management System
 
@@ -38,9 +49,11 @@ The platform features a comprehensive show management system that allows adminis
 
 #### 💳 Seamless & Robust Payment Flow
 
+- **Multiple Payment Options:** Flexible payment methods including card payments and wallet payments with intelligent handling of partial wallet payments.
 - **Validated Payment Forms:** Clean, custom credit card forms with inline validation for number, expiry, CVV, and name-error messages appear directly under inputs.
 - **Graceful Retry & Timeout:** Payment failures let users retry if time remains; timeouts are handled gracefully without messy UI errors.
 - **Clear Cancel Handling:** Bookings are canceled only on explicit user action or browser/tab close; backend handles all timeout logic.
+- **Timer Visualization:** Color-changing countdown timer provides visual feedback on remaining booking reservation time.
 
 #### 🧾 Downloadable PDF Tickets
 
@@ -50,10 +63,11 @@ The platform features a comprehensive show management system that allows adminis
 #### 🔁 Live Data Refresh
 
 - **Automatic UI Updates:** After any booking, all relevant seat maps and show lists refresh instantly throughout the app-no reloads or manual refresh required.
+- **Wallet Balance Synchronization:** Wallet balances update automatically after transactions for a consistent financial experience.
 
 #### 🎨 Unified, Role-Aware Experience
 
-- **Consistent Confirmation:** Both admin and customer flows use a single, unified confirmation component that automatically adapts text and details for the user’s role.
+- **Consistent Confirmation:** Both admin and customer flows use a single, unified confirmation component that automatically adapts text and details for the user's role.
 - **Role-Based Logic Everywhere:** Booking, management, and dialog flows automatically adapt to admin, staff, or customer context for a smooth, personalized experience.
 
 

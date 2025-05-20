@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Box, Heading, Container } from '@chakra-ui/react';
+import { Box, Heading, Container, Flex, Button } from '@chakra-ui/react';
 
 import dayjs from 'dayjs';
 
@@ -18,6 +18,7 @@ import ShowsHeader from './shows-header';
 import ShowsGrid from './shows-grid';
 import NoShows from './no-shows';
 import LoadingState from './loading-state';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 export default function Shows() {
   const [isLoading, setIsLoading] = useState(true);
@@ -171,6 +172,45 @@ export default function Shows() {
         {!isLoading && !hasError && shows.length === 0 && <NoShows />}
         {!isLoading && !hasError && shows.length > 0 && <ShowsGrid shows={shows} />}
       </Box>
+      <Flex justify="space-between" mt={4} mb={2}>
+        <Button
+          variant="ghost"
+          leftIcon={<ChevronLeftIcon />}
+          onClick={() => {
+            if (selectedDate) {
+              const prevDay = new Date(selectedDate);
+              prevDay.setDate(prevDay.getDate() - 1);
+              handleDateChange(prevDay);
+
+              const url = new URL(window.location.href);
+              url.searchParams.set('date', formatDateForAPI(prevDay));
+              window.history.replaceState({}, '', url.toString());
+            }
+          }}
+          isDisabled={isLoading}
+        >
+          Previous Day
+        </Button>
+        <Button
+          variant="ghost"
+          rightIcon={<ChevronRightIcon />}
+          onClick={() => {
+            if (selectedDate) {
+              const nextDay = new Date(selectedDate);
+              nextDay.setDate(nextDay.getDate() + 1);
+              handleDateChange(nextDay);
+
+              const url = new URL(window.location.href);
+              url.searchParams.set('date', formatDateForAPI(nextDay));
+              window.history.replaceState({}, '', url.toString());
+            }
+          }}
+          isDisabled={isLoading}
+          ml={4}
+        >
+          Next Day
+        </Button>
+      </Flex>
       <DialogManager />
     </Container>
   );
