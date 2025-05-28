@@ -51,7 +51,7 @@ const ProfileImage = memo(({
   }, []);
 
   const imageUrl = token && user
-    ? `/api/customer/profile-image${localTimestamp ? `?t=${localTimestamp}` : ''}`
+    ? `/api/profile-image${localTimestamp ? `?t=${localTimestamp}` : ''}`
     : null;
 
   if (error || !token || !user || !imageUrl) {
