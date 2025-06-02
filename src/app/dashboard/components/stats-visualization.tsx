@@ -36,9 +36,10 @@ const StatsVisualization: React.FC = () => {
   const { showToast } = useCustomToast();
   const [viewType, setViewType] = useState<'timeframe' | 'specific'>('timeframe');
   const [timeframe, setTimeframe] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
+  const [timeframeIndex, setTimeframeIndex] = useState(0);
 
   const [month, setMonth] = useState<number | null>(null);
-  const [year, setYear] = useState<number | null>(new Date(2025, 4, 6).getFullYear());
+  const [year, setYear] = useState<number | null>(new Date().getFullYear());
   const [movieId, setMovieId] = useState<string | null>(null);
   const [slotId, setSlotId] = useState<string | null>(null);
   const [genre, setGenre] = useState<string>('');
@@ -66,6 +67,12 @@ const StatsVisualization: React.FC = () => {
     md: 2,
     lg: 3
   }) || 1;
+
+  useEffect(() => {
+    const timeframes = ['daily', 'weekly', 'monthly', 'yearly'] as const;
+    const index = timeframes.indexOf(timeframe);
+    setTimeframeIndex(index);
+  }, [timeframe]);
 
   useEffect(() => {
     const loadMoviesAndSlots = async () => {
@@ -195,6 +202,12 @@ const StatsVisualization: React.FC = () => {
     const now = new Date().getFullYear();
     setYear(now);
   };
+  
+  const handleTimeframeChange = (index: number) => {
+    const timeframes = ['daily', 'weekly', 'monthly', 'yearly'] as const;
+    setTimeframeIndex(index);
+    setTimeframe(timeframes[index]);
+  };
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGenre(e.target.value);
@@ -271,10 +284,8 @@ const StatsVisualization: React.FC = () => {
 
         {viewType === 'timeframe' && (
           <Tabs
-            onChange={(index) => {
-              const timeframes = ['daily', 'weekly', 'monthly', 'yearly'] as const;
-              setTimeframe(timeframes[index]);
-            }}
+            index={timeframeIndex}
+            onChange={handleTimeframeChange}
             variant="soft-rounded"
             colorScheme="orange"
             w="full"

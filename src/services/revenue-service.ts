@@ -121,7 +121,7 @@ export const fetchRevenueSummary = async (
   showToast?: (config: any) => void
 ): Promise<RevenueSummary> => {
   try {
-    const currentDate = new Date(2025, 4, 6);
+    const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
     
