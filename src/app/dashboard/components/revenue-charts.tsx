@@ -40,7 +40,6 @@ interface RevenueChartsProps {
 export const RevenueCharts: React.FC<RevenueChartsProps> = ({
   data,
   isLoading,
-  viewType,
   timeframe,
   movieName,
   slotName,
@@ -59,69 +58,15 @@ export const RevenueCharts: React.FC<RevenueChartsProps> = ({
     }));
   }, [data]);
 
-  const getDisplayMetrics = (data: RevenueData[], viewType: string, timeframe?: string) => {
-    if (!data || data.length === 0) {
-      return {
-        displayRevenue: 0,
-        displayBookings: 0,
-        displaySeats: 0
-      };
-    }
-    
-    const totalRevenue = data.reduce((sum, item) => sum + item.total_revenue, 0);
-    const totalBookings = data.reduce((sum, item) => sum + item.total_bookings, 0);
-    const totalSeats = data.reduce((sum, item) => sum + (item.total_seats_booked || 0), 0);
-    
-    if (viewType === 'timeframe' && timeframe && data.length > 0) {
-      return {
-        displayRevenue: totalRevenue / data.length,
-        displayBookings: Math.round(totalBookings / data.length),
-        displaySeats: Math.round(totalSeats / data.length)
-      };
-    }
-    
-    return {
-      displayRevenue: totalRevenue,
-      displayBookings: totalBookings,
-      displaySeats: totalSeats
-    };
-  };
-
   const summaryData = useMemo(() => {
     if (!data || data.length === 0) return null;
-  
-    const metrics = getDisplayMetrics(data, viewType, timeframe);
-  
+
     return {
-      displayRevenue: metrics.displayRevenue,
-      displayBookings: metrics.displayBookings,
-      displaySeats: metrics.displaySeats,
       totalRevenue: data.reduce((sum, item) => sum + item.total_revenue, 0),
       totalBookings: data.reduce((sum, item) => sum + item.total_bookings, 0),
       totalSeatsBooked: data.reduce((sum, item) => sum + (item.total_seats_booked || 0), 0)
     };
-  }, [data, viewType, timeframe]);
-
-  const getSummaryTitle = () => {
-    if (viewType === 'timeframe' && timeframe) {
-      return `Average ${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Revenue`;
-    }
-    return 'Total Revenue';
-  };
-
-  const getBookingsTitle = () => {
-    if (viewType === 'timeframe' && timeframe) {
-      return `Average ${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Bookings`;
-    }
-    return 'Total Bookings';
-  };
-
-  const getSeatsTitle = () => {
-    if (viewType === 'timeframe' && timeframe) {
-      return `Average ${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Seats`;
-    }
-    return 'Total Seats Booked';
-  };
+  }, [data]);
 
   const colors = {
     primary: '#E04B00',
@@ -160,6 +105,16 @@ export const RevenueCharts: React.FC<RevenueChartsProps> = ({
     return [value.toString(), name];
   };
 
+  const getSummaryTitle = () => {
+    const parts = [];
+    if (timeframe) parts.push(`${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)}`);
+    if (movieName) parts.push(movieName);
+    if (slotName) parts.push(slotName);
+    if (genre) parts.push(genre);
+
+    return parts.length > 0 ? `${parts.join(' | ')} Revenue` : 'Total Revenue';
+  };
+
   if (isLoading) {
     return (
       <Box p={4} bg={colors.background} borderRadius="lg" borderWidth="1px" borderColor="gray.200">
@@ -194,19 +149,19 @@ export const RevenueCharts: React.FC<RevenueChartsProps> = ({
         <Box p={3} borderRadius="md" bg="gray.50" borderLeft="4px solid" borderColor={colors.primary}>
           <Text fontSize="sm" color={colors.subtextColor}>{getSummaryTitle()}</Text>
           <Text fontSize="xl" fontWeight="bold" color={colors.text}>
-            ₹{summaryData?.displayRevenue.toLocaleString()}
+            ₹{summaryData?.totalRevenue.toLocaleString()}
           </Text>
         </Box>
         <Box p={3} borderRadius="md" bg="gray.50" borderLeft="4px solid" borderColor={colors.secondary}>
-          <Text fontSize="sm" color={colors.subtextColor}>{getBookingsTitle()}</Text>
+          <Text fontSize="sm" color={colors.subtextColor}>Bookings</Text>
           <Text fontSize="xl" fontWeight="bold" color={colors.text}>
-            {summaryData?.displayBookings}
+            {summaryData?.totalBookings}
           </Text>
         </Box>
         <Box p={3} borderRadius="md" bg="gray.50" borderLeft="4px solid" borderColor={colors.accent}>
-          <Text fontSize="sm" color={colors.subtextColor}>{getSeatsTitle()}</Text>
+          <Text fontSize="sm" color={colors.subtextColor}>Seats Booked</Text>
           <Text fontSize="xl" fontWeight="bold" color={colors.text}>
-            {summaryData?.displaySeats}
+            {summaryData?.totalSeatsBooked}
           </Text>
         </Box>
       </SimpleGrid>
