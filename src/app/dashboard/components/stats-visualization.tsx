@@ -36,9 +36,10 @@ const StatsVisualization: React.FC = () => {
   const { showToast } = useCustomToast();
   const [viewType, setViewType] = useState<'timeframe' | 'specific'>('timeframe');
   const [timeframe, setTimeframe] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
+  const [timeframeIndex, setTimeframeIndex] = useState(0);
 
   const [month, setMonth] = useState<number | null>(null);
-  const [year, setYear] = useState<number | null>(new Date(2025, 4, 6).getFullYear());
+  const [year, setYear] = useState<number | null>(new Date().getFullYear());
   const [movieId, setMovieId] = useState<string | null>(null);
   const [slotId, setSlotId] = useState<string | null>(null);
   const [genre, setGenre] = useState<string>('');
@@ -105,6 +106,12 @@ const StatsVisualization: React.FC = () => {
       setSelectedMovieOption(null);
     }
   }, [movieId, movies]);
+
+  useEffect(() => {
+    const timeframes = ['daily', 'weekly', 'monthly', 'yearly'] as const;
+    const index = timeframes.indexOf(timeframe);
+    setTimeframeIndex(index);
+  }, [timeframe]);
 
   useEffect(() => {
     if (viewType === 'timeframe') {
@@ -209,6 +216,12 @@ const StatsVisualization: React.FC = () => {
     setMovieId(option?.id || null);
   };
 
+  const handleTimeframeChange = (index: number) => {
+    const timeframes = ['daily', 'weekly', 'monthly', 'yearly'] as const;
+    setTimeframeIndex(index);
+    setTimeframe(timeframes[index]);
+  };
+
   return (
     <Box
       p={5}
@@ -271,10 +284,8 @@ const StatsVisualization: React.FC = () => {
 
         {viewType === 'timeframe' && (
           <Tabs
-            onChange={(index) => {
-              const timeframes = ['daily', 'weekly', 'monthly', 'yearly'] as const;
-              setTimeframe(timeframes[index]);
-            }}
+            index={timeframeIndex}
+            onChange={handleTimeframeChange}
             variant="soft-rounded"
             colorScheme="orange"
             w="full"
